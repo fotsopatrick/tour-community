@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_profil_form" model="ir.ui.view">
+        <field name="name">cv.profil.form</field>
+        <field name="model">cv.profil</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_voir" type="object" string="Voir la page"
+                            class="btn-primary" invisible="not publie"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Prénom Nom"/></h1>
+                        <h3><field name="metier" placeholder="Analyste développeur · ERP"/></h3>
+                    </div>
+                    <group>
+                        <group string="Où on le lit">
+                            <field name="slug" placeholder="patrick"/>
+                            <field name="url" widget="url" readonly="1"/>
+                            <field name="publie"/>
+                            <field name="indexable"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="ville"/>
+                            <field name="telephone"/>
+                            <field name="email"/>
+                            <field name="linkedin" widget="url"/>
+                            <field name="langues"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="status">
+                        Non publié, la page rend 404 — même avec la bonne adresse.
+                        Et « autoriser les moteurs » est décoché par défaut : un CV
+                        trouvable par recherche reste consultable des années, y
+                        compris par un employeur qu'on n'a pas choisi.
+                    </div>
+                    <group>
+                        <field name="phrase_forte"
+                               placeholder="La phrase à retenir, une seule"/>
+                    </group>
+                    <notebook>
+                        <page string="Accroche">
+                            <field name="accroche"
+                                   placeholder="Deux ou trois phrases. C'est ce qu'on lit avant de décider de lire la suite."/>
+                        </page>
+                        <page string="Réalisations">
+                            <field name="realisation_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="periode"/>
+                                    <field name="chiffres"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="name"/>
+                                        <field name="periode"/>
+                                        <field name="contexte"/>
+                                        <field name="chiffres"
+                                               placeholder="20+|modules ; 17|utilisateurs"/>
+                                        <field name="outils"
+                                               placeholder="Odoo 18, Python, Docker"/>
+                                    </group>
+                                    <separator string="Ce qui a été fait"/>
+                                    <field name="points"/>
+                                    <separator string="Blocs repliés — le détail que le lecteur choisit de lire"/>
+                                    <field name="bloc_ids">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name"/>
+                                        </list>
+                                        <form>
+                                            <group><field name="name"/></group>
+                                            <field name="contenu"/>
+                                        </form>
+                                    </field>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Expérience">
+                            <field name="experience_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="organisation"/>
+                                    <field name="periode"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="name"/>
+                                        <field name="organisation"/>
+                                        <field name="precision"/>
+                                        <field name="periode"/>
+                                    </group>
+                                    <separator string="Ce que j'y ai fait"/>
+                                    <field name="points"/>
+                                    <group>
+                                        <field name="detail_titre"
+                                               placeholder="Phase précédente (2020-2025)"/>
+                                    </group>
+                                    <field name="detail"/>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Compétences">
+                            <field name="competence_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="contenu"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Formation">
+                            <field name="formation_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="ecole"/>
+                                    <field name="periode"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_profil_liste" model="ir.ui.view">
+        <field name="name">cv.profil.liste</field>
+        <field name="model">cv.profil</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="not publie">
+                <field name="name"/>
+                <field name="metier"/>
+                <field name="url" widget="url"/>
+                <field name="publie"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_profil" model="ir.actions.act_window">
+        <field name="name">Mon CV</field>
+        <field name="res_model">cv.profil</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Un CV qui ne vieillit pas</p>
+            <p>
+                Ajoutez une réalisation le jour où elle est finie : la page
+                publique est à jour dans la seconde. Le CV cesse d'être un
+                travail pour devenir un affichage.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_carriere" model="ir.actions.act_url">
+        <field name="name">Carrière (page publique)</field>
+        <field name="url">/essai-vitrine/carriere.html</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_racine" name="Mon CV"
+              web_icon="tour_cv,static/description/icon.svg"
+              groups="base.group_user" sequence="48"/>
+    <menuitem id="menu_profil" name="Mon CV" parent="menu_racine"
+              action="action_profil" sequence="10"/>
+    <menuitem id="menu_carriere" name="Carrière (page publique)" parent="menu_racine"
+              sequence="20"
+              action="action_carriere"/>
+
+</odoo>

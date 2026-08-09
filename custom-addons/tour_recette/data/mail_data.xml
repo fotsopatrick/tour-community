@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- L'objet doit dire QUOI, OÙ et DEPUIS QUAND. « Échec du test » ne
+             se lit pas sur un téléphone et ne se retrouve pas dans une boîte
+             six semaines plus tard. -->
+        <record id="mail_regression" model="mail.template">
+            <field name="name">Vibe — régression détectée</field>
+            <field name="model_id" ref="model_recette_passage"/>
+            <field name="subject">[REGRESSION] {{ object.cible_id.name }} — {{ object.nb_ko }} vérification(s) en échec</field>
+            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="email_to">{{ object.cible_id.create_uid.email or user.email }}</field>
+            <field name="body_html" type="html">
+<div style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a">
+    <p>Sur <b t-out="object.cible_id.name">Site</b>
+       (<a t-att-href="object.cible_id.url_base" t-out="object.cible_id.url_base">adresse</a>),
+       quelque chose qui marchait au passage précédent ne marche plus.</p>
+    <table style="border-collapse:collapse;margin:14px 0">
+        <tr t-foreach="object.resultat_ids.filtered(lambda r: r.etat == 'ko')" t-as="r">
+            <td style="padding:4px 12px 4px 0;border-bottom:1px solid #eee">
+                <b t-out="r.nom">Étape</b>
+            </td>
+            <td style="padding:4px 0;border-bottom:1px solid #eee;color:#b91c1c">
+                <t t-out="r.detail">détail</t>
+            </td>
+        </tr>
+    </table>
+    <p t-if="object.tache_id">Une tâche a été créée dans le journal :
+       <b t-out="object.tache_id.name">tâche</b>.</p>
+    <p style="color:#666;font-size:12.5px">
+        Vibe ne prévient que sur une <b>régression</b> — jamais pour une
+        vérification qui échouait déjà. Si vous recevez ce message, c'est que
+        l'état a changé.
+    </p>
+</div>
+            </field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+    </data>
+</odoo>

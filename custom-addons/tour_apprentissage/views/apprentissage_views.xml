@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_apprentissage_source_list" model="ir.ui.view">
+        <field name="name">apprentissage.source.list</field>
+        <field name="model">apprentissage.source</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="auteur"/>
+                <field name="type_source"/>
+                <field name="etat_lecture"/>
+                <field name="progression"/>
+                <field name="nb_lecons"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_apprentissage_source_form" model="ir.ui.view">
+        <field name="name">apprentissage.source.form</field>
+        <field name="model">apprentissage.source</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="auteur"/>
+                            <field name="annee"/>
+                            <field name="lien" widget="url"/>
+                        </group>
+                        <group>
+                            <field name="type_source"/>
+                            <field name="etat_lecture"/>
+                            <field name="progression"/>
+                            <field name="nb_lecons"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Leçons">
+                            <field name="lecon_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="chapitre"/>
+                                    <field name="etat"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_apprentissage_lecon_list" model="ir.ui.view">
+        <field name="name">apprentissage.lecon.list</field>
+        <field name="model">apprentissage.lecon</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="source_id"/>
+                <field name="chapitre"/>
+                <field name="etat"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_apprentissage_lecon_form" model="ir.ui.view">
+        <field name="name">apprentissage.lecon.form</field>
+        <field name="model">apprentissage.lecon</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="source_id"/>
+                            <field name="chapitre"/>
+                            <field name="etat"/>
+                        </group>
+                        <group>
+                            <field name="lien_suite"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="constat"/>
+                        <field name="impact_tour"/>
+                        <field name="action"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_apprentissage_lecon" model="ir.actions.act_window">
+        <field name="name">Leçons</field>
+        <field name="res_model">apprentissage.lecon</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune leçon pour l'instant.</p>
+            <p>Une leçon = la source exacte, le constat, ce que ça change pour la tour, l'action.</p>
+        </field>
+    </record>
+
+    <record id="action_apprentissage_source" model="ir.actions.act_window">
+        <field name="name">Sources</field>
+        <field name="res_model">apprentissage.source</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune source pour l'instant.</p>
+            <p>Une source = un livre, un dépôt public ou un article qu'on lit pour la tour.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_apprentissage_racine" web_icon="tour_apprentissage,static/description/icon.png" name="Apprentissage des agents" sequence="60"/>
+    <menuitem id="menu_apprentissage_lecons" name="Leçons" parent="menu_apprentissage_racine" action="action_apprentissage_lecon" sequence="10"/>
+    <menuitem id="menu_apprentissage_sources" name="Sources" parent="menu_apprentissage_racine" action="action_apprentissage_source" sequence="20"/>
+</odoo>

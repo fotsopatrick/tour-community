@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_retour_liste" model="ir.ui.view">
+        <field name="name">bug.retour.liste</field>
+        <field name="model">bug.retour</field>
+        <field name="arch" type="xml">
+            <list string="Retours" decoration-danger="gravite == '1' and etat in ('nouveau','confirme')"
+                  decoration-muted="etat in ('corrige','refuse')">
+                <field name="create_date" string="Reçu"/>
+                <field name="gravite" widget="badge"
+                       decoration-danger="gravite == '1'"
+                       decoration-warning="gravite == '2'"/>
+                <field name="name"/>
+                <field name="ou"/>
+                <field name="testeur"/>
+                <field name="nb_captures" string="📎"/>
+                <field name="etat" widget="badge"
+                       decoration-success="etat == 'corrige'"
+                       decoration-warning="etat == 'nouveau'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_retour_form" model="ir.ui.view">
+        <field name="name">bug.retour.form</field>
+        <field name="model">bug.retour</field>
+        <field name="arch" type="xml">
+            <form string="Retour">
+                <header>
+                    <button name="action_confirmer" type="object" class="btn-primary"
+                            string="Je l'ai reproduit → en faire une tâche"
+                            invisible="etat != 'nouveau'"/>
+                    <button name="action_corrige" type="object" class="btn-success"
+                            string="Corrigé" invisible="etat in ('corrige','refuse')"/>
+                    <button name="action_refuser" type="object"
+                            string="Pas un bug" invisible="etat in ('corrige','refuse')"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        <b>Glisse tes captures d'écran en bas de cette fiche</b>
+                        (bouton trombone de la conversation) — autant que tu
+                        veux. Les trois cadres ci-dessous sont ce qui permet de
+                        revoir le problème : sans eux, personne ne peut le
+                        corriger.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Ex : impossible d'ouvrir mes projets sur le téléphone"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="ou" placeholder="La démo, page des projets"/>
+                            <field name="testeur" placeholder="Le prénom de celui qui l'a vu"/>
+                        </group>
+                        <group>
+                            <field name="gravite"/>
+                            <field name="user_id"/>
+                            <field name="tache_id" invisible="not tache_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="faisait" placeholder="J'ai cliqué sur…, puis sur…"/>
+                        <field name="attendait" placeholder="La liste de mes projets devait s'afficher"/>
+                        <field name="arrive" placeholder="Une page blanche, avec écrit : …"/>
+                    </group>
+                    <separator string="Ce qu'on en a fait"/>
+                    <field name="reponse" placeholder="La réponse au testeur. Obligatoire pour fermer."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_retour" model="ir.actions.act_window">
+        <field name="name">Retours des testeurs</field>
+        <field name="res_model">bug.retour</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun bug signalé</p>
+            <p>Dépose ici ce que les testeurs trouvent, avec leurs captures.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_retours_root" name="Retours" sequence="29"
+              web_icon="tour_retours,static/description/icon.svg"/>
+    <menuitem id="menu_retours" name="Retours des testeurs" sequence="10"
+              parent="menu_retours_root" action="action_retour"/>
+</odoo>

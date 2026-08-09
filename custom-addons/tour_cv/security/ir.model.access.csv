@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cv_profil,cv.profil,model_cv_profil,base.group_user,1,1,1,1
+access_cv_experience,cv.experience,model_cv_experience,base.group_user,1,1,1,1
+access_cv_realisation,cv.realisation,model_cv_realisation,base.group_user,1,1,1,1
+access_cv_bloc,cv.bloc,model_cv_bloc,base.group_user,1,1,1,1
+access_cv_competence,cv.competence,model_cv_competence,base.group_user,1,1,1,1
+access_cv_formation,cv.formation,model_cv_formation,base.group_user,1,1,1,1

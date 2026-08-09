@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_projets" model="ir.actions.act_url">
+    <field name="name">Projets</field>
+    <field name="url">/tour/projets</field>
+    <field name="target">self</field>
+  </record>
+
+  <!-- Tuile réservée aux admins (Patrick). -->
+  <menuitem id="menu_projets_root" name="Projets"
+            action="action_projets" sequence="55"
+            groups="base.group_system"/>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+condense_cible_user,condense.cible user,model_condense_cible,base.group_user,1,0,0,0
+condense_cible_admin,condense.cible admin,model_condense_cible,base.group_system,1,1,1,1
+condense_resume_user,condense.resume user,model_condense_resume,base.group_user,1,0,0,0
+condense_resume_admin,condense.resume admin,model_condense_resume,base.group_system,1,1,1,1
+condense_engine_user,condense.engine user,model_condense_engine,base.group_user,1,0,0,0
+condense_engine_admin,condense.engine admin,model_condense_engine,base.group_system,1,1,1,1

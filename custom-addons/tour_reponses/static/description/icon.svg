@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
+  <!-- Trois formes, pas une de plus : a 16 px dans la barre de menus, un
+       detail de plus devient une tache grise. -->
+  <rect width="140" height="140" rx="32" fill="#3b82f6"/>
+  <path d="M34 38h72a10 10 0 0 1 10 10v40a10 10 0 0 1-10 10H68l-22 18v-18h-12a10 10 0 0 1-10-10V48a10 10 0 0 1 10-10z" fill="#ffffff"/>
+  <path d="M52 68l12 12 24-24" fill="none" stroke="#3b82f6" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

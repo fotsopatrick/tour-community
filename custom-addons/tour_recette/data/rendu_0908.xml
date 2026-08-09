@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Cahiers « Rendu 09/08 » : vérifient ce qui a été livré le 09/08/2026
+             (Merline). Chaque étape se rejoue depuis le cockpit de tests.
+             Deux cahiers : la démo Community (étapes de la démo) et la
+             vitrine (le lien Community). Les étapes qui demandent une
+             session ou un navigateur sont marquées « navigateur ». -->
+
+        <record id="cahier_rendu_0908_demo" model="recette.cahier">
+            <field name="name">Rendu 09/08 — Démo Community</field>
+            <field name="type_produit">Démo</field>
+            <field name="note">Vérifie la démo Community livrée le 09/08 : login
+aux couleurs de la tour, accueil (dashboard) de la démo reproduit, Chloé
+(chat), Braignak (observateur).</field>
+        </record>
+
+        <record id="cahier_rendu_0908_vitrine" model="recette.cahier">
+            <field name="name">Rendu 09/08 — Vitrine</field>
+            <field name="type_produit">Vitrine</field>
+            <field name="note">Vérifie le lien Community dans le pied de la
+vitrine, livré le 09/08.</field>
+        </record>
+
+        <!-- Cibles -->
+        <record id="cible_democommunity" model="recette.cible">
+            <field name="name">Démo Community</field>
+            <field name="url_base">https://democommunity.matourdecontrole.fr</field>
+            <field name="cahier_id" ref="cahier_rendu_0908_demo"/>
+            <field name="actif" eval="True"/>
+        </record>
+        <record id="cible_vitrine" model="recette.cible">
+            <field name="name">Vitrine</field>
+            <field name="url_base">https://matourdecontrole.fr</field>
+            <field name="cahier_id" ref="cahier_rendu_0908_vitrine"/>
+            <field name="actif" eval="True"/>
+        </record>
+
+        <!-- ============ CAHIER DÉMO ============ -->
+        <record id="etape_0908_comm_login" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_demo"/>
+            <field name="sequence">10</field>
+            <field name="name">La démo Community répond</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/web/login</field>
+            <field name="critique" eval="True"/>
+        </record>
+        <record id="etape_0908_comm_login_marque" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_demo"/>
+            <field name="sequence">11</field>
+            <field name="name">Le login est aux couleurs de la tour (pas Odoo)</field>
+            <field name="type_etape">contient</field>
+            <field name="chemin">/web/login</field>
+            <field name="attendu">Tour de contrôle — Community</field>
+            <field name="critique" eval="True"/>
+        </record>
+        <record id="etape_0908_comm_dash" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_demo"/>
+            <field name="sequence">20</field>
+            <field name="name">L'accueil de la démo répond</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/community</field>
+        </record>
+        <record id="etape_0908_comm_chloe" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_demo"/>
+            <field name="sequence">30</field>
+            <field name="name">Chloé : la page du chat répond</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/community/chat</field>
+        </record>
+        <record id="etape_0908_comm_braignak" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_demo"/>
+            <field name="sequence">40</field>
+            <field name="name">Braignak : la page d'observation répond</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/community/braignak</field>
+        </record>
+
+        <!-- ============ CAHIER VITRINE ============ -->
+        <record id="etape_0908_vitrine_community" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_vitrine"/>
+            <field name="sequence">10</field>
+            <field name="name">La vitrine a le lien Community</field>
+            <field name="type_etape">contient</field>
+            <field name="chemin">/</field>
+            <field name="attendu">democommunity.matourdecontrole.fr</field>
+        </record>
+
+        <!-- ============ CAHIER 09/08 — TOUR (manuel, session) ============ -->
+        <record id="cahier_rendu_0908_tour" model="recette.cahier">
+            <field name="name">Rendu 09/08 — Tour (manuels)</field>
+            <field name="type_produit">Plateforme</field>
+            <field name="note">Les vérifications du 09/08 qui demandent une
+session ou un navigateur. Elles se rejouent à la main : H1 (bouton
+Transformer en gabarit), H2 (contrôle secret), H3 (preuve sociale), le
+battement des agents.</field>
+        </record>
+        <record id="etape_0908_h2" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_tour"/>
+            <field name="sequence">10</field>
+            <field name="name">H2 : aucun secret dans les prompts/comptes rendus</field>
+            <field name="type_etape">navigateur</field>
+            <field name="chemin">/web/login</field>
+            <field name="attendu">bash deploy/controle-secret-dans-prompt.sh → « RIEN NE FUIT »</field>
+        </record>
+        <record id="etape_0908_h1" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_tour"/>
+            <field name="sequence">20</field>
+            <field name="name">H1 : le bouton Transformer en gabarit existe</field>
+            <field name="type_etape">navigateur</field>
+            <field name="chemin">/web/login</field>
+            <field name="attendu">Atelier → Missions → mission Terminée → bouton « Transformer en gabarit »</field>
+        </record>
+        <record id="etape_0908_h3" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_tour"/>
+            <field name="sequence">30</field>
+            <field name="name">H3 : le panneau Nos chiffres du cockpit</field>
+            <field name="type_etape">navigateur</field>
+            <field name="chemin">/web/login</field>
+            <field name="attendu">Cockpit → Agents → panneau « Nos chiffres »</field>
+        </record>
+        <record id="etape_0908_bulles" model="recette.etape">
+            <field name="cahier_id" ref="cahier_rendu_0908_tour"/>
+            <field name="sequence">40</field>
+            <field name="name">Bulles des agents : masquées par défaut, une à la fois</field>
+            <field name="type_etape">navigateur</field>
+            <field name="chemin">/web/login</field>
+            <field name="attendu">Cockpit → Agents → aucune bulle au chargement ; clic affiche une seule</field>
+        </record>
+    </data>
+</odoo>

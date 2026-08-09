@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- noupdate : une fois posé, ce cahier appartient à l'utilisateur.
+             Une mise à jour du module ne doit pas écraser les étapes qu'il a
+             ajustées pour son propre site. -->
+
+        <record id="cahier_boutique" model="recette.cahier">
+            <field name="name">Boutique en ligne</field>
+            <field name="type_produit">Site e-commerce</field>
+            <field name="note">Les vérifications qui attrapent ce qui casse vraiment : une page morte, un catalogue vide, une image absente. Les gestes qui demandent un vrai navigateur (panier, connexion, back-office) sont listés mais non exécutés en v1 — ils attendent le moteur dédié.</field>
+        </record>
+
+        <!-- Ce qui est CRITIQUE : un visiteur ne peut rien faire si ça tombe. -->
+        <record id="etape_accueil" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">10</field>
+            <field name="name">La page d'accueil répond</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/</field>
+            <field name="critique" eval="True"/>
+        </record>
+        <record id="etape_catalogue_page" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">20</field>
+            <field name="name">Le catalogue répond</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/catalogue</field>
+            <field name="critique" eval="True"/>
+        </record>
+        <!-- L'étape qui aurait attrapé la panne du 26/07 : le catalogue
+             répondait parfaitement, et il était vide. -->
+        <record id="etape_catalogue_non_vide" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">30</field>
+            <field name="name">Le catalogue n'est pas vide</field>
+            <field name="type_etape">absent</field>
+            <field name="chemin">/catalogue</field>
+            <field name="attendu">Aucun produit ne correspond</field>
+            <field name="critique" eval="True"/>
+        </record>
+        <record id="etape_fiche_produit" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">40</field>
+            <field name="name">Une fiche produit s'ouvre</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/produits/clipper-original</field>
+            <field name="critique" eval="True"/>
+        </record>
+        <record id="etape_prix" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">50</field>
+            <field name="name">Un prix s'affiche sur la fiche</field>
+            <field name="type_etape">contient</field>
+            <field name="chemin">/produits/clipper-original</field>
+            <field name="attendu">€</field>
+        </record>
+        <record id="etape_image" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">60</field>
+            <field name="name">Un visuel produit se charge vraiment</field>
+            <field name="type_etape">image</field>
+            <field name="chemin">/assets/products/clipper-original.svg</field>
+        </record>
+        <record id="etape_vignette" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">70</field>
+            <field name="name">Une vignette de catégorie se charge</field>
+            <field name="type_etape">image</field>
+            <field name="chemin">/assets/categories/briquets.svg</field>
+        </record>
+        <record id="etape_pas_erreur" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">80</field>
+            <field name="name">L'accueil n'affiche pas d'erreur technique</field>
+            <field name="type_etape">absent</field>
+            <field name="chemin">/</field>
+            <field name="attendu">Application error</field>
+            <field name="critique" eval="True"/>
+        </record>
+        <record id="etape_mentions" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">90</field>
+            <field name="name">Les mentions légales répondent</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/mentions-legales</field>
+        </record>
+        <record id="etape_cgv" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">100</field>
+            <field name="name">Les CGV répondent</field>
+            <field name="type_etape">page</field>
+            <field name="chemin">/cgv</field>
+        </record>
+        <record id="etape_404" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">110</field>
+            <field name="name">Une adresse inexistante ne renvoie pas la page d'accueil</field>
+            <field name="type_etape">absent</field>
+            <field name="chemin">/adresse-qui-nexiste-pas-recette</field>
+            <field name="attendu">la boutique en ligne</field>
+        </record>
+
+        <!-- Listées, honnêtement marquées non exécutables aujourd'hui. Les
+             écrire quand même a une valeur : le cahier dit ce qui DEVRAIT
+             être vérifié, et on voit tout de suite ce qui ne l'est pas. -->
+        <record id="etape_panier" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">200</field>
+            <field name="name">Ajouter puis retirer un article du panier</field>
+            <field name="type_etape">navigateur</field>
+        </record>
+        <record id="etape_connexion" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">210</field>
+            <field name="name">Se connecter avec un compte client</field>
+            <field name="type_etape">navigateur</field>
+        </record>
+        <record id="etape_admin" model="recette.etape">
+            <field name="cahier_id" ref="cahier_boutique"/>
+            <field name="sequence">220</field>
+            <field name="name">Ajouter, modifier puis retirer un produit dans le back-office</field>
+            <field name="type_etape">navigateur</field>
+        </record>
+    </data>
+</odoo>

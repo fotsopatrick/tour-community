@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="recette_cible_view_list" model="ir.ui.view">
+        <field name="name">recette.cible.list</field>
+        <field name="model">recette.cible</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="dernier_etat == 'regression'"
+                  decoration-warning="dernier_etat == 'anomalie'"
+                  decoration-success="dernier_etat == 'ok'"
+                  decoration-muted="actif == False">
+                <field name="name"/>
+                <field name="url_base" widget="url"/>
+                <field name="cahier_id"/>
+                <field name="dernier_etat"/>
+                <field name="dernier_passage"/>
+                <field name="actif" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="recette_cible_view_form" model="ir.ui.view">
+        <field name="name">recette.cible.form</field>
+        <field name="model">recette.cible</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_passer" type="object" string="Dérouler le cahier"
+                            class="btn-primary"
+                            help="Exécute les vérifications tout de suite et compare au passage précédent."/>
+                    <field name="dernier_etat" widget="statusbar"
+                           statusbar_visible="jamais,ok,anomalie,regression"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nom du site"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="url_base" widget="url" placeholder="https://exemple.fr"/>
+                            <field name="cahier_id"/>
+                        </group>
+                        <group>
+                            <field name="actif"/>
+                            <field name="dernier_passage"/>
+                            <field name="version"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Passages">
+                            <field name="passage_ids" readonly="1">
+                                <list decoration-danger="regression == True"
+                                      decoration-warning="nb_ko &gt; 0">
+                                    <field name="create_date" string="Quand"/>
+                                    <field name="nb_ok"/>
+                                    <field name="nb_ko"/>
+                                    <field name="regression"/>
+                                    <field name="duree"/>
+                                    <field name="tache_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="recette_passage_view_form" model="ir.ui.view">
+        <field name="name">recette.passage.form</field>
+        <field name="model">recette.passage</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="cible_id"/>
+                            <field name="create_date" string="Quand"/>
+                            <field name="duree"/>
+                        </group>
+                        <group>
+                            <field name="nb_ok"/>
+                            <field name="nb_ko"/>
+                            <field name="regression"/>
+                            <field name="tache_id"/>
+                        </group>
+                    </group>
+                    <field name="resultat_ids">
+                        <list decoration-danger="etat == 'ko'"
+                              decoration-muted="etat == 'ignore'"
+                              decoration-bf="critique == True">
+                            <field name="nom"/>
+                            <field name="etat"/>
+                            <field name="detail"/>
+                            <field name="critique"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="recette_cahier_view_form" model="ir.ui.view">
+        <field name="name">recette.cahier.form</field>
+        <field name="model">recette.cahier</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nom du cahier"/></h1>
+                    </div>
+                    <group>
+                        <field name="type_produit" placeholder="Boutique en ligne, vitrine…"/>
+                        <field name="note"/>
+                    </group>
+                    <field name="etape_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="type_etape"/>
+                            <field name="chemin"/>
+                            <field name="attendu"/>
+                            <field name="critique" widget="boolean_toggle"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="recette_cible_action" model="ir.actions.act_window">
+        <field name="name">Sites surveillés</field>
+        <field name="res_model">recette.cible</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun site surveillé</p>
+            <p>Ajoutez un site et choisissez un cahier. Vibe le déroule chaque
+               nuit et ne vous prévient que si quelque chose qui marchait ne
+               marche plus.</p>
+        </field>
+    </record>
+
+    <record id="recette_cahier_action" model="ir.actions.act_window">
+        <field name="name">Cahiers de recette</field>
+        <field name="res_model">recette.cahier</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="recette_passage_action" model="ir.actions.act_window">
+        <field name="name">Passages</field>
+        <field name="res_model">recette.passage</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_recette_root" name="Recette" sequence="47"
+              web_icon="tour_recette,static/description/icon.svg"
+              groups="base.group_system"/>
+    <record id="action_recette_cockpit" model="ir.actions.act_url">
+        <field name="name">Cockpit des tests</field>
+        <field name="url">/tour/cockpit/tests</field>
+        <field name="target">self</field>
+    </record>
+    <menuitem id="menu_recette_cockpit" name="Cockpit des tests" parent="menu_recette_root"
+              action="action_recette_cockpit" sequence="0"/>
+    <menuitem id="menu_recette_cibles" name="Sites surveillés" parent="menu_recette_root"
+              action="recette_cible_action" sequence="1"/>
+    <menuitem id="menu_recette_cahiers" name="Cahiers" parent="menu_recette_root"
+              action="recette_cahier_action" sequence="2"/>
+    <menuitem id="menu_recette_passages" name="Passages" parent="menu_recette_root"
+              action="recette_passage_action" sequence="3"/>
+
+    <!-- Raccourci demandé le 26/07. L'écran des serveurs sortants est caché
+         derrière le mode développeur : on le cherche à chaque fois, et on ne
+         le trouve pas. Une entrée d'application le rend accessible comme le
+         reste, sans mode spécial. -->
+    <menuitem id="menu_courriel_root" name="Courriels" sequence="48"
+              groups="base.group_system"
+              web_icon="tour_recette,static/description/courriels.svg"/>
+    <menuitem id="menu_courriel_sortant" name="Serveurs sortants"
+              parent="menu_courriel_root" sequence="1"
+              action="base.action_ir_mail_server_list"/>
+    <menuitem id="menu_courriel_file" name="File d'attente"
+              parent="menu_courriel_root" sequence="2"
+              action="mail.action_view_mail_mail"/>
+
+</odoo>

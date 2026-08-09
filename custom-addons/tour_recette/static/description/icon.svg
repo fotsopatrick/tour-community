@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="Recette">
+  <!-- Une liste cochee. C'est exactement ce que fait Vibe : derouler un cahier
+       de verifications, et dire ce qui passe et ce qui ne passe plus. -->
+  <rect width="100" height="100" rx="22" fill="#0f172a"/>
+  <path d="M26 34 l7 7 12-14" fill="none" stroke="#22c55e" stroke-width="7"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 60 l7 7 12-14" fill="none" stroke="#22c55e" stroke-width="7"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M56 36 h20 M56 62 h20" stroke="#e2e8f0" stroke-width="7"
+        stroke-linecap="round"/>
+</svg>

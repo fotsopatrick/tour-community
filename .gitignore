@@ -1,0 +1,7 @@
+# secrets et fichiers locaux — jamais dans le dépôt
+.env
+*.enc
+__pycache__/
+*.pyc
+*.bak*
+*.avant-*

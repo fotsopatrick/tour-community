@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_actus_fil" model="ir.actions.client">
+        <field name="name">Actus</field>
+        <field name="tag">tour_actus.fil</field>
+    </record>
+
+    <record id="view_actus_flux_list" model="ir.ui.view">
+        <field name="name">actus.flux.list</field>
+        <field name="model">actus.flux</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="actif" widget="boolean_toggle"/>
+                <field name="name"/>
+                <field name="categorie"/>
+                <field name="langue"/>
+                <field name="url"/>
+                <field name="derniere_maj"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_actus_flux" model="ir.actions.act_window">
+        <field name="name">Sources</field>
+        <field name="res_model">actus.flux</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Ajoute un flux RSS</p>
+            <p>Colle l'URL du flux d'un site que tu suis : il apparaîtra dans ton fil, classé par centre d'intérêt.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_actus_root" name="Actus" sequence="3"
+              web_icon="tour_actus,static/description/icon.svg"/>
+    <menuitem id="menu_actus_fil" name="Le fil" parent="menu_actus_root"
+              action="action_actus_fil" sequence="1"/>
+    <menuitem id="menu_actus_flux" name="Sources" parent="menu_actus_root"
+              action="action_actus_flux" sequence="2"/>
+</odoo>

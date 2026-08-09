@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_nouveaute_liste" model="ir.ui.view">
+        <field name="name">tour.nouveaute.liste</field>
+        <field name="model">tour.nouveaute</field>
+        <field name="arch" type="xml">
+            <list string="Nouveautés">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="lisible" widget="boolean_toggle" readonly="1"/>
+                <field name="annoncee_le"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_nouveaute_form" model="ir.ui.view">
+        <field name="name">tour.nouveaute.form</field>
+        <field name="model">tour.nouveaute</field>
+        <field name="arch" type="xml">
+            <form string="Nouveauté">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Ce qui est arrivé, en une ligne"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="lien" placeholder="/tour/equipe"/>
+                        </group>
+                        <group>
+                            <field name="lisible" readonly="1"
+                                   help="Vert = phrases courtes, mots courts. La machine mesure, elle ne juge pas : relis quand même."/>
+                            <field name="annoncee_le"/>
+                        </group>
+                    </group>
+                    <separator string="À quoi ça sert (un enfant de 6 ans doit comprendre)"/>
+                    <field name="explication"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_nouveaute" model="ir.actions.act_window">
+        <field name="name">Nouveautés</field>
+        <field name="res_model">tour.nouveaute</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_page_nouveautes" model="ir.actions.act_url">
+        <field name="name">Quoi de neuf</field>
+        <field name="url">/tour/nouveautes</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_nouveautes_root" name="Quoi de neuf" sequence="28"
+              web_icon="tour_nouveautes,static/description/icon.svg"/>
+    <menuitem id="menu_nouveautes_page" name="La page" sequence="10"
+              parent="menu_nouveautes_root" action="action_page_nouveautes"/>
+    <menuitem id="menu_nouveautes_gerer" name="Gérer les nouveautés" sequence="20"
+              parent="menu_nouveautes_root" action="action_nouveaute"
+              groups="base.group_system"/>
+</odoo>

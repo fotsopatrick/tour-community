@@ -1,0 +1,94 @@
+/* Braignak Community — aux couleurs de la tour. */
+.brg-wrap {
+    width: 100%;
+    max-width: 34rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.brg-tete {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 0.9rem 1.1rem;
+}
+
+.brg-logo {
+    font-size: 1.6rem;
+}
+
+.brg-titre {
+    font-weight: 700;
+    color: #f8fafc;
+    font-size: 1.05rem;
+}
+
+.brg-sous {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+.brg-boite {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.brg-label {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+}
+
+.brg-entree {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 0.6rem;
+    color: #f8fafc;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.brg-entree:focus {
+    border-color: #2f6fe0;
+}
+
+.brg-bouton {
+    background: #2f6fe0;
+    border: 0;
+    border-radius: 0.6rem;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.7rem;
+    cursor: pointer;
+}
+
+.brg-bouton:disabled {
+    opacity: 0.5;
+}
+
+.brg-etat {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    min-height: 1rem;
+}
+
+.brg-resultat {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 1.1rem;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}

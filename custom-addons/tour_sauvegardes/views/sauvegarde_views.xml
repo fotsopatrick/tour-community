@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tour_sauvegarde_list" model="ir.ui.view">
+        <field name="name">tour.sauvegarde.list</field>
+        <field name="model">tour.sauvegarde</field>
+        <field name="arch" type="xml">
+            <list string="Sauvegardes" create="false" delete="false"
+                  decoration-muted="not presente"
+                  decoration-warning="type_fichier == 'secrets'">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="type_fichier"/>
+                <field name="base_concernee" optional="show"/>
+                <field name="taille_lisible" string="Taille"/>
+                <field name="presente" optional="hide"/>
+                <button name="action_telecharger" type="object"
+                        string="Télécharger" icon="fa-download"
+                        invisible="not presente"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_tour_sauvegarde" model="ir.actions.act_window">
+        <field name="name">Sauvegardes du serveur</field>
+        <field name="res_model">tour.sauvegarde</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune sauvegarde listée</p>
+            <p>Cliquez sur <b>Actualiser la liste</b> pour lire le dossier du
+               serveur. Les sauvegardes tournent toutes les nuits à 3 h et sont
+               conservées quinze jours.</p>
+        </field>
+    </record>
+
+    <record id="action_tour_sauvegarde_scan" model="ir.actions.server">
+        <field name="name">Actualiser la liste</field>
+        <field name="model_id" ref="model_tour_sauvegarde"/>
+        <field name="state">code</field>
+        <field name="code">model.action_scanner()</field>
+    </record>
+
+    <menuitem id="menu_sauvegardes_racine" name="Sauvegardes" sequence="90"
+              groups="base.group_system"/>
+    <menuitem id="menu_sauvegardes" name="Fichiers du serveur"
+              parent="menu_sauvegardes_racine" action="action_tour_sauvegarde"/>
+    <menuitem id="menu_sauvegardes_scan" name="Actualiser la liste"
+              parent="menu_sauvegardes_racine" action="action_tour_sauvegarde_scan"/>
+</odoo>

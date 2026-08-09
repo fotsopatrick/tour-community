@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tour_rappel_list" model="ir.ui.view">
+        <field name="name">tour.rappel.list</field>
+        <field name="model">tour.rappel</field>
+        <field name="arch" type="xml">
+            <list string="Rappels" decoration-danger="urgent" decoration-muted="not actif">
+                <field name="name"/>
+                <field name="periodicite"/>
+                <field name="prochaine_echeance"/>
+                <field name="urgent"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="nb_poses" optional="hide"/>
+                <field name="derniere_generation" optional="hide"/>
+                <field name="actif" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tour_rappel_form" model="ir.ui.view">
+        <field name="name">tour.rappel.form</field>
+        <field name="model">tour.rappel</field>
+        <field name="arch" type="xml">
+            <form string="Rappel">
+                <header>
+                    <button name="action_poser_maintenant" type="object"
+                            string="Me le rappeler tout de suite" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Récupérer la sauvegarde"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="periodicite"/>
+                            <field name="prochaine_echeance"/>
+                        </group>
+                        <group>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="urgent"/>
+                            <field name="actif"/>
+                        </group>
+                    </group>
+                    <group string="Détail">
+                        <field name="note" nolabel="1"
+                               placeholder="Ce qu'il faut faire, pas à pas."/>
+                    </group>
+                    <group string="Historique" col="2">
+                        <field name="derniere_generation"/>
+                        <field name="nb_poses"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tour_rappel" model="ir.actions.act_window">
+        <field name="name">Rappels</field>
+        <field name="res_model">tour.rappel</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Créer un rappel récurrent</p>
+            <p>Le rappel arrive à l'échéance dans vos activités — l'horloge en haut
+               à droite, comme le reste de vos tâches à faire.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_tour_rappels_racine" name="Rappels" sequence="85"
+              web_icon="tour_rappels,static/description/icon.svg"/>
+    <menuitem id="menu_tour_rappels" name="Mes rappels"
+              parent="menu_tour_rappels_racine" action="action_tour_rappel"/>
+</odoo>

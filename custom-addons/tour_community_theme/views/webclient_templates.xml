@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Page de connexion 100% custom : zéro marque Odoo.
+         Adapté du theme de la tour pour l'édition Community. -->
+    <template id="login_layout" inherit_id="web.login_layout" name="Login Tour de contrôle — Community">
+        <xpath expr="//t[@t-call='web.frontend_layout']" position="replace">
+            <t t-call="web.layout">
+                <t t-set="title" t-value="'Tour de contrôle — Community'"/>
+                <t t-set="html_data" t-value="{'lang': 'fr', 'class': 'tdc-login-html'}"/>
+                <t t-set="body_classname" t-value="'tdc-login-body'"/>
+                <t t-set="head">
+                    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                    <t t-call-assets="web.assets_frontend" t-js="false"/>
+                </t>
+                <div class="tdc-login-ciel" aria-hidden="true">
+                    <span class="tdc-anneau a1"></span>
+                    <span class="tdc-anneau a2"></span>
+                    <span class="tdc-etoiles"></span>
+                </div>
+                <div class="tdc-login-wrap">
+                    <div class="tdc-login-card">
+                        <div class="tdc-login-brand">
+                            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"
+                                 class="tdc-login-logo" role="img" aria-label="Tour de contrôle">
+                                <defs>
+                                    <linearGradient id="tdcCab" x1="0" y1="0" x2="0.2" y2="1">
+                                        <stop offset="0" stop-color="#7db4fc"/><stop offset="1" stop-color="#2f6fe0"/>
+                                    </linearGradient>
+                                    <linearGradient id="tdcFut" x1="0" y1="0" x2="0.3" y2="1">
+                                        <stop offset="0" stop-color="#eef2f7"/><stop offset="1" stop-color="#8fa3bd"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect width="64" height="64" rx="14" fill="#0f172a"/>
+                                <g stroke="#f59e0b" stroke-linecap="round" opacity="0.6">
+                                    <path d="M38 8 L47 4" stroke-width="2.2"/>
+                                    <path d="M39 12 L49 11" stroke-width="1.8" opacity="0.6"/>
+                                    <path d="M26 8 L17 4" stroke-width="2.2"/>
+                                    <path d="M25 12 L15 11" stroke-width="1.8" opacity="0.6"/>
+                                </g>
+                                <circle cx="32" cy="9" r="3.4" fill="#f59e0b"/>
+                                <line x1="32" y1="11" x2="32" y2="18" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M15 20 h34 l-5.5 13 h-23 z" fill="url(#tdcCab)"/>
+                                <rect x="21" y="24" width="22" height="5.5" rx="2.7" fill="#0f172a" opacity="0.45"/>
+                                <g fill="#dbeafe">
+                                    <circle cx="26.5" cy="26.8" r="1.6"/><circle cx="32" cy="26.8" r="1.6"/><circle cx="37.5" cy="26.8" r="1.6"/>
+                                </g>
+                                <path d="M26.5 33 h11 l3.5 21 h-18 z" fill="url(#tdcFut)"/>
+                                <rect x="29" y="39" width="6" height="6" rx="2" fill="#0f172a" opacity="0.3"/>
+                                <line x1="21" y1="54" x2="43" y2="54" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                            <div class="tdc-login-title">Tour de contrôle — Community</div>
+                            <div class="tdc-login-sub">Les briques libres de la tour, installables sur Odoo.</div>
+                            <div class="tdc-login-base" id="tdc-base"></div>
+                        </div>
+                        <t t-out="0"/>
+                        <div class="tdc-avert" id="tdc-majuscules" hidden="hidden">⇪ Verrouillage majuscule activé — le mot de passe y est sensible.</div>
+                    </div>
+                    <div class="tdc-login-foot">Accès privé — connexion requise</div>
+                </div>
+                <script>
+                    (function () {
+                        var h = location.hostname || "";
+                        var base = document.getElementById("tdc-base");
+                        if (base) {
+                            if (h.indexOf("democommunity.") === 0) {
+                                base.textContent = "Base : COMMUNITY — la version libre de la tour.";
+                                base.classList.add("demo");
+                            } else {
+                                base.textContent = "Base : " + (h.split(".")[0] || "?");
+                            }
+                        }
+                        var avert = document.getElementById("tdc-majuscules");
+                        var mdp = document.querySelector("input[type=password]");
+                        if (avert &amp;&amp; mdp) {
+                            mdp.addEventListener("keyup", function (e) {
+                                if (e.getModifierState) {
+                                    avert.hidden = !e.getModifierState("CapsLock");
+                                }
+                            });
+                            mdp.addEventListener("blur", function () { avert.hidden = true; });
+                        }
+                    })();
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_retour_user,bug.retour utilisateur,model_bug_retour,base.group_user,1,1,1,0
+acces_retour_admin,bug.retour admin,model_bug_retour,base.group_system,1,1,1,1

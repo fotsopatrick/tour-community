@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_apprentissage_source_user,apprentissage.source.user,model_apprentissage_source,base.group_user,1,1,1,0
+access_apprentissage_lecon_user,apprentissage.lecon.user,model_apprentissage_lecon,base.group_user,1,1,1,0
+access_apprentissage_source_admin,apprentissage.source.admin,model_apprentissage_source,base.group_system,1,1,1,1
+access_apprentissage_lecon_admin,apprentissage.lecon.admin,model_apprentissage_lecon,base.group_system,1,1,1,1

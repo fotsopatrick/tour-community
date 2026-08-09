@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 7 h du matin : la sauvegarde tourne à 3 h, on laisse largement le
+         temps qu'elle finisse avant de juger son résultat. Et on prévient à
+         une heure où la personne peut agir. -->
+    <record id="cron_surveiller_sauvegardes" model="ir.cron">
+        <field name="name">Sauvegardes : surveiller et alerter</field>
+        <field name="model_id" ref="model_tour_sauvegarde"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_surveiller()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+        <field name="nextcall"
+               eval="(DateTime.now().replace(hour=7, minute=0, second=0) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+    <!-- Le scan met la liste des fichiers à jour, pour que l'écran de
+         consultation ne montre pas des sauvegardes déjà purgées. -->
+    <record id="cron_scanner_sauvegardes" model="ir.cron">
+        <field name="name">Sauvegardes : mettre la liste à jour</field>
+        <field name="model_id" ref="model_tour_sauvegarde"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_scanner()</field>
+        <field name="interval_number">6</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

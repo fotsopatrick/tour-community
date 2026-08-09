@@ -1,0 +1,101 @@
+# Test de chaque module tour_* sur une base Community (Odoo core + OCA + module seul).
+# Demarre: 09:05:56 — Termine: 09:15:40 (09/08/2026, Merline)
+#
+# Méthode : pour chaque module de la tour, base Odoo vierge + OCA + LE module
+# seul (jamais le cœur). OK = il s'installe seul (autonome).
+#
+# Résultat :
+#   - 15 BRIQUES retenues dans cette édition (testées ensemble : 15/15
+#     installées, 0 erreur, aucune clé API exigée).
+#   - 22 OK autonomes mais EXCLUS : ce sont des briques du cœur (vault =
+#     coffre, atelier, garde_fous, securite, guides...) — s'installer seuls
+#     ne veut pas dire qu'on doit les publier.
+#   - 42 KO : dépendent du cœur (equipage, circuits, copilote, dashboard...).
+
+BRIQUE|tour_actus|etat=installed
+BRIQUE|tour_apprentissage|etat=installed
+BRIQUE|tour_condense_community|etat=installed
+BRIQUE|tour_cookie_secure|etat=installed
+BRIQUE|tour_cv|etat=installed
+BRIQUE|tour_messages|etat=installed
+BRIQUE|tour_nouveautes|etat=installed
+BRIQUE|tour_projets|etat=installed
+BRIQUE|tour_rappels|etat=installed
+BRIQUE|tour_rate_login|etat=installed
+BRIQUE|tour_recette|etat=installed
+BRIQUE|tour_reponses|etat=installed
+BRIQUE|tour_retours|etat=installed
+BRIQUE|tour_sauvegardes|etat=installed
+BRIQUE|tour_webapps|etat=installed
+
+# tour_de_controle_theme a été RETIRÉ : dépend de web_responsive et
+# web_dark_mode, absents sur une base Community — ça aurait bloqué
+# l'installation des visiteurs.
+
+OK|tour_abonnements|installe (exclu : module métier de l'édition complète)
+OK|tour_appels|installe (exclu : coût des clés API, interne)
+OK|tour_atelier|installe (exclu : cœur — l'atelier)
+OK|tour_atelier_malo|installe (exclu : cœur — moteur local)
+OK|tour_capacites|installe (exclu : mesure interne)
+OK|tour_cockpit|installe (exclu : cockpit complet, interne)
+OK|tour_consoles|installe (exclu : console_data.xml interne)
+OK|tour_conteneurs|installe (exclu : pilotage serveur, interne)
+OK|tour_decisions|installe (exclu : cœur — décisions)
+OK|tour_depot|installe (exclu : boîte à vrac interne)
+OK|tour_garde_fous|installe (exclu : registre interne des garde-fous)
+OK|tour_guides|installe (exclu : contient les méthodes internes)
+OK|tour_jeu_braignak|installe (exclu : jeu lié à l'observateur)
+OK|tour_licence_securite|installe (exclu : verrou des paquets vendus)
+OK|tour_memoire|installe (exclu : mémoire interne)
+OK|tour_mvp|installe (exclu : installateur d'instances)
+OK|tour_outils|installe (exclu : boîte à outils interne)
+OK|tour_rappels_abonnements|installe (exclu : module métier)
+OK|tour_recherche|installe (exclu : droits de recherche internes)
+OK|tour_roadmap|installe (exclu : feuille de route interne)
+OK|tour_securite|installe (exclu : cœur — agent sécurité)
+OK|tour_vault|installe (exclu : cœur — le coffre des secrets)
+
+KO|tour_actions|depend du cœur (dashboard)
+KO|tour_agent|depend du cœur (atelier/dashboard)
+KO|tour_alexa|depend du cœur (copilote)
+KO|tour_bienvenue|depend du cœur (dashboard/portal)
+KO|tour_braignak|depend du cœur (atelier/guides)
+KO|tour_bus|depend du cœur (atelier/dashboard)
+KO|tour_candidatures|depend du cœur
+KO|tour_cartes|depend du cœur (cockpit)
+KO|tour_chrono|depend du cœur
+KO|tour_circuits|depend du cœur
+KO|tour_cloisonnement|erreur (regles)
+KO|tour_clone|depend du cœur
+KO|tour_coherence|depend du cœur
+KO|tour_condense|erreur (doublon communauté)
+KO|tour_copilote|depend du cœur
+KO|tour_couts|depend du cœur
+KO|tour_dashboard|depend du cœur
+KO|tour_de_controle|erreur (projets_data.xml)
+KO|tour_debat|depend du cœur
+KO|tour_deploiement|depend du cœur
+KO|tour_dev|depend du cœur
+KO|tour_discussion|depend du cœur
+KO|tour_echange_agent|depend du cœur
+KO|tour_echanges|depend du cœur
+KO|tour_entretiens|depend du cœur
+KO|tour_environnements|depend du cœur
+KO|tour_epreuves|depend du cœur
+KO|tour_equipage|depend du cœur
+KO|tour_extension|depend du cœur
+KO|tour_flux|depend du cœur
+KO|tour_generateur|depend du cœur
+KO|tour_inventaire|depend du cœur
+KO|tour_jeu|depend du cœur
+KO|tour_modeles|depend du cœur
+KO|tour_niveaux|erreur
+KO|tour_progression|depend du cœur
+KO|tour_promotion|depend du cœur
+KO|tour_quetes|depend du cœur
+KO|tour_sanctions|depend du cœur
+KO|tour_temoignage|depend du cœur
+KO|tour_tess|depend du cœur
+KO|tour_theories|depend du cœur
+
+=== FIN ===

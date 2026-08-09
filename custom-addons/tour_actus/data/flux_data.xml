@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Flux gratuits de départ : chacun se désactive d'un clic dans Actus > Sources. -->
+        <record id="flux_franceinfo_titres" model="actus.flux">
+            <field name="name">franceinfo</field>
+            <field name="url">https://www.francetvinfo.fr/titres.rss</field>
+            <field name="categorie">France</field>
+        </record>
+        <record id="flux_lemonde_une" model="actus.flux">
+            <field name="name">Le Monde</field>
+            <field name="url">https://www.lemonde.fr/rss/une.xml</field>
+            <field name="categorie">Monde</field>
+        </record>
+        <record id="flux_franceinfo_eco" model="actus.flux">
+            <field name="name">franceinfo éco</field>
+            <field name="url">https://www.francetvinfo.fr/economie.rss</field>
+            <field name="categorie">Économie</field>
+        </record>
+        <record id="flux_numerama" model="actus.flux">
+            <field name="name">Numerama</field>
+            <field name="url">https://www.numerama.com/feed/</field>
+            <field name="categorie">Tech</field>
+        </record>
+        <record id="flux_korben" model="actus.flux">
+            <field name="name">Korben</field>
+            <field name="url">https://korben.info/feed</field>
+            <field name="categorie">Tech</field>
+        </record>
+        <record id="flux_futura" model="actus.flux">
+            <field name="name">Futura Sciences</field>
+            <field name="url">https://www.futura-sciences.com/rss/actualites.xml</field>
+            <field name="categorie">Sciences</field>
+        </record>
+        <record id="flux_hackernews" model="actus.flux">
+            <field name="name">Hacker News (EN)</field>
+            <field name="url">https://news.ycombinator.com/rss</field>
+            <field name="categorie">Dev</field>
+            <field name="langue">en</field>
+        </record>
+
+        <!-- 28/07 : le fil devient multilingue (dropdown sur l'accueil).
+             Les bases déjà installées ne relisent pas ce bloc (noupdate) :
+             la langue de Hacker News y est corrigée par le déploiement. -->
+        <record id="flux_bbc_world" model="actus.flux">
+            <field name="name">BBC News</field>
+            <field name="url">https://feeds.bbci.co.uk/news/world/rss.xml</field>
+            <field name="categorie">Monde</field>
+            <field name="langue">en</field>
+        </record>
+        <record id="flux_guardian_world" model="actus.flux">
+            <field name="name">The Guardian</field>
+            <field name="url">https://www.theguardian.com/world/rss</field>
+            <field name="categorie">Monde</field>
+            <field name="langue">en</field>
+        </record>
+        <record id="flux_verge" model="actus.flux">
+            <field name="name">The Verge</field>
+            <field name="url">https://www.theverge.com/rss/index.xml</field>
+            <field name="categorie">Tech</field>
+            <field name="langue">en</field>
+        </record>
+        <record id="flux_elpais" model="actus.flux">
+            <field name="name">El País</field>
+            <field name="url">https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada</field>
+            <field name="categorie">Monde</field>
+            <field name="langue">es</field>
+        </record>
+        <record id="flux_xataka" model="actus.flux">
+            <field name="name">Xataka</field>
+            <field name="url">https://www.xataka.com/feedburner.xml</field>
+            <field name="categorie">Tech</field>
+            <field name="langue">es</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_braignak" name="Braignak Community">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Braignak — Community</title>
+                <t t-call-assets="web.assets_frontend" t-js="false"/>
+            </head>
+            <body class="tdc-login-body">
+                <div class="brg-wrap">
+                    <div class="brg-tete">
+                        <div class="brg-logo" aria-hidden="true">🔭</div>
+                        <div>
+                            <div class="brg-titre">Braignak</div>
+                            <div class="brg-sous">L'observateur de l'édition Community</div>
+                        </div>
+                    </div>
+                    <div class="brg-boite">
+                        <label class="brg-label" for="brg-cible">Donne une adresse de site, ou une question :</label>
+                        <input class="brg-entree" id="brg-cible" type="text"
+                               placeholder="https://… ou « que vaut telle idée ? »" autocomplete="off"/>
+                        <button class="brg-bouton" id="brg-envoi" type="button">Observer</button>
+                        <div class="brg-etat" id="brg-etat"></div>
+                    </div>
+                    <div class="brg-resultat" id="brg-resultat" hidden="hidden"></div>
+                </div>
+                <script>
+                    (function () {
+                        var entree = document.getElementById("brg-cible");
+                        var envoi = document.getElementById("brg-envoi");
+                        var etat = document.getElementById("brg-etat");
+                        var resultat = document.getElementById("brg-resultat");
+                        function observer() {
+                            var c = entree.value.trim();
+                            if (!c) return;
+                            resultat.hidden = true;
+                            etat.textContent = "Braignak observe…";
+                            envoi.disabled = true; entree.disabled = true;
+                            fetch("/community/braignak/observer", {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({
+                                    jsonrpc: "2.0",
+                                    params: {cible: c}
+                                })
+                            }).then(function (r) { return r.json(); }).then(function (d) {
+                                etat.textContent = "";
+                                var res = d &amp;&amp; d.result;
+                                if (!res) { resultat.textContent = "Réponse vide du serveur."; }
+                                else if (res.erreur) { resultat.textContent = res.erreur; }
+                                else { resultat.textContent = res.reponse; }
+                                resultat.hidden = false;
+                            }).catch(function () {
+                                etat.textContent = "";
+                                resultat.textContent = "Impossible de joindre le serveur.";
+                                resultat.hidden = false;
+                            }).finally(function () {
+                                envoi.disabled = false; entree.disabled = false;
+                                entree.focus();
+                            });
+                        }
+                        envoi.addEventListener("click", observer);
+                        entree.addEventListener("keydown", function (e) {
+                            if (e.key === "Enter") observer();
+                        });
+                        entree.focus();
+                    })();
+                </script>
+            </body>
+        </html>
+    </template>
+</odoo>

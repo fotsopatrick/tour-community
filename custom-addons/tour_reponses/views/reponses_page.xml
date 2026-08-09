@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_reponses" name="Réponses — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Réponses — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .barre { display:flex; gap:.6rem; margin:10px 0; }
+          .barre input { flex:1; background:var(--panel); color:var(--texte);
+                         border:1px solid var(--line); border-radius:8px;
+                         padding:.7rem .9rem; font-size:.95rem; min-height:44px; }
+          .barre button { background:var(--primaire); color:#fff; border:0;
+                          border-radius:8px; padding:.7rem 1.1rem; font-weight:600;
+                          cursor:pointer; min-height:44px; }
+          .barre-haut { border-bottom:1px solid var(--line); padding-bottom:10px; }
+          .barre-bas { margin-top:16px; border-top:1px solid var(--line);
+                       padding-top:14px; }
+          .lbl { color:var(--muted); font-size:11px; text-transform:uppercase;
+                 letter-spacing:.5px; margin:8px 0 4px; font-weight:600; }
+          ul.resultats { list-style:none; margin:0; padding:0; }
+          ul.resultats li { padding:7px 4px; border-bottom:1px solid var(--line);
+                            font-size:13.5px; }
+          ul.resultats li:last-child { border-bottom:0; }
+          .vide { color:var(--faint); font-style:italic; font-size:12.5px; }
+          .src { color:var(--muted); font-family:var(--mono); font-size:11px;
+                 text-transform:uppercase; margin:12px 0 2px; letter-spacing:.4px; }
+          /* Chaque fiche est déroulable : on clique la question, la réponse se déplie. */
+          .fiche { border:1px solid var(--line); border-radius:8px; margin:6px 0;
+                   background:var(--panel); overflow:hidden; }
+          .fiche summary { cursor:pointer; padding:9px 12px; list-style:none;
+                           display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+          .fiche summary::-webkit-details-marker { display:none; }
+          .fiche summary::before { content:"▸"; color:var(--primaire); font-size:12px;
+                                   transition:transform .15s; }
+          .fiche[open] summary::before { transform:rotate(90deg); }
+          .fiche summary b { flex:1 1 260px; min-width:0; }
+          .fiche summary .meta { color:var(--faint); font-size:11px; }
+          .fiche .corps { border-top:1px solid var(--line); padding:10px 14px 14px;
+                          font-size:13.5px; line-height:1.6; color:var(--texte); }
+          .fiche .corps p { margin:6px 0; }
+          .fiche .corps ul, .fiche .corps ol { margin:6px 0; padding-left:20px; }
+          .fiche .corps code { background:var(--line); border-radius:4px; padding:1px 5px;
+                               font-family:var(--mono); font-size:12px; }
+          .fiche .resume { color:var(--muted); font-size:12.5px; font-style:italic;
+                           padding:2px 14px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Réponses</h1>
+              <div class="sub">deux barres : celle du module en haut, celle de la tour en bas — clique une question pour dérouler la réponse</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> En base</div>
+            <a class="themebtn" href="/community">← l'accueil</a>
+          </header>
+
+          <div class="barre barre-haut">
+            <form method="get" action="/tour/reponses" style="display:flex;flex:1;gap:.6rem">
+              <input type="text" name="q" t-att-value="q"
+                     placeholder="Chercher dans les Réponses (la barre du module)…" minlength="2"/>
+              <button type="submit">Chercher</button>
+            </form>
+          </div>
+          <div class="lbl">Réponses trouvées (fiches, dernières d'abord)</div>
+          <t t-if="resultats_fiches">
+            <t t-foreach="resultats_fiches" t-as="f">
+              <details class="fiche">
+                <summary>
+                  <b><t t-esc="f['name']"/></b>
+                  <span class="meta">
+                    <t t-if="f['auteur']"><t t-esc="f['auteur']"/></t>
+                    <span style="color:var(--faint)">
+                      <t t-esc="f['date']" t-options="{'widget': 'datetime'}"/></span>
+                  </span>
+                </summary>
+                <p t-if="f['resume']" class="resume"><t t-esc="f['resume']"/></p>
+                <div class="corps" t-raw="f['reponse']"/>
+              </details>
+            </t>
+          </t>
+          <t t-elif="q">
+            <div class="vide">Aucune fiche Réponse ne contient « <t t-esc="q"/> ».</div>
+          </t>
+          <t t-else="">
+            <div class="vide">Aucune réponse gardée pour l'instant.</div>
+          </t>
+
+          <div class="barre barre-bas">
+            <form method="get" action="/tour/reponses" style="display:flex;flex:1;gap:.6rem">
+              <input type="text" name="q2" t-att-value="q2"
+                     placeholder="Chercher partout, comme Chloe (la barre de la tour)…" minlength="2"/>
+              <button type="submit">Chercher partout</button>
+            </form>
+          </div>
+          <div class="lbl">Résultats partout (tâches, guides, décisions, missions, réponses, discussions, équipe)</div>
+          <t t-if="q2 and not resultats_tour">
+            <div class="vide">Rien trouvé pour « <t t-esc="q2"/> ».</div>
+          </t>
+          <t t-foreach="resultats_tour" t-as="src">
+            <t t-if="src[1]">
+              <div class="src"><t t-esc="src[0]"/></div>
+              <ul class="resultats">
+                <t t-foreach="src[1]" t-as="r">
+                  <li><t t-esc="r['nom']"/></li>
+                </t>
+              </ul>
+            </t>
+          </t>
+          <t t-if="not q and not q2">
+            <div class="vide">Écris au moins 2 lettres dans l'une des deux barres.</div>
+          </t>
+        </div>
+      </body>
+    </html>
+  </template>
+</odoo>

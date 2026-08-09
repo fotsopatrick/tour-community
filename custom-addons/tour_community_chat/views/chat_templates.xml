@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_chat" name="Chat Chloé Community">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Chloé — Community</title>
+                <t t-call-assets="web.assets_frontend" t-js="false"/>
+            </head>
+            <body class="tdc-login-body">
+                <div class="chat-wrap">
+                    <div class="chat-tete">
+                        <div class="chat-logo" aria-hidden="true">💬</div>
+                        <div>
+                            <div class="chat-titre">Chloé</div>
+                            <div class="chat-sous">L'assistante de l'édition Community</div>
+                        </div>
+                    </div>
+                    <div class="chat-bandeau" id="chat-bandeau" t-if="cle_manquante">
+                        Chloé a besoin d'une clé API pour répondre.
+                        <t t-if="est_admin">
+                            Colle ta clé DeepSeek ci-dessous (elle reste sur
+                            cette instance, personne d'autre ne la voit) :
+                            <div class="chat-cle-forme">
+                                <input class="chat-cle" id="chat-cle" type="password"
+                                       placeholder="sk-…" autocomplete="off"/>
+                                <button class="chat-cle-enregistrer" id="chat-cle-enregistrer"
+                                        type="button">Enregistrer</button>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            L'administrateur doit la configurer avant de
+                            pouvoir discuter.
+                        </t>
+                    </div>
+                    <div class="chat-fil" id="chat-fil">
+                        <div class="chat-bulle chat-ia">
+                            Bonjour <t t-out="prenom"/> ! Je suis Chloé. Demande-moi
+                            ce que la tour sait faire : les projets, les messages,
+                            les sauvegardes, les résumés…
+                        </div>
+                    </div>
+                    <div class="chat-forme">
+                        <input class="chat-entree" id="chat-entree" type="text"
+                               placeholder="Écris ton message…" autocomplete="off"/>
+                        <button class="chat-envoi" id="chat-envoi" type="button">Envoyer</button>
+                    </div>
+                    <div class="chat-etat" id="chat-etat"></div>
+                </div>
+                <script>
+                    (function () {
+                        var fil = document.getElementById("chat-fil");
+                        var entree = document.getElementById("chat-entree");
+                        var envoi = document.getElementById("chat-envoi");
+                        var etat = document.getElementById("chat-etat");
+                        var historique = [];
+                        var cleChamp = document.getElementById("chat-cle");
+                        var cleBtn = document.getElementById("chat-cle-enregistrer");
+                        if (cleBtn) {
+                            cleBtn.addEventListener("click", function () {
+                                var cle = cleChamp.value.trim();
+                                if (!cle) return;
+                                cleBtn.disabled = true;
+                                fetch("/community/chat/cle", {
+                                    method: "POST",
+                                    headers: {"Content-Type": "application/json"},
+                                    body: JSON.stringify({
+                                        jsonrpc: "2.0",
+                                        params: {cle: cle}
+                                    })
+                                }).then(function (r) { return r.json(); }).then(function (d) {
+                                    var resultat = d &amp;&amp; d.result;
+                                    if (resultat &amp;&amp; resultat.ok) {
+                                        var b = document.getElementById("chat-bandeau");
+                                        if (b) b.remove();
+                                        cleChamp.value = "";
+                                        ajouter("ia", "Clé enregistrée. Chloé peut répondre.");
+                                    } else {
+                                        etat.textContent = (resultat &amp;&amp; resultat.erreur) || "Échec.";
+                                    }
+                                }).catch(function () {
+                                    etat.textContent = "Impossible de joindre le serveur.";
+                                }).finally(function () {
+                                    cleBtn.disabled = false;
+                                });
+                            });
+                        }
+                        function ajouter(role, texte) {
+                            var d = document.createElement("div");
+                            d.className = "chat-bulle " + (role === "user" ? "chat-moi" : "chat-ia");
+                            d.textContent = texte;
+                            fil.appendChild(d);
+                            fil.scrollTop = fil.scrollHeight;
+                        }
+                        function parler() {
+                            var t = entree.value.trim();
+                            if (!t) return;
+                            ajouter("user", t);
+                            historique.push({role: "user", content: t});
+                            entree.value = "";
+                            entree.disabled = true; envoi.disabled = true;
+                            etat.textContent = "Chloé réfléchit…";
+                            fetch("/community/chat/message", {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({
+                                    jsonrpc: "2.0",
+                                    params: {texte: t, historique: historique}
+                                })
+                            }).then(function (r) { return r.json(); }).then(function (d) {
+                                etat.textContent = "";
+                                var resultat = d &amp;&amp; d.result;
+                                if (!resultat) { ajouter("ia", "Réponse vide du serveur."); return; }
+                                if (resultat.erreur) { ajouter("ia", resultat.erreur); }
+                                else {
+                                    ajouter("ia", resultat.reponse);
+                                    historique.push({role: "assistant", content: resultat.reponse});
+                                }
+                            }).catch(function () {
+                                etat.textContent = "";
+                                ajouter("ia", "Impossible de joindre le serveur.");
+                            }).finally(function () {
+                                entree.disabled = false; envoi.disabled = false;
+                                entree.focus();
+                            });
+                        }
+                        envoi.addEventListener("click", parler);
+                        entree.addEventListener("keydown", function (e) {
+                            if (e.key === "Enter") parler();
+                        });
+                        entree.focus();
+                    })();
+                </script>
+            </body>
+        </html>
+    </template>
+</odoo>

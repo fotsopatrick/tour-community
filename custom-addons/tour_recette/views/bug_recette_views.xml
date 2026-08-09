@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_depuis_bug_form" model="ir.ui.view">
+        <field name="name">recette.depuis.bug.form</field>
+        <field name="model">recette.depuis.bug</field>
+        <field name="arch" type="xml">
+            <form string="Ne plus jamais revoir ce bug">
+                <div class="alert alert-info" role="alert">
+                    Ce que tu écris ici sera rejoué <b>chaque nuit</b>. Si le bug
+                    revient, tu le sauras avant tes clients.
+                </div>
+                <group>
+                    <field name="tache_id" invisible="1"/>
+                    <field name="cahier_id"/>
+                    <field name="name" placeholder="Ex : le bouton Copier fonctionne"/>
+                    <field name="chemin" placeholder="/tour/messages"/>
+                    <field name="attendu" placeholder="Un mot qui prouve que c'est réparé"/>
+                    <field name="critique"/>
+                </group>
+                <footer>
+                    <button name="action_creer" type="object" class="btn-primary"
+                            string="Jimmy s'en charge"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_task_recette" model="ir.ui.view">
+        <field name="name">project.task.form.recette</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_creer_etape_recette" type="object"
+                        string="Ne plus jamais revoir ce bug"
+                        help="Transformer ce bug corrigé en vérification rejouée chaque nuit"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

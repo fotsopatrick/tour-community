@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_actus_flux_user,actus.flux user,model_actus_flux,base.group_user,1,1,1,1
+access_actus_article_user,actus.article user,model_actus_article,base.group_user,1,1,1,1

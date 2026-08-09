@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tour_actus.Fil">
+        <div class="o_tour_actus">
+            <div class="o_tour_actus_barre">
+                <div class="o_tour_actus_onglets">
+                    <t t-foreach="state.categories" t-as="cat" t-key="cat.nom">
+                        <button t-attf-class="o_tour_actus_onglet {{ cat.nom === state.active ? 'is-active' : '' }}"
+                                t-on-click="() => state.active = cat.nom">
+                            <t t-esc="cat.nom"/>
+                            <span class="o_tour_actus_compte" t-esc="cat.articles.length"/>
+                        </button>
+                    </t>
+                </div>
+                <button class="o_tour_actus_refresh" t-on-click="rafraichir"
+                        t-att-disabled="state.busy">
+                    <t t-if="state.busy">Relève en cours…</t>
+                    <t t-else="">↻ Rafraîchir</t>
+                </button>
+            </div>
+
+            <div t-if="!state.categories.length and !state.busy" class="o_tour_actus_vide">
+                Aucune actu pour l'instant. Vérifie tes sources dans <b>Actus &gt; Sources</b> puis rafraîchis.
+            </div>
+
+            <div class="o_tour_actus_grille">
+                <t t-foreach="articlesActifs" t-as="art" t-key="art.id">
+                    <a class="o_tour_actus_carte" t-att-href="art.lien" target="_blank" rel="noopener">
+                        <div t-if="art.image" class="o_tour_actus_visuel">
+                            <img t-att-src="art.image" loading="lazy" alt=""/>
+                        </div>
+                        <div class="o_tour_actus_contenu">
+                            <div class="o_tour_actus_meta">
+                                <span class="o_tour_actus_source" t-esc="art.source"/>
+                                <span t-esc="ilYA(art.date)"/>
+                            </div>
+                            <div class="o_tour_actus_titre" t-esc="art.titre"/>
+                            <div t-if="art.resume" class="o_tour_actus_resume" t-esc="art.resume"/>
+                        </div>
+                    </a>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

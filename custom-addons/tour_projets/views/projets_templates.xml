@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page" name="Projets — kanban">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Projets — Tour de Contrôle</title>
+        <meta name="csrf-token" t-att-content="request.csrf_token()"/>
+        <style>
+          :root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;
+                --texte:#e2e8f0;--doux:#94a3b8;--primaire:#3b82f6;
+                --ok:#22c55e;--or:#f59e0b;--ko:#ef4444;--r:.6rem}
+          *{box-sizing:border-box}
+          *{scrollbar-width:thin;
+            scrollbar-color:var(--surface2) var(--surface)}
+          *::-webkit-scrollbar{width:10px;height:10px}
+          *::-webkit-scrollbar-track{background:var(--surface)}
+          *::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:99px}
+          *::-webkit-scrollbar-thumb:hover{background:#33425e}
+          body{margin:0;background:var(--fond);color:var(--texte);
+               font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+               line-height:1.5;-webkit-font-smoothing:antialiased}
+          a{color:inherit}
+
+          header.tower{display:flex;align-items:center;gap:1rem;
+            padding:1rem 1.25rem;border-bottom:1px solid var(--surface2);
+            position:sticky;top:0;background:var(--fond);z-index:50}
+          header.tower h1{margin:0;font-size:1.15rem;font-weight:700}
+          header.tower .sub{color:var(--doux);font-size:.8rem}
+          .spacer{flex:1}
+          .retour{color:var(--doux);text-decoration:none;font-size:.85rem;
+            border:1px solid var(--surface2);padding:.4rem .8rem;
+            border-radius:99px}
+          .retour:hover{color:var(--texte);border-color:var(--primaire)}
+
+          .corps{display:grid;grid-template-columns:260px 1fr;
+            gap:1rem;padding:1rem;min-height:calc(100vh - 70px)}
+          @media(max-width:900px){.corps{grid-template-columns:1fr}}
+
+          /* ---- liste des projets (à gauche) ---- */
+          aside.projets{background:var(--surface);border:1px solid var(--surface2);
+            border-radius:var(--r);padding:.8rem;align-self:start;
+            max-height:calc(100vh - 100px);overflow:auto;position:sticky;top:80px}
+          aside.projets h2{margin:0 0 .6rem;font-size:.8rem;text-transform:uppercase;
+            letter-spacing:.08em;color:var(--doux)}
+          .projet{display:flex;align-items:center;gap:.5rem;width:100%;
+            text-align:left;background:transparent;border:0;border-radius:.5rem;
+            padding:.55rem .65rem;color:var(--texte);cursor:pointer;
+            font:inherit;font-size:.9rem}
+          .projet:hover{background:var(--surface2)}
+          .projet.actif{background:rgba(59,130,246,.16);color:#fff}
+          .projet .nom{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+            white-space:nowrap}
+          .projet .nb{background:var(--surface2);border-radius:99px;
+            padding:.05rem .5rem;font-size:.72rem;color:var(--doux)}
+          .vide-projets{color:var(--doux);font-size:.85rem;padding:.4rem 0}
+
+          /* ---- le kanban (à droite) ---- */
+          .kanban{display:flex;gap:.8rem;overflow-x:auto;
+            padding-bottom:.5rem;min-width:0}
+          .col{flex:0 0 280px;display:flex;flex-direction:column;
+            background:var(--surface);border:1px solid var(--surface2);
+            border-radius:var(--r);max-height:calc(100vh - 100px)}
+          .col header{display:flex;align-items:center;gap:.5rem;
+            padding:.7rem .8rem;border-bottom:1px solid var(--surface2)}
+          .col header .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+          .col header b{font-size:.86rem;flex:1}
+          .col header .n{font-size:.72rem;color:var(--doux);
+            background:var(--surface2);border-radius:99px;padding:.05rem .5rem}
+          .cartes{padding:.5rem;overflow-y:auto;flex:1;min-height:60px}
+          .col.over .cartes{background:rgba(59,130,246,.08);border-radius:.4rem}
+          .carte{background:var(--surface2);border:1px solid var(--surface2);
+            border-left:3px solid transparent;border-radius:.45rem;
+            padding:.55rem .6rem;margin-bottom:.5rem;cursor:pointer;
+            transition:border-color .15s ease}
+          .carte:hover{border-color:var(--primaire);border-left-color:var(--primaire)}
+          .carte[draggable="true"]{cursor:grab}
+          .carte.tirant{opacity:.45}
+          .carte .titre{font-size:.85rem;font-weight:600;line-height:1.35}
+          .carte .meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem;
+            font-size:.7rem;color:var(--doux)}
+          .carte .pstar{color:var(--or)}
+          .carte .badge{background:var(--surface);border-radius:99px;
+            padding:.05rem .45rem}
+          .carte .badge.echeance{border:1px solid rgba(239,68,68,.5);
+            color:#fca5a5}
+          .carte .deplacer{display:flex;gap:.3rem;justify-content:flex-end;
+            margin-top:.45rem}
+          .carte .deplacer button{background:var(--surface);
+            border:1px solid var(--surface2);color:var(--doux);
+            border-radius:.35rem;width:1.8rem;height:1.55rem;cursor:pointer;
+            font-size:.68rem;line-height:1;padding:0}
+          .carte .deplacer button:hover{color:#fff;border-color:var(--primaire)}
+
+          /* ---- recherche dans les tâches ---- */
+          .kanban-wrap{display:flex;flex-direction:column;gap:.6rem;min-width:0}
+          .recherche-bandeau input{width:100%;background:var(--surface);
+            border:1px solid var(--surface2);border-radius:var(--r);
+            color:var(--texte);font:inherit;font-size:.9rem;padding:.6rem .9rem;
+            min-height:44px}
+          .recherche-bandeau input:focus{outline:none;border-color:var(--primaire)}
+          .recherche-bandeau input::placeholder{color:var(--doux)}
+
+          /* ---- filtres par etiquette ---- */
+          .filtres-tags{display:flex;flex-wrap:wrap;gap:.4rem;min-height:0}
+          .filtres-tags:empty{display:none}
+          .tag-filtre{display:inline-flex;align-items:center;gap:.4rem;
+            background:var(--surface);border:1px solid var(--surface2);
+            color:var(--doux);border-radius:99px;padding:.3rem .7rem;
+            font-size:.75rem;cursor:pointer;transition:border-color .15s ease,
+            color .15s ease;min-height:30px}
+          .tag-filtre:hover{color:var(--texte);border-color:var(--primaire)}
+          .tag-filtre.actif{background:rgba(59,130,246,.18);color:#fff;
+            border-color:var(--primaire)}
+          .tag-filtre .c{background:var(--surface2);border-radius:99px;
+            padding:0 .45rem;font-size:.68rem}
+
+          /* ---- le détail (panneau) ---- */
+          aside.detail{position:fixed;top:70px;right:0;bottom:0;width:360px;
+            max-width:92vw;background:var(--surface);border-left:1px solid var(--surface2);
+            padding:1.1rem;overflow-y:auto;transform:translateX(105%);
+            transition:transform .22s ease;z-index:40}
+          aside.detail.ouvert{transform:none}
+          aside.detail h3{margin:0 0 .3rem;font-size:1.05rem;line-height:1.35}
+          aside.detail .proj{color:var(--doux);font-size:.82rem;margin-bottom:.8rem}
+          .fermer{position:absolute;top:.7rem;right:.7rem;background:var(--surface2);
+            border:0;color:var(--doux);border-radius:50%;width:1.8rem;height:1.8rem;
+            cursor:pointer;font-size:1rem}
+          .fermer:hover{color:#fff}
+          .desc{background:var(--fond);border:1px solid var(--surface2);
+            border-radius:var(--r);padding:.7rem .8rem;font-size:.86rem;
+            white-space:pre-wrap;color:#cbd5e1;margin:.7rem 0}
+          .champs{display:grid;gap:.4rem;font-size:.83rem}
+          .champs .ligne{display:flex;justify-content:space-between;gap:.6rem}
+          .champs .ligne b{color:var(--doux);font-weight:500}
+          .champs select{background:var(--fond);color:var(--texte);
+            border:1px solid var(--surface2);border-radius:.4rem;
+            padding:.3rem .45rem;font:inherit;font-size:.83rem;
+            max-width:100%}
+          .liens{margin-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+          .btn{display:inline-block;background:var(--primaire);color:#fff;
+            text-align:center;padding:.6rem .9rem;border-radius:var(--r);
+            text-decoration:none;font-weight:600;font-size:.88rem}
+          .btn.fantome{background:transparent;color:var(--texte);
+            border:1px solid var(--surface2)}
+
+          .chargement{color:var(--doux);padding:1rem;font-size:.9rem}
+          .erreur{color:var(--ko);padding:1rem;font-size:.9rem}
+        </style>
+      </head>
+      <body>
+        <header class="tower">
+          <h1>Projets</h1>
+          <span class="sub" id="soustitre">chargement…</span>
+          <div class="spacer"></div>
+          <a class="retour" href="/community">← la tour</a>
+        </header>
+
+        <div class="corps">
+          <aside class="projets">
+            <h2>Projets</h2>
+            <div id="liste-projets"><div class="chargement">chargement…</div></div>
+          </aside>
+          <main class="kanban-wrap">
+            <div class="recherche-bandeau">
+              <input type="search" id="recherche" placeholder="Rechercher dans les tâches du projet…" autocomplete="off"/>
+            </div>
+            <div class="filtres-tags" id="filtres-tags"></div>
+            <div class="kanban" id="kanban">
+              <div class="chargement">Choisis un projet à gauche.</div>
+            </div>
+          </main>
+        </div>
+
+        <aside class="detail" id="detail"></aside>
+
+        <script><![CDATA[
+(function () {
+  "use strict";
+  var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || "";
+  var projetCourant = null;
+  var tagFiltre = null;
+
+  function jjmm(d) {
+    if (!d) return "";
+    var p = d.slice(0, 10).split("-");
+    if (p.length < 3) return d;
+    return p[2] + "/" + p[1];
+  }
+
+  function etoiles(n) {
+    return n > 0 ? "★".repeat(Math.min(n, 3)) : "";
+  }
+
+  function get(url) {
+    return fetch(url, { credentials: "same-origin" }).then(function (r) {
+      return r.json();
+    });
+  }
+
+  function post(url, data) {
+    var fd = new FormData();
+    fd.append("csrf_token", csrf);
+    Object.keys(data).forEach(function (k) { fd.append(k, data[k]); });
+    return fetch(url, { method: "POST", credentials: "same-origin",
+      body: fd }).then(function (r) {
+      return r.json();
+    });
+  }
+
+  function chargerProjets() {
+    get("/tour/projets/data").then(function (d) {
+      if (d.err) { afficherErreur("Projets", d.err); return; }
+      var el = document.getElementById("liste-projets");
+      if (!d.projets.length) { el.innerHTML = '<div class="vide-projets">Aucun projet.</div>'; return; }
+      el.innerHTML = "";
+      d.projets.forEach(function (p) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "projet";
+        b.dataset.id = p.id;
+        b.innerHTML = '<span class="nom"></span><span class="nb"></span>';
+        b.querySelector(".nom").textContent = p.name;
+        b.querySelector(".nb").textContent = p.count;
+        b.addEventListener("click", function () { ouvrirProjet(p.id); });
+        el.appendChild(b);
+      });
+      document.getElementById("soustitre").textContent =
+        d.projets.length + " projet(s)";
+      if (!projetCourant) ouvrirProjet(d.projets[0].id);
+    }).catch(function () {
+      afficherErreur("Projets", "connexion impossible");
+    });
+  }
+
+  var ETIQ = {
+    backlog: ["#94a3b8", "Backlog"],
+    afaire: ["#3b82f6", "À faire"],
+    encours: ["#f59e0b", "En cours"],
+    fait: ["#22c55e", "Fait"],
+    test: ["#a855f7", "Test"],
+    qa: ["#14b8a6", "QA"]
+  };
+  var ORDRE = ["backlog", "afaire", "encours", "fait", "test", "qa"];
+
+  function ouvrirProjet(id) {
+    projetCourant = id;
+    document.querySelectorAll(".projet").forEach(function (b) {
+      b.classList.toggle("actif", Number(b.dataset.id) === id);
+    });
+    var kanban = document.getElementById("kanban");
+    kanban.innerHTML = '<div class="chargement">chargement…</div>';
+    tagFiltre = null;
+    get("/tour/projets/data?projet_id=" + id).then(function (d) {
+      if (d.err) { afficherErreur("Kanban", d.err); return; }
+      construireFiltres(d.tags || []);
+      kanban.innerHTML = "";
+      Object.keys(ETIQ).forEach(function (col) {
+        var cartes = (d.colonnes || {})[col] || [];
+        var div = document.createElement("div");
+        div.className = "col";
+        div.dataset.col = col;
+        div.innerHTML = "<header><span class='dot' style='background:" +
+          ETIQ[col][0] + "'></span><b></b><span class='n'></span></header>" +
+          "<div class='cartes'></div>";
+        div.querySelector("header b").textContent = ETIQ[col][1];
+        div.querySelector("header .n").textContent = cartes.length;
+        var zone = div.querySelector(".cartes");
+        cartes.forEach(function (t) { zone.appendChild(carte(t, col)); });
+        div.addEventListener("dragover", function (e) {
+          e.preventDefault(); div.classList.add("over");
+        });
+        div.addEventListener("dragleave", function () {
+          div.classList.remove("over");
+        });
+        div.addEventListener("drop", function (e) {
+          e.preventDefault(); div.classList.remove("over");
+          var tid = e.dataTransfer.getData("text/plain");
+          deplacer(tid, col);
+        });
+        kanban.appendChild(div);
+      });
+      filtrer();
+    }).catch(function () {
+      afficherErreur("Kanban", "connexion impossible");
+    });
+  }
+
+  function carte(t, col) {
+    var d = document.createElement("div");
+    d.className = "carte";
+    d.draggable = true;
+    d.dataset.id = t.id;
+    d.dataset.texte = (t.name + " " + (t.user || "") + " " +
+      (t.tags || []).join(" ")).toLowerCase();
+    d.dataset.tags = JSON.stringify(t.tags || []);
+    var meta = "";
+    var et = etoiles(t.priority);
+    if (et) meta += "<span class='pstar'>" + et + "</span>";
+    if (t.user) meta += "<span class='badge'>" + echapper(t.user) + "</span>";
+    if (t.deadline) meta += "<span class='badge echeance'>" + jjmm(t.deadline) + "</span>";
+    t.tags.forEach(function (g) {
+      meta += "<span class='badge'>" + echapper(g) + "</span>";
+    });
+    d.innerHTML = "<div class='titre'></div>" +
+      (meta ? "<div class='meta'>" + meta + "</div>" : "");
+    d.querySelector(".titre").textContent = t.name;
+    var i = ORDRE.indexOf(col);
+    var gauche = i > 0 ? ORDRE[i - 1] : null;
+    var droite = i >= 0 && i < ORDRE.length - 1 ? ORDRE[i + 1] : null;
+    if (gauche || droite) {
+      var nav = document.createElement("div");
+      nav.className = "deplacer";
+      if (gauche) {
+        var b1 = document.createElement("button");
+        b1.type = "button"; b1.textContent = "◀";
+        b1.title = "Déplacer vers " + ETIQ[gauche][1];
+        b1.dataset.col = gauche;
+        nav.appendChild(b1);
+      }
+      if (droite) {
+        var b2 = document.createElement("button");
+        b2.type = "button"; b2.textContent = "▶";
+        b2.title = "Déplacer vers " + ETIQ[droite][1];
+        b2.dataset.col = droite;
+        nav.appendChild(b2);
+      }
+      nav.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var btn = e.target.closest("button");
+        if (btn && btn.dataset.col) deplacer(t.id, btn.dataset.col);
+      });
+      d.appendChild(nav);
+    }
+    d.addEventListener("dragstart", function (e) {
+      e.dataTransfer.setData("text/plain", String(t.id));
+      d.classList.add("tirant");
+    });
+    d.addEventListener("dragend", function () { d.classList.remove("tirant"); });
+    d.addEventListener("click", function () { ouvrirDetail(t.id); });
+    return d;
+  }
+
+  function construireFiltres(tags) {
+    var cont = document.getElementById("filtres-tags");
+    cont.innerHTML = "";
+    if (!tags.length) return;
+    tags.forEach(function (g) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tag-filtre";
+      b.dataset.tag = g.name;
+      b.innerHTML = '<span class="n"></span><span class="c"></span>';
+      b.querySelector(".n").textContent = g.name;
+      b.querySelector(".c").textContent = g.count;
+      b.addEventListener("click", function () {
+        tagFiltre = (tagFiltre === g.name) ? null : g.name;
+        document.querySelectorAll(".tag-filtre").forEach(function (x) {
+          x.classList.toggle("actif", x.dataset.tag === tagFiltre);
+        });
+        filtrer();
+      });
+      cont.appendChild(b);
+    });
+  }
+
+  function filtrer() {
+    var q = (document.getElementById("recherche").value || "").trim().toLowerCase();
+    document.querySelectorAll(".carte").forEach(function (c) {
+      var tagsCarte = [];
+      try { tagsCarte = JSON.parse(c.dataset.tags || "[]") || []; }
+      catch (e) { tagsCarte = []; }
+      var dansTag = !tagFiltre || tagsCarte.indexOf(tagFiltre) >= 0;
+      var ok = (!q || (c.dataset.texte || "").indexOf(q) >= 0) && dansTag;
+      c.style.display = ok ? "" : "none";
+    });
+    document.querySelectorAll(".col").forEach(function (col) {
+      var visibles = 0;
+      col.querySelectorAll(".carte").forEach(function (c) {
+        if (c.style.display !== "none") visibles++;
+      });
+      col.querySelector("header .n").textContent = visibles;
+    });
+  }
+
+  var inputRecherche = document.getElementById("recherche");
+  if (inputRecherche) inputRecherche.addEventListener("input", filtrer);
+
+  function echapper(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return "&#" + c.charCodeAt(0) + ";";
+    });
+  }
+
+  function deplacer(tid, colonne) {
+    post("/tour/projets/deplacer", { task_id: tid, colonne: colonne })
+      .then(function (r) {
+        if (r.ok) {
+          document.getElementById("detail").classList.remove("ouvert");
+          ouvrirProjet(projetCourant);
+        }
+        else { alert(r.err || "déplacement impossible"); }
+      });
+  }
+
+  function ouvrirDetail(id) {
+    get("/tour/projets/detail/" + id).then(function (d) {
+      if (d.err) { alert(d.err); return; }
+      var el = document.getElementById("detail");
+      el.innerHTML = "";
+      var fermer = document.createElement("button");
+      fermer.className = "fermer"; fermer.textContent = "✕";
+      fermer.addEventListener("click", function () {
+        el.classList.remove("ouvert");
+      });
+      var h = document.createElement("h3"); h.textContent = d.name;
+      var p = document.createElement("div"); p.className = "proj";
+      p.textContent = d.project + (d.stage ? " · " + d.stage : "");
+      el.appendChild(fermer); el.appendChild(h); el.appendChild(p);
+      if (d.description) {
+        var de = document.createElement("div"); de.className = "desc";
+        de.textContent = d.description; el.appendChild(de);
+      }
+      var ch = document.createElement("div"); ch.className = "champs";
+      ch.innerHTML =
+        "<div class='ligne'><b>Priorité</b><span>" + (etoiles(d.priority) || "normale") + "</span></div>" +
+        "<div class='ligne'><b>Assigné</b><span>" + (d.user ? echapper(d.user) : "—") + "</span></div>" +
+        "<div class='ligne'><b>Échéance</b><span>" + (d.deadline ? jjmm(d.deadline) : "—") + "</span></div>" +
+        "<div class='ligne'><b>Étiquettes</b><span>" + (d.tags.length ? d.tags.map(echapper).join(", ") : "—") + "</span></div>" +
+        "<div class='ligne'><b>Colonne</b><span><select id='colonne-sel'>" +
+        ORDRE.map(function (c) {
+          return "<option value='" + c + "'" + (d.colonne === c ? " selected" : "") +
+            ">" + ETIQ[c][1] + "</option>";
+        }).join("") + "</select></span></div>" +
+        "<div class='ligne'><b>Créée</b><span>" + d.create.slice(0, 10) + "</span></div>" +
+        "<div class='ligne'><b>Modifiée</b><span>" + d.write.slice(0, 10) + "</span></div>";
+      el.appendChild(ch);
+      var selCol = el.querySelector("#colonne-sel");
+      if (selCol) {
+        selCol.addEventListener("change", function () {
+          deplacer(d.id, selCol.value);
+        });
+      }
+      var liens = document.createElement("div"); liens.className = "liens";
+      var a = document.createElement("a"); a.className = "btn";
+      a.href = d.odoo; a.textContent = "Ouvrir dans Odoo";
+      var b = document.createElement("button"); b.className = "btn fantome";
+      b.textContent = "Fermer";
+      b.addEventListener("click", function () { el.classList.remove("ouvert"); });
+      liens.appendChild(a); liens.appendChild(b);
+      el.appendChild(liens);
+      el.classList.add("ouvert");
+    }).catch(function () { alert("détail impossible"); });
+  }
+
+  function afficherErreur(cible, msg) {
+    var el = cible === "Projets" ? document.getElementById("liste-projets")
+      : document.getElementById("kanban");
+    el.innerHTML = '<div class="erreur">' + echapper(msg) + "</div>";
+  }
+
+  chargerProjets();
+})();
+]]></script>
+      </body>
+    </html>
+  </template>
+</odoo>

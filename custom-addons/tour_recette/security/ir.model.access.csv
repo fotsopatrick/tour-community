@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_recette_cahier,recette.cahier,model_recette_cahier,base.group_system,1,1,1,1
+access_recette_etape,recette.etape,model_recette_etape,base.group_system,1,1,1,1
+access_recette_cible,recette.cible,model_recette_cible,base.group_system,1,1,1,1
+access_recette_passage,recette.passage,model_recette_passage,base.group_system,1,1,1,1
+access_recette_resultat,recette.resultat,model_recette_resultat,base.group_system,1,1,1,1
+acces_depuis_bug,recette.depuis.bug,model_recette_depuis_bug,base.group_user,1,1,1,1

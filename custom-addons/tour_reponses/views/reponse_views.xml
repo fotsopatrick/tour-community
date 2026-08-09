@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_reponse_fiche_list" model="ir.ui.view">
+        <field name="name">reponse.fiche.list</field>
+        <field name="model">reponse.fiche</field>
+        <field name="arch" type="xml">
+            <list string="Réponses">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="auteur"/>
+                <field name="a_envoyer" optional="hide"/>
+                <field name="envoye_le" optional="hide"/>
+                <field name="resume" string="En bref" optional="show"/>
+                <!-- Colonne masquee par defaut : sur une tour a un seul
+                     utilisateur elle repete la meme valeur a chaque ligne. -->
+                <field name="user_id" widget="many2one_avatar_user" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_reponse_fiche_form" model="ir.ui.view">
+        <field name="name">reponse.fiche.form</field>
+        <field name="model">reponse.fiche</field>
+        <field name="arch" type="xml">
+            <form string="Réponse">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Question"/>
+                        <h1><field name="name"
+                                   placeholder="Comment restaurer une sauvegarde ?"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="auteur" placeholder="Claude"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </group>
+                    </group>
+                    <!-- La reponse occupe toute la largeur : c'est ce qu'on
+                         vient lire, le reste n'est que l'etiquette. -->
+                    <!-- EN BREF d abord, le detail derriere un onglet.
+                         Patrick, 30/07 : le mur de texte rend la tour
+                         illisible a la main. On lit le resume ; on ouvre
+                         le detail seulement si on en a besoin. -->
+                    <group string="En bref">
+                        <field name="resume" nolabel="1" readonly="1"/>
+                    </group>
+                    <group string="Envoi par mail">
+                        <field name="a_envoyer"/>
+                        <field name="envoye_le" readonly="1"/>
+                        <field name="mail_erreur" readonly="1"/>
+                        <button name="action_envoyer_mail" type="object"
+                                string="Envoyer maintenant" class="btn btn-secondary"/>
+                    </group>
+                    <notebook>
+                        <page string="Détail complet">
+                            <field name="reponse" nolabel="1"
+                                   placeholder="Coller ici la réponse reçue."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_reponse_fiche_search" model="ir.ui.view">
+        <field name="name">reponse.fiche.search</field>
+        <field name="model">reponse.fiche</field>
+        <field name="arch" type="xml">
+            <search string="Réponses">
+                <!-- On cherche presque toujours un mot dont on ne sait plus
+                     s'il etait dans la question ou dans la reponse : le champ
+                     principal fouille les deux. -->
+                <field name="name" string="Question ou réponse"
+                       filter_domain="['|', ('name', 'ilike', self), ('reponse', 'ilike', self)]"/>
+                <field name="auteur"/>
+                <field name="user_id"/>
+                <filter name="mes_reponses" string="Les miennes"
+                        domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="cette_semaine" string="Cette semaine"
+                        domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="groupe_auteur" string="Auteur" context="{'group_by': 'auteur'}"/>
+                    <filter name="groupe_date" string="Date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_reponse_fiche" model="ir.actions.act_window">
+        <field name="name">Réponses</field>
+        <field name="res_model">reponse.fiche</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_reponse_fiche_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Garder une réponse</p>
+            <p>Une fiche par question posée : la réponse, qui l'a donnée, et quand.
+               C'est ce qui évite de relire toute la console dans six mois.</p>
+        </field>
+    </record>
+
+    <!-- 87 : le seul creux libre entre le Coffre (86) et les Consoles (88),
+         donc les Réponses se rangent juste à côté de ce qu'elles archivent. -->
+    <menuitem id="menu_reponses_racine" name="Réponses" sequence="87"
+              web_icon="tour_reponses,static/description/icon.svg"/>
+    <menuitem id="menu_reponses" name="Réponses"
+              parent="menu_reponses_racine" action="action_reponse_fiche"/>
+
+</odoo>

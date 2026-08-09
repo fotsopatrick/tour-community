@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_tests" name="Tests — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Tests — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          :root { --c1-soft: rgba(47,111,176,.13); }
+          .col { display:flex; flex-direction:column; gap:9px; }
+          .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+          .card .c-h { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+          .card .c-n { font-size:13px; font-weight:600; }
+          .card .c-c { font-size:12.5px; margin-top:6px; white-space:pre-wrap; word-break:break-word; }
+          .card .c-s { color:var(--faint); font-size:11px; margin-top:4px; font-family:var(--mono); }
+          table.mini { width:100%; border-collapse:collapse; font-size:12px; }
+          table.mini td, table.mini th { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; vertical-align:top; }
+          table.mini th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; }
+          table.mini tr:last-child td { border-bottom:0; }
+          ul.plat { list-style:none; margin:0; padding:0; }
+          ul.plat li { font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line); }
+          ul.plat li:last-child { border-bottom:0; }
+          .empty { color:var(--faint); font-style:italic; font-size:12.5px; }
+          .tag { font-family:var(--mono); font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+          .tag.ok { background:var(--good-soft); color:var(--good); }
+          .tag.bad { background:var(--crit-soft); color:var(--crit); }
+          .tag.blue { background:var(--c1-soft); color:var(--c1); }
+          .tag.flat { background:var(--panel); color:var(--muted); border:1px solid var(--line); }
+          .tag.crit { background:var(--crit-soft); color:var(--crit); font-weight:800; }
+          .etape { border-bottom:1px solid var(--line); padding:7px 0; font-size:12.5px; }
+          .etape:last-child { border-bottom:0; }
+          .etape .e-n { font-weight:600; }
+          .etape .e-d { color:var(--faint); font-size:11px; margin-top:2px; font-family:var(--mono); }
+          .note { background:var(--crit-soft); border:1px solid var(--crit); color:var(--crit); font-family:var(--mono); font-size:12px; padding:10px 12px; border-radius:10px; margin-top:14px; }
+          .note.blue { background:var(--c1-soft); border-color:var(--c1); color:var(--c1); }
+          .banc { width:100%; border-collapse:collapse; font-size:12px; }
+          .banc th, .banc td { border-bottom:1px solid var(--line); padding:6px; vertical-align:middle; }
+          .banc th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; text-align:left; }
+          .banc th .joue { margin-top:4px; }
+          .dot { display:inline-block; width:13px; height:13px; border-radius:50%; margin:0 2px; vertical-align:middle; }
+          .dot.ok { background:var(--good); box-shadow:0 0 6px var(--good); }
+          .dot.ko { background:var(--crit); box-shadow:0 0 6px var(--crit); }
+          .dot.ignore { background:var(--muted); }
+          .dot.jamais { background:var(--line); }
+          .banc button.joue { background:var(--panel); border:1px solid var(--line); color:var(--texte);
+                            border-radius:6px; cursor:pointer; font-size:11px; padding:2px 9px; min-height:32px;
+                            font-weight:600; }
+          .banc button.joue:hover { border-color:var(--c1); color:var(--c1); }
+          .banc button.joue:disabled { opacity:.5; cursor:wait; }
+          .banc-verdict { font-size:12.5px; margin-top:6px; padding:7px 10px; border-radius:8px; }
+          .banc-verdict.ok { background:var(--good-soft); color:var(--good); }
+          .banc-verdict.ko { background:var(--crit-soft); color:var(--crit); }
+          .board-svg { width:100%; height:auto; display:block; border-radius:10px; background:var(--panel); }
+          .legend { display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:12px; font-size:11.5px; color:var(--muted); }
+          .legend .sw { display:inline-block; width:26px; height:4px; border-radius:2px; vertical-align:middle; margin-right:6px; }
+          .board-note { font-size:11px; color:var(--faint); margin-top:8px; }
+          .tests-detail { font-size:12.5px; margin-top:10px; padding:10px 12px; border-radius:8px; background:var(--panel); border:1px solid var(--line); }
+          .tests-detail b { color:var(--texte); }
+          .tests-detail .det { color:var(--crit); font-family:var(--mono); font-size:11px; margin:2px 0 6px 18px; white-space:pre-wrap; }
+          .btn-petit { font-size:.82rem; padding:.45rem .8rem; background:var(--c1); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+          .btn-petit:hover { filter:brightness(1.12); }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Tests — Tour de Contrôle</h1>
+              <div class="sub">cahiers de recette · Vibe · tâches de bugs · tests manuels</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> Vibe veille</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/circuits">Circuits</a>
+            <a class="themebtn" href="/tour/cockpit/agents">Agents</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/community">← l'accueil</a>
+          </header>
+
+          <section class="strips">
+            <div class="strip blue">
+              <div class="lbl">Cahiers de recette</div>
+              <div class="val"><t t-esc="nb_cahiers"/></div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Étapes (tests)</div>
+              <div class="val"><t t-esc="nb_etapes"/></div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Sites surveillés</div>
+              <div class="val"><t t-esc="nb_cibles"/></div>
+            </div>
+            <div class="strip" t-attf-class="strip #{nb_ko_dernier and 'crit' or 'ok'}">
+              <div class="lbl">Échecs (dernier passage)</div>
+              <div class="val"><t t-esc="nb_ko_dernier"/></div>
+              <div class="pill" t-attf-class="pill #{nb_regressions and 'down' or 'up'}">
+                <t t-esc="nb_regressions"/> régression<t t-if="nb_regressions != 1">s</t>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Le banc de tests — le circuit</h2>
+            <p class="hint">chaque cahier est un composant, chaque test une pastille
+              dorée : clic = jouer (vert = passe partout, rouge = bloque, doré = jamais joué).
+              Le détail du dernier test joué s'affiche juste en dessous.</p>
+            <div style="display:flex;gap:.6rem;align-items:center;margin-bottom:.7rem;flex-wrap:wrap">
+              <label for="tests-groupe" style="color:var(--muted);font-size:.85rem">Groupe :</label>
+              <select id="tests-groupe" class="btn-petit"
+                      style="margin-right:12px"/>
+              <label for="tests-cahier" style="color:var(--muted);font-size:.85rem">Test :</label>
+              <select id="tests-cahier" class="btn-petit"
+                      style="min-width:16rem;padding:.35rem .5rem"/>
+              <button type="button" class="btn-petit" id="tests-play">▶ Jouer</button>
+              <span class="board-note">un clic sur une puce ne joue QUE cette étape.</span>
+            </div>
+            <!-- La carte à gauche, le résultat à droite : on veut lire ce qui
+                 vient de se passer SANS quitter la piste des yeux. Sous 900 px
+                 la colonne passe dessous, elle ne disparaît pas. -->
+            <div class="board-duo">
+              <svg class="board-svg" id="tests-board" role="img"
+                   aria-label="Banc de tests — la piste d'un test"></svg>
+              <aside id="tests-resultat" class="board-panneau"></aside>
+            </div>
+            <style>
+              .board-duo{display:flex;gap:1rem;align-items:flex-start}
+              .board-duo .board-svg{flex:1 1 auto;min-width:0}
+              .board-panneau{flex:0 0 19rem;background:#0b1210;border:1px solid #1e293b;
+                border-radius:.6rem;padding:.9rem 1rem;min-height:12rem}
+              @media (max-width:900px){
+                .board-duo{flex-direction:column}
+                .board-panneau{flex:1 1 auto;width:100%}
+              }
+            </style>
+            <div class="legend">
+              <span><span class="sw" style="background:#e8c169"></span>jamais joué</span>
+              <span><span class="sw" style="background:#3fbf6f"></span>passe partout</span>
+              <span><span class="sw" style="background:#e2554f"></span>bloque</span>
+            </div>
+            <div class="tests-detail" id="tests-detail"></div>
+            <script>window.TDC_CSRF = "<t t-esc="csrf_token"/>";</script>
+            <script type="application/json" id="tests-board-data"><t t-out="banc_json"/></script>
+            <script src="/tour_recette/static/src/tests-board.js"></script>
+          </section>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>La grande maintenance — rejouable</h2>
+              <p class="hint">bâche « en construction » pour les visiteurs, TOUS les tests de tout le monde, réouverture seulement si tout est vert (circuit du 04/08)</p>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
+                <button type="button" id="gm-play" class="btn-petit"
+                        style="background:#7c3aed;color:#fff;border:0;border-radius:8px;padding:7px 14px;cursor:pointer">
+                  ▶ Rejouer la grande maintenance
+                </button>
+                <span style="color:var(--muted);font-size:12px">
+                  dernier passage : <b t-esc="gm['quand'] or 'jamais rejouée'"/>
+                  <t t-if="gm['verdict']"> — <t t-esc="gm['verdict']"/></t>
+                </span>
+              </div>
+              <pre t-if="gm['texte']"
+                   style="max-height:280px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11.5px;line-height:1.5;color:#cbd5e1"><t t-esc="gm['texte']"/></pre>
+              <script>
+                (function () {
+                  var b = document.getElementById("gm-play");
+                  if (!b) { return; }
+                  b.addEventListener("click", function () {
+                    b.disabled = true; b.textContent = "Ordre déposé…";
+                    var fd = new FormData();
+                    fd.append("csrf_token", window.TDC_CSRF || "");
+                    fetch("/tour/cockpit/grande-maintenance/rejouer", {method: "POST", body: fd, credentials: "same-origin"})
+                      .then(function (r) { return r.json(); })
+                      .then(function (j) {
+                        b.textContent = (j &amp;&amp; j.ok)
+                          ? "✔ Lancée — plusieurs minutes, recharge plus tard"
+                          : "✖ " + ((j &amp;&amp; j.erreur) || "refusé");
+                      })
+                      .catch(function () { b.textContent = "✖ échec"; });
+                  });
+                })();
+              </script>
+            </section>
+
+            <section class="panel">
+              <h2>Le récap du jour — rejouable</h2>
+              <p class="hint">36 contrôles : vitrine, garde-fous, pages de la tour, prototype client, droits Unix, dépôt et sauvegardes.</p>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 0">
+                <button type="button" id="recap-play" class="btn-petit"
+                        style="background:#1d4ed8;color:#fff;border:0;border-radius:8px;padding:7px 14px;cursor:pointer">
+                  ▶ Rejouer le récap
+                </button>
+                <span style="color:var(--muted);font-size:12px">
+                  dernier passage : <b t-esc="recap['quand'] or 'jamais rejoué'"/>
+                  <t t-if="recap['verdict']"> — <t t-esc="recap['verdict']"/></t>
+                </span>
+              </div>
+              <pre t-if="recap['texte']"
+                   style="max-height:280px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11.5px;line-height:1.5;color:#cbd5e1"><t t-esc="recap['texte']"/></pre>
+              <script>
+                (function () {
+                  var b = document.getElementById("recap-play");
+                  if (!b) { return; }
+                  b.addEventListener("click", function () {
+                    b.disabled = true; b.textContent = "Ordre déposé…";
+                    var fd = new FormData();
+                    fd.append("csrf_token", window.TDC_CSRF || "");
+                    fetch("/tour/cockpit/recap/rejouer", {method: "POST", body: fd, credentials: "same-origin"})
+                      .then(function (r) { return r.json(); })
+                      .then(function (j) {
+                        b.textContent = (j &amp;&amp; j.ok)
+                          ? "✔ Lancé — recharge dans ~2 min"
+                          : "✖ " + ((j &amp;&amp; j.erreur) || "refusé");
+                      })
+                      .catch(function () { b.textContent = "✖ échec"; });
+                  });
+                })();
+              </script>
+            </section>
+
+            <section class="panel">
+              <h2>Cahiers de recette</h2>
+              <p class="hint">chaque cahier = une liste de vérifications rejouable</p>
+              <div class="col">
+                <t t-foreach="cahiers" t-as="c">
+                  <div class="card">
+                    <div class="c-h">
+                      <span class="c-n"><t t-esc="c['name']"/></span>
+                      <span class="tag flat"><t t-esc="c['nb_etapes']"/> étapes</span>
+                      <span t-if="c['type_produit']" class="tag blue"><t t-esc="c['type_produit']"/></span>
+                    </div>
+                    <t t-if="c['note']">
+                      <div class="c-c"><t t-esc="c['note']"/></div>
+                    </t>
+                  </div>
+                </t>
+                <t t-if="not cahiers">
+                  <div class="empty">Aucun cahier. Les tests manuels notés via
+                    deploy/noter-test.sh alimentent « Tests manuels (consigne) ».</div>
+                </t>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2>Étapes nées d'un bug</h2>
+              <p class="hint">chaque vérification liée à une tâche : le bug ne revient plus en silence</p>
+              <div class="col">
+                <t t-foreach="etapes" t-as="e">
+                  <t t-if="e['tache_id']">
+                    <div class="card">
+                      <div class="c-h">
+                        <span class="c-n"><t t-esc="e['name']"/></span>
+                        <span t-attf-class="tag #{e['critique'] and 'crit' or 'flat'}">
+                          <t t-esc="e['type_etape']"/>
+                        </span>
+                      </div>
+                      <div class="c-s">bug : <t t-esc="e['tache_id'].name"/></div>
+                    </div>
+                  </t>
+                </t>
+                <t t-if="not etapes.filtered('tache_id')">
+                  <div class="empty">Aucune étape liée à un bug pour l'instant.</div>
+                </t>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <h2>Étapes (les tests)</h2>
+            <p class="hint">cahier « Tests manuels (consigne) » en tête · méthode et tâche d'origine</p>
+            <t t-foreach="cahiers" t-as="c">
+              <div class="agent" style="color:var(--muted);font-size:11px;font-family:var(--mono);
+                   text-transform:uppercase;letter-spacing:.5px;margin:10px 0 2px;">
+                <t t-esc="c['name']"/>
+              </div>
+              <t t-foreach="c['etape_ids']" t-as="e">
+                <div class="etape">
+                  <span class="e-n"><t t-esc="e['name']"/></span>
+                  <span t-attf-class="tag #{e['critique'] and 'crit' or 'flat'}"><t t-esc="e['type_etape']"/></span>
+                  <t t-if="e['tache_id']"><span class="tag blue">bug : <t t-esc="e['tache_id'].name"/></span></t>
+                  <span t-attf-class="tag #{e['dernier_test'] and 'flat' or 'warn'}">
+                    <t t-if="e['dernier_test']">testé le <t t-esc="e['dernier_test']" t-options="{'widget': 'datetime'}"/></t>
+                    <t t-else="">jamais testé</t>
+                  </span>
+                  <div class="e-d"><t t-esc="e['chemin']"/><t t-if="e['attendu']"> — attendu : <t t-esc="e['attendu']"/></t></div>
+                </div>
+              </t>
+            </t>
+            <t t-if="not cahiers">
+              <div class="empty">Aucune étape.</div>
+            </t>
+          </section>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Sites surveillés</h2>
+              <p class="hint">Vibe déroule le cahier chaque nuit</p>
+              <table class="mini"><thead><tr>
+                <th>site</th><th>état</th><th>ok/ko</th><th>passage</th>
+              </tr></thead><tbody>
+                <t t-foreach="cibles_detaillees" t-as="x">
+                  <tr>
+                    <td><t t-esc="x['cible'].name"/></td>
+                    <td>
+                      <t t-if="not x['dernier']"><span class="tag flat">jamais testé</span></t>
+                      <t t-elif="x['dernier'].nb_ko"><span class="tag bad"><t t-esc="x['dernier'].nb_ko"/> échec(s)</span></t>
+                      <t t-else=""><span class="tag ok">OK</span></t>
+                    </td>
+                    <td><t t-if="x['dernier']"><t t-esc="x['dernier'].nb_ok"/> / <t t-esc="x['dernier'].nb_ko"/></t></td>
+                    <td class="mono"><t t-if="x['dernier']"><t t-esc="x['dernier'].create_date" t-options="{'widget': 'datetime'}"/></t></td>
+                  </tr>
+                </t>
+              </tbody></table>
+              <t t-if="not cibles_detaillees">
+                <div class="empty">Aucun site surveillé.</div>
+              </t>
+            </section>
+
+            <section class="panel">
+              <h2>Derniers passages</h2>
+              <p class="hint">les 8 derniers déroulements de cahier</p>
+              <ul class="plat">
+                <t t-foreach="passages" t-as="p">
+                  <li>
+                    <b><t t-esc="p['cible_id'].name"/></b>
+                    <span t-attf-class="tag #{p['nb_ko'] and 'bad' or 'ok'}">
+                      <t t-esc="p['nb_ok']"/>/<t t-esc="p['nb_ko']"/>
+                    </span>
+                    <t t-if="p['regression']"><span class="tag crit">RÉGRESSION</span></t>
+                    <span class="mono"><t t-esc="p['create_date']" t-options="{'widget': 'datetime'}"/></span>
+                  </li>
+                </t>
+              </ul>
+            </section>
+          </div>
+
+          <section class="panel">
+            <h2>Le journal des tests</h2>
+            <p class="hint">les derniers passages, manuels et de nuit — ce qui bloque est détaillé</p>
+            <ul class="plat">
+              <t t-foreach="journal" t-as="j">
+                <li>
+                  <b><t t-esc="j['cible']"/></b>
+                  <span t-attf-class="tag #{j['nb_ko'] and 'bad' or 'ok'}">
+                    <t t-esc="j['nb_ok']"/>/<t t-esc="j['nb_ko']"/>
+                  </span>
+                  <t t-if="j['regression']"><span class="tag crit">RÉGRESSION</span></t>
+                  <span class="mono"><t t-esc="j['date']" t-options="{'widget': 'datetime'}"/></span>
+                  <t t-if="j['bloques']">
+                    <div style="color:var(--crit);font-size:11.5px;font-family:var(--mono);margin-top:3px">
+                      <t t-foreach="j['bloques']" t-as="bk">
+                        <div>✗ <t t-esc="bk['nom']"/> — <t t-esc="bk['detail']"/></div>
+                      </t>
+                    </div>
+                  </t>
+                </li>
+              </t>
+              <t t-if="not journal">
+                <li class="empty">Aucun passage pour l'instant.</li>
+              </t>
+            </ul>
+          </section>
+
+          <div class="note blue" t-if="cahier_manuels">
+            <b>Cahier « Tests manuels (consigne) » :</b> tout test noté via
+            deploy/noter-test.sh y atterrit et Vibe le rejoue chaque nuit
+            (cron « Vibe : dérouler les cahiers de recette »). Un test manuel
+            qui n'est pas noté est un test à refaire de mémoire.
+          </div>
+        </div>
+
+        <script>
+          var CSRF = '<t t-esc="request.csrf_token()"/>';
+          document.querySelectorAll('.joue').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var etape = btn.getAttribute('data-etape');
+              var nom = btn.getAttribute('data-nom');
+              var table = btn.closest('table');
+              var th = btn.closest('th');
+              var idx = Array.prototype.indexOf.call(th.parentNode.children, th);
+              var tbody = table.querySelector('tbody');
+              var verd = document.getElementById('verdict-' + table.getAttribute('data-cahier'));
+              btn.disabled = true; var old = btn.textContent; btn.textContent = '…';
+              var corps = new URLSearchParams();
+              corps.append('csrf_token', CSRF);
+              fetch('/tour/cockpit/tests/jouer/' + etape, {
+                method: 'POST',
+                body: corps.toString(),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              }).then(function (r) { return r.json(); }).then(function (j) {
+                var toutOk = true, bloques = [];
+                (j.resultats || []).forEach(function (r) {
+                  Array.prototype.forEach.call(tbody.children, function (tr) {
+                    var b = tr.querySelector('td b');
+                    if (b &amp;&amp; b.textContent === r.cible) {
+                      var dot = tr.children[idx].querySelector('.dot');
+                      dot.className = 'dot ' + (r.ok === true ? 'ok'
+                        : (r.ok === false ? 'ko' : 'ignore'));
+                      dot.title = r.detail || '';
+                      if (r.ok !== true) { toutOk = false; bloques.push(r.cible + ' : ' + (r.detail || '?')); }
+                    }
+                  });
+                });
+                if (verd) {
+                  verd.style.display = 'block';
+                  verd.className = 'banc-verdict ' + (toutOk ? 'ok' : 'ko');
+                  verd.textContent = nom + ' : ' + (toutOk ? '✓ passe partout' : '✗ ' + bloques.join(' · '));
+                }
+                btn.disabled = false; btn.textContent = old;
+              }).catch(function () { btn.disabled = false; btn.textContent = old; });
+            });
+          });
+          document.getElementById("themebtn").addEventListener("click", function () {
+            var root = document.documentElement, cur = root.getAttribute("data-theme");
+            root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+            try { localStorage.setItem("cockpit-theme", root.getAttribute("data-theme")); } catch (e) {}
+          });
+          try {
+            var t = localStorage.getItem("cockpit-theme");
+            if (t) document.documentElement.setAttribute("data-theme", t);
+          } catch (e) {}
+          const h = () => new Date().toLocaleString("fr-FR", {
+              hour: "2-digit", minute: "2-digit", second: "2-digit"
+          });
+          const d = () => new Date().toLocaleDateString("fr-FR", {
+              weekday: "long", day: "numeric", month: "long"
+          });
+          const mj = () => {
+              const el = document.getElementById("clock"), ed = document.getElementById("date");
+              if (el) el.textContent = h();
+              if (ed) ed.textContent = d();
+          };
+          mj(); setInterval(mj, 1000);
+        </script>
+      </body>
+    </html>
+  </template>
+</odoo>

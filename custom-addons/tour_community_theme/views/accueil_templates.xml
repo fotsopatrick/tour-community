@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_accueil" name="Accueil Community">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Tour de contrôle — Community</title>
+                <t t-call-assets="web.assets_frontend" t-js="false"/>
+            </head>
+            <body class="tdc-login-body">
+                <div class="tdc-accueil">
+                    <div class="tdc-accueil-tete">
+                        <h1 class="tdc-accueil-h1">Bonjour <t t-out="prenom"/>.</h1>
+                        <p class="tdc-accueil-sous">Édition Community — les briques libres de la Tour de contrôle.</p>
+                    </div>
+
+                    <div class="tdc-accueil-agents">
+                        <a class="tdc-agent-carte" href="/community/chat">
+                            <div class="tdc-agent-logo" aria-hidden="true">💬</div>
+                            <div>
+                                <div class="tdc-agent-nom">Parler à Chloé</div>
+                                <div class="tdc-agent-desc">L'assistante — répond à tes questions.</div>
+                            </div>
+                        </a>
+                        <a class="tdc-agent-carte" href="/community/braignak">
+                            <div class="tdc-agent-logo" aria-hidden="true">🔭</div>
+                            <div>
+                                <div class="tdc-agent-nom">Demander à Braignak</div>
+                                <div class="tdc-agent-desc">L'observateur — analyse un site, dit ce qui manque.</div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="tdc-accueil-grille">
+                        <t t-foreach="tuiles" t-as="t">
+                            <a class="tdc-accueil-carte" t-att-href="t['lien']">
+                                <div class="tdc-accueil-nom"><t t-out="t['nom']"/></div>
+                                <div class="tdc-accueil-desc"><t t-out="t['desc']"/></div>
+                                <div class="tdc-accueil-module mono"><t t-out="t['module']"/></div>
+                            </a>
+                        </t>
+                    </div>
+
+                    <div class="tdc-accueil-actus" t-if="actus">
+                        <div class="tdc-actus-titre">Actualités</div>
+                        <t t-foreach="actus" t-as="a">
+                            <a class="tdc-actus-item" t-att-href="a['lien']" target="_blank" rel="noopener">
+                                <span class="tdc-actus-date"><t t-out="a['date']"/></span>
+                                <span class="tdc-actus-titre-item"><t t-out="a['titre']"/></span>
+                            </a>
+                        </t>
+                    </div>
+
+                    <div class="tdc-accueil-pied">
+                        <a class="tdc-accueil-lien" href="/web">Ouvrir le backend</a>
+                        <span class="tdc-accueil-point">·</span>
+                        <a class="tdc-accueil-lien" href="/web/session/logout">Se déconnecter</a>
+                    </div>
+                </div>
+            </body>
+        </html>
+    </template>
+</odoo>

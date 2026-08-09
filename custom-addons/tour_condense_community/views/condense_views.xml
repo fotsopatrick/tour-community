@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- L'inventaire (backend) : les champs longs connus. -->
+    <record id="vue_cible_liste" model="ir.ui.view">
+        <field name="name">condense.cible.liste</field>
+        <field name="model">condense.cible</field>
+        <field name="arch" type="xml">
+            <list string="Inventaire des textes longs">
+                <field name="nom_modele"/>
+                <field name="champ"/>
+                <field name="seuil"/>
+                <field name="nb_resumes"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_cible" model="ir.actions.act_window">
+        <field name="name">Inventaire</field>
+        <field name="res_model">condense.cible</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Les résumés produits. -->
+    <record id="vue_resume_liste" model="ir.ui.view">
+        <field name="name">condense.resume.liste</field>
+        <field name="model">condense.resume</field>
+        <field name="arch" type="xml">
+            <list string="Résumés produits">
+                <field name="cible_id"/>
+                <field name="res_id"/>
+                <field name="texte"/>
+                <field name="mode"/>
+                <field name="surlignes"/>
+                <field name="write_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_resume" model="ir.actions.act_window">
+        <field name="name">Résumés</field>
+        <field name="res_model">condense.resume</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- La page web. -->
+    <record id="action_page_condense" model="ir.actions.act_url">
+        <field name="name">Condensation</field>
+        <field name="url">/tour/condense</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_condense_racine" name="Condensation" sequence="9"
+              action="action_page_condense"
+              web_icon="tour_condense_community,static/description/icon.svg"/>
+
+    <menuitem id="menu_condense_inventaire" name="Inventaire"
+              sequence="40"
+              action="action_cible"/>
+
+    <menuitem id="menu_condense_resumes" name="Résumés"
+              sequence="41"
+              action="action_resume"/>
+
+    <!-- Le garde-fou : un cron balaye les textes récents et les condense. -->
+    <record id="cron_condense" model="ir.cron">
+        <field name="name">Condensation : résumer les textes longs</field>
+        <field name="model_id" ref="model_condense_engine"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_condenser()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- La page elle-même. -->
+    <template id="page_condense" name="Tour — Condensation">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+                <meta name="theme-color" content="#020817"/>
+                <style>
+                    :root { --fond:#020817; --surface:#0f172a; --surface2:#1e293b;
+                            --primaire:#3b82f6; --texte:#e2e8f0; --doux:#94a3b8;
+                            --ok:#22c55e; --r:.5rem; }
+                    * { box-sizing:border-box; }
+                    body { margin:0; background:var(--fond); color:var(--texte);
+                           font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+                    a { color:var(--primaire); }
+                    .wrap { max-width:900px; margin:0 auto; padding:1.25rem 1rem 5rem; }
+                    h1 { font-size:1.4rem; font-weight:650; margin:0 0 .25rem; }
+                    .sous { color:var(--doux); margin-bottom:1.4rem; }
+                    .retour { color:var(--doux); font-size:.9rem; }
+                    .retour:hover { color:var(--texte); }
+                    .carte { background:var(--surface); border:1px solid var(--surface2);
+                             border-radius:var(--r); padding:.85rem 1rem; margin-bottom:.6rem; }
+                    .carte .source { color:var(--doux); font-size:.8rem;
+                                     text-transform:uppercase; letter-spacing:.04rem; }
+                    .carte .titre { font-weight:600; margin:.2rem 0 .4rem; }
+                    .carte .resume { font-size:.98rem; line-height:1.5; }
+                    .carte .detail { margin-top:.6rem; }
+                    .carte details summary { cursor:pointer; color:var(--primaire);
+                                             font-size:.9rem; user-select:none; }
+                    .carte details .corps { background:var(--fond); border:1px solid
+                                            var(--surface2); border-radius:var(--r);
+                                            padding:.75rem; margin-top:.5rem;
+                                            font-size:.88rem; line-height:1.55;
+                                            white-space:pre-wrap;
+                                            max-height:26rem; overflow:auto; }
+                    .badge { border:1px solid var(--surface2); border-radius:999px;
+                             padding:.05rem .5rem; font-size:.75rem; color:var(--doux); }
+                    .badge.coupe { color:var(--ok); border-color:var(--ok); }
+                    .vide { color:var(--doux); padding:1rem; font-style:italic; }
+                    .compteur { color:var(--doux); margin-bottom:1rem; }
+                </style>
+            </t>
+            <div class="wrap">
+                <p><a class="retour" href="/">← Retour à l'accueil</a></p>
+                <h1>Condensation</h1>
+                <div class="sous">Tout texte long, résumé d'abord, détail à un
+                    clic. L'original n'est jamais perdu.</div>
+                <p class="compteur"><t t-esc="nb"/> texte(s) long(s) à lire.</p>
+
+                <t t-foreach="cartes" t-as="c">
+                    <div class="carte">
+                        <div class="source"><t t-esc="c['modele']"/></div>
+                        <div class="titre"><a t-att-href="c['lien']"><t t-esc="c['nom']"/></a></div>
+                        <div class="resume"><t t-esc="c['texte']"/></div>
+                        <div class="detail">
+                            <details>
+                                <summary>Voir le détail (<t t-esc="c['longueur']"/> signes)</summary>
+                                <div class="corps"><t t-esc="c['detail']"/></div>
+                            </details>
+                        </div>
+                    </div>
+                </t>
+                <p t-if="not cartes" class="vide">Aucun texte long pour
+                    l'instant. Quand un agent rendra un long compte rendu, il
+                    sera résumé ici automatiquement.</p>
+            </div>
+        </t>
+    </template>
+
+</odoo>

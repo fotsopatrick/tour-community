@@ -1,0 +1,107 @@
+/* Chat Chloé Community — aux couleurs de la tour. */
+.chat-wrap {
+    width: 100%;
+    max-width: 30rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.chat-tete {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 0.9rem 1.1rem;
+}
+
+.chat-logo {
+    font-size: 1.6rem;
+}
+
+.chat-titre {
+    font-weight: 700;
+    color: #f8fafc;
+    font-size: 1.05rem;
+}
+
+.chat-sous {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+.chat-fil {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 1rem;
+    padding: 1rem;
+    height: 24rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.chat-bulle {
+    max-width: 85%;
+    padding: 0.55rem 0.8rem;
+    border-radius: 0.8rem;
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.chat-ia {
+    align-self: flex-start;
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+.chat-moi {
+    align-self: flex-end;
+    background: #2f6fe0;
+    color: #fff;
+}
+
+.chat-forme {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chat-entree {
+    flex: 1;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 0.7rem;
+    color: #f8fafc;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.chat-entree:focus {
+    border-color: #2f6fe0;
+}
+
+.chat-envoi {
+    background: #2f6fe0;
+    border: 0;
+    border-radius: 0.7rem;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.7rem 1.1rem;
+    cursor: pointer;
+}
+
+.chat-envoi:disabled {
+    opacity: 0.5;
+}
+
+.chat-etat {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    text-align: center;
+    min-height: 1rem;
+}

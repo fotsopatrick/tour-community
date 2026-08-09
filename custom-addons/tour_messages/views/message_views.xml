@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_message_liste" model="ir.ui.view">
+        <field name="name">tour.message.liste</field>
+        <field name="model">tour.message</field>
+        <field name="arch" type="xml">
+            <list string="Messages">
+                <field name="categorie"/>
+                <field name="name"/>
+                <field name="pour_qui"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_message_form" model="ir.ui.view">
+        <field name="name">tour.message.form</field>
+        <field name="model">tour.message</field>
+        <field name="arch" type="xml">
+            <form string="Message">
+                <header>
+                    <button name="action_traite" type="object" class="btn-primary"
+                            string="Marquer traité" invisible="traite"/>
+                    <button name="action_reprendre" type="object"
+                            string="Remettre dans la liste" invisible="not traite"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Titre — ex : Invitation testeur"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="categorie"/>
+                            <field name="pour_qui"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                            <field name="traite"/>
+                            <field name="traite_le" invisible="not traite"/>
+                        </group>
+                    </group>
+                    <separator string="Le message (prêt à coller)"/>
+                    <field name="corps" placeholder="Bonjour [Prénom], ..."/>
+                    <separator string="Quand l'utiliser"/>
+                    <field name="remarque"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_message" model="ir.actions.act_window">
+        <field name="name">Messages</field>
+        <field name="res_model">tour.message</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_message_page" model="ir.actions.act_url">
+        <field name="name">Bibliothèque (copier)</field>
+        <field name="url">/tour/messages</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_messages_root" name="Messages" sequence="26"
+              web_icon="tour_messages,static/description/icon.svg"/>
+    <menuitem id="menu_messages_page" name="Bibliothèque (copier)"
+              parent="menu_messages_root" sequence="10" action="action_message_page"/>
+    <menuitem id="menu_messages_liste" name="Gérer les messages"
+              parent="menu_messages_root" sequence="20" action="action_message"/>
+</odoo>
