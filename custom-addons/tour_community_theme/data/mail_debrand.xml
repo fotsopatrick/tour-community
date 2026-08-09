@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Débranding des COURRIELS (édition Community).
+        =============================================
+        Le débranding de l'interface ne sert à rien si le premier message que
+        reçoit la personne dit « invites you to connect to Odoo ». Ce fichier
+        traite les trois courriels qui sortent réellement : l'invitation, la
+        réinitialisation de mot de passe, et le pied de page de toutes les
+        notifications.
+
+        Note de méthode : on remplace le NŒUD PARENT du lien vers odoo.com,
+        pas le texte. Un lien vers odoo.com dans un courriel sortant, lui,
+        est toujours de la marque.
+    -->
+    <data noupdate="0">
+
+        <!-- 1. L'INVITATION — le tout premier contact -->
+        <function model="tour.mail.debrand" name="appliquer"/>
+
+        <!-- 2. LA RÉINITIALISATION DE MOT DE PASSE -->
+        <template id="reset_password_debrand" inherit_id="auth_signup.reset_password_email"
+                  name="Réinitialisation — sans marque">
+            <xpath expr="//a[contains(@href, 'odoo.com')]/.." position="replace">
+                <td align="center" style="min-width:590px;"/>
+            </xpath>
+        </template>
+
+        <!-- 3. LE PIED DE PAGE DE TOUTES LES NOTIFICATIONS -->
+        <template id="mail_layout_debrand" inherit_id="mail.mail_notification_layout"
+                  name="Notifications — sans marque">
+            <xpath expr="//span[@id='mail_unfollow']/.." position="replace">
+                <div t-if="show_footer" style="color:#555555; font-size:11px;">
+                    <span id="mail_unfollow">
+                        <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Ne plus recevoir ces messages</a>
+                    </span>
+                </div>
+            </xpath>
+        </template>
+
+        <template id="mail_light_debrand" inherit_id="mail.mail_notification_light"
+                  name="Notifications allégées — sans marque">
+            <xpath expr="//span[@id='mail_unfollow']/../.." position="replace">
+                <tr><td align="center" style="min-width:590px; color:#555555; font-size:11px;">
+                    <span id="mail_unfollow">
+                        <a href="/mail/unfollow" style="text-decoration:none; color:#555555;">Ne plus recevoir ces messages</a>
+                    </span>
+                </td></tr>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

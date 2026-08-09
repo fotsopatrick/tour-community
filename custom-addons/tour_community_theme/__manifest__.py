@@ -7,10 +7,11 @@
     "author": "Patrick Fotso (Code Nomi Nomi)",
     "license": "AGPL-3",
     "category": "Theme",
-    "depends": ["base", "web", "mail"],
+    "depends": ["base", "web", "mail", "auth_signup"],
     "data": [
         "views/webclient_templates.xml",
         "views/accueil_templates.xml",
+        "data/mail_debrand.xml",
     ],
     "assets": {
         "web.assets_frontend": [
