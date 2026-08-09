@@ -1,6 +1,22 @@
 # Tour de contrôle — édition Community
 
-**La partie de la tour que l'on peut lire et installer librement.**
+**L'édition Community est publique.**
+
+Les briques libres de la tour, installables sur un Odoo standard :
+
+- Code source (AGPL) : https://github.com/fotsopatrick/tour-community
+- Démo en ligne : https://democommunity.matourdecontrole.fr (compte demo / demo)
+
+**Ce qu'elle contient (15 briques autonomes) :**
+
+- Les agents libres : **Chloé** (chat) et **Braignak** (observateur), avec votre clé DeepSeek.
+- Les briques : Actus, Apprentissage, Condense, Cookie Secure, CV, Messages, Nouveautés, Projets, Rappels, Rate Login, Recette, Réponses, Retours, Sauvegardes, Webapps.
+
+Aucune clé API exigée pour installer. Le cœur de la tour (agents complets,
+coffre, circuits, gouvernance) reste une édition séparée, sous licence
+propriétaire.
+
+---
 
 La Tour de contrôle (https://matourdecontrole.fr) est une plateforme de
 pilotage : un tableau de bord, une équipe d'agents, des circuits de validation
