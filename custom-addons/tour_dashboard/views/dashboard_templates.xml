@@ -360,6 +360,8 @@
                             title="Changer le thème : sombre ou clair">☀️ Clair</button>
                     <a class="lien-tour lien-quitter" href="/web/logout"
                        title="Se déconnecter de la tour">↪ Se déconnecter</a>
+                    <a class="lien-tour" href="https://github.com/fotsopatrick/tour-community"
+                       target="_blank" rel="noopener" title="Code source (AGPL) sur GitHub">GitHub</a>
                     <div class="actions-overlay" id="actions-overlay"></div>
                     <nav class="menu-actions" id="menu-actions" aria-label="Actions">
                         <div class="menu-actions-head">
