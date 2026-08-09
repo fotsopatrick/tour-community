@@ -155,6 +155,37 @@ class ChloéCommunity(http.Controller):
                 "ou dans Réglages (paramètre %s)." % (CLE_COFFRE, PARAM_CLE))}
         return self._deepseek_local(cle, fil, texte, invite)
 
+    @http.route("/tour_copilote/chat", type="json", auth="user")
+    def bulle_chat(self, messages=None, piece_jointe=None):
+        """Pont d'adaptation pour la bulle Chloe du dashboard.
+
+        La bulle du dashboard (tour_dashboard) appelle `/tour_copilote/chat`
+        avec le format du cœur (`{messages: [...], piece_jointe: ...}`) et
+        attend `result.reply`. En édition Community, le cœur n'existe pas ;
+        cette route traduit l'appel vers le chat Community et rend la réponse
+        dans le format attendu par la bulle. Le nom de la route reste celui du
+        cœur pour que le dashboard fonctionne sans modification.
+        """
+        msgs = messages or []
+        dernier = next((m for m in reversed(msgs)
+                        if (m or {}).get("role") == "user"), None)
+        texte = (dernier or {}).get("content") or ""
+        historique = []
+        for m in msgs[:-1]:
+            if not (m or {}).get("content"):
+                continue
+            role = m.get("role")
+            # La bulle du dashboard utilise « bot » pour les réponses de
+            # Chloé ; l'API DeepSeek attend « assistant ». Les autres rôles
+            # (user, system) passent tels quels.
+            if role == "bot":
+                role = "assistant"
+            historique.append({"role": role, "content": m.get("content")})
+        rep = self.message(texte=texte, historique=historique)
+        if "erreur" in rep:
+            return {"error": rep["erreur"]}
+        return {"reply": rep.get("reponse", ""), "actions": []}
+
     # --- pont smolagents -------------------------------------------------
 
     def _consigne_pont(self, fil, texte):
@@ -200,6 +231,8 @@ class ChloéCommunity(http.Controller):
 
         reply = ""
         actions = []
+        derniere_reponse = ""
+        dernier_resultat_outil = ""
         for _ in range(4):  # boucle bornee d'outils
             try:
                 r = requests.post(
@@ -220,9 +253,12 @@ class ChloéCommunity(http.Controller):
             data = r.json()
             choix = (data.get("choices") or [{}])[0]
             msg = choix.get("message") or {}
+            contenu = (msg.get("content") or "").strip()
+            if contenu:
+                derniere_reponse = contenu
             appels = msg.get("tool_calls") or []
             if not appels:
-                reply = (msg.get("content") or "").strip()
+                reply = contenu
                 break
             msgs.append(msg)
             for appel in appels:
@@ -236,12 +272,26 @@ class ChloéCommunity(http.Controller):
                     resultat = self._run_tool_local(nom_outil, entree, actions)
                 except Exception as exc:  # noqa: BLE001
                     resultat = "Erreur lors de l'exécution : %s" % exc
+                if resultat.startswith("App"):
+                    dernier_resultat_outil = resultat
                 msgs.append({"role": "tool", "tool_call_id": appel.get("id") or "",
                              "content": resultat})
+            # L'outil a fait son travail (construire_app écrit le fichier).
+            # Un second tour réenverrait le HTML complet dans l'historique et
+            # dépasserait le délai de l'API. On s'arrête ici et on rend une
+            # réponse claire avec le lien — c'est plus fiable et plus rapide.
+            if actions:
+                break
 
+        if not reply and actions:
+            reply = "J'ai construit : %s." % " ; ".join(actions)
+            if dernier_resultat_outil:
+                reply += " %s" % dernier_resultat_outil
         if actions:
             reply = (reply or "") + "\n\n(Je viens de : " + " ; ".join(actions) + ".)"
-        return {"reponse": reply or "(réponse vide)"}
+        if not reply:
+            reply = derniere_reponse or "(réponse vide)"
+        return {"reponse": reply}
 
     def _run_tool_local(self, nom, entree, actions):
         """Exécute l'outil construire_app en local : écrit le fichier servi."""
