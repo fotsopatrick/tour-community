@@ -97,6 +97,12 @@ class MailDebrand(models.AbstractModel):
             "lang": "{{ object.lang }}",
         }
         gabarit.sudo().write(valeurs)
-        gabarit.sudo().with_context(lang="fr_FR").write(valeurs)
-        _logger.info("Debranding courriel : invitation reecrite (fr et defaut)")
+        # La version française ne peut être écrite que si le pack fr est
+        # installé sur l'instance (cas d'une installation sans la langue).
+        # Sans vérification, `with_context(lang="fr_FR")` lève « Invalid
+        # language code » et casse toute l'installation du module.
+        langues = self.env["res.lang"].search_count([("code", "=", "fr_FR")])
+        if langues:
+            gabarit.sudo().with_context(lang="fr_FR").write(valeurs)
+        _logger.info("Debranding courriel : invitation reecrite (fr si presente, defaut)")
         return True
