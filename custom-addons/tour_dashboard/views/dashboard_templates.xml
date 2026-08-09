@@ -282,6 +282,16 @@
                     .actu b { font-weight: 550; font-size: .93rem; }
                     .actu small { color: var(--doux); display: block; margin-top: .4rem; }
                 </style>
+                <title>Tour de contrôle — Community</title>
+                <link rel="icon" type="image/svg+xml"
+                      href="/tour_community_theme/static/src/img/favicon.svg"/>
+                <script>
+                    // web.layout injecte son titre avant le notre ; le
+                    // navigateur garde le premier. On force le notre.
+                    document.addEventListener('DOMContentLoaded', function () {
+                        document.title = 'Tour de contrôle — Community';
+                    });
+                </script>
             </t>
 
             <div class="wrap">
