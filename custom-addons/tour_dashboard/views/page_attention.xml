@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_attention" name="Attention — Tour de Contrôle">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Attention — Tour de Contrôle</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .wrap { max-width:920px; margin:0 auto; padding:28px 16px 64px; }
+                    a.retour { color:#3b82f6; text-decoration:none; font-size:.88rem; }
+                    h1 { font-size:1.7rem; margin:12px 0 4px; }
+                    .sub { color:#94a3b8; margin:0 0 22px; }
+                    .panneau { background:#0f172a; border:1px solid #1e293b;
+                               border-radius:.7rem; padding:16px; margin-bottom:16px; }
+                    .panneau h2 { font-size:1rem; margin:0 0 10px; color:#7dd3fc; }
+                    .vide { color:#64748b; font-size:.88rem; }
+                    .ligne { border-top:1px solid #1e293b; padding:9px 0; font-size:.9rem; }
+                    .ligne:first-of-type { border-top:0; }
+                    .ligne .titre { font-weight:600; }
+                    .ligne .quand { color:#64748b; font-size:.78rem; }
+                    .ligne .ton { font-size:.72rem; font-weight:700; text-transform:uppercase;
+                                  border-radius:20px; padding:1px 8px; margin-left:8px; }
+                    .ton.attention { background:#3b1d1d; color:#f87171; }
+                    .ton.echec { background:#450a0a; color:#fca5a5; }
+                    a.lien { color:#3b82f6; text-decoration:none; font-size:.85rem; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </head>
+            <body>
+                <div class="wrap">
+                    <a class="retour" href="/tour/dashboard">← l'accueil</a>
+                    <h1>⚠️ Attention</h1>
+                    <p class="sub">Tout ce qui attend un regard, rassemblé en une page :
+                        les alertes, les décisions qui dorment, les missions qui ont échoué.</p>
+
+                    <div class="panneau">
+                        <h2>Circuits qui attendent</h2>
+                        <div class="vide" t-if="not circuits">Aucun circuit en attente — rien ne tourne en brouillon.</div>
+                        <t t-foreach="circuits" t-as="c">
+                            <div class="ligne">
+                                <span class="titre"><t t-esc="c.name"/></span>
+                                <div class="quand"><t t-esc="c.modele_id.name"/> · état <t t-esc="c.etat"/> · créé le
+                                    <t t-esc="c.create_date" t-options="{'widget': 'datetime'}"/></div>
+                            </div>
+                        </t>
+                        <p t-if="circuits" style="margin:10px 0 0">
+                            <a class="lien" href="/tour/cockpit/circuits">Voir dans le cockpit des circuits →</a>
+                        </p>
+                    </div>
+
+                    <div class="panneau">
+                        <h2>Décisions qui attendent</h2>
+                        <div class="vide" t-if="not decisions">Aucune décision en attente — le cap avance.</div>
+                        <t t-foreach="decisions" t-as="d">
+                            <div class="ligne">
+                                <span class="titre"><t t-esc="d.name"/></span>
+                                <div class="quand">créée le <t t-esc="d.create_date"
+                                     t-options="{'widget': 'datetime'}"/></div>
+                            </div>
+                        </t>
+                        <p t-if="decisions" style="margin:10px 0 0">
+                            <a class="lien" href="/odoo/action-tour_decisions.action_decisions">Trancher dans Décisions →</a>
+                        </p>
+                    </div>
+
+                    <div class="panneau">
+                        <h2>Missions en échec (7 derniers jours)</h2>
+                        <div class="vide" t-if="not echecs">Aucune mission n'a échoué cette semaine.</div>
+                        <t t-foreach="echecs" t-as="e">
+                            <div class="ligne">
+                                <span class="titre"><t t-esc="e.name"/></span>
+                                <div class="quand"><t t-esc="e.moteur"/> · <t t-esc="e.create_date"
+                                     t-options="{'widget': 'datetime'}"/></div>
+                                <div t-if="e.reponse"><t t-esc="e.reponse"/></div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </body>
+        </html>
+    </template>
+</odoo>

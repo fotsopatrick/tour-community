@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 78" role="img" aria-label="La tour de contrôle">
+  <!--
+    La mascotte de la tour.
+
+    Une tour de contrôle, mais avec un regard. Deux points blancs dans le
+    vitrage suffisent : c'est le minimum pour qu'on cesse de voir un
+    pictogramme et qu'on voie quelqu'un. Ajouter une bouche l'aurait rendue
+    bavarde — une tour de contrôle regarde, elle ne raconte pas.
+
+    La balise est décentrée d'un cheveu et penche vers la droite, comme si
+    elle venait de tourner. Une symétrie parfaite fait un logo ; un très
+    léger déséquilibre fait un personnage.
+
+    Contrainte tenue : lisible à 32 pixels comme à 400. Pas de trait plus fin
+    que 2 unités, pas de détail sous 3 unités — tout ce qui est plus petit
+    disparaît en favicon, et une mascotte qu'on ne reconnaît pas dans un
+    onglet ne sert que sur la page où on l'a dessinée.
+  -->
+  <defs>
+    <linearGradient id="tdc-fut" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#334155"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="tdc-cab" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Le faisceau : deux traits courts, du côté où la balise penche. -->
+  <g stroke="#f59e0b" stroke-linecap="round" opacity="0.55">
+    <path d="M42 9 L57 4" stroke-width="2.4"/>
+    <path d="M43 14 L58 13" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- La balise -->
+  <circle cx="32" cy="9" r="4.2" fill="#f59e0b"/>
+  <circle cx="30.6" cy="7.6" r="1.4" fill="#fff" opacity="0.75"/>
+
+  <!-- Le mât -->
+  <rect x="30" y="13" width="4" height="6" rx="2" fill="#475569"/>
+
+  <!-- La cabine — c'est la tête -->
+  <rect x="12" y="18" width="40" height="22" rx="9" fill="url(#tdc-cab)"/>
+
+  <!-- Le vitrage, et le regard -->
+  <rect x="16" y="24" width="32" height="11" rx="5.5" fill="#0f172a" opacity="0.35"/>
+  <circle cx="25" cy="29.5" r="3.4" fill="#fff"/>
+  <circle cx="39" cy="29.5" r="3.4" fill="#fff"/>
+  <circle cx="26" cy="28.6" r="1.1" fill="#0f172a" opacity="0.55"/>
+  <circle cx="40" cy="28.6" r="1.1" fill="#0f172a" opacity="0.55"/>
+
+  <!-- La galerie sous la cabine -->
+  <rect x="9" y="40" width="46" height="5" rx="2.5" fill="#3b82f6"/>
+
+  <!-- Le fût -->
+  <path d="M22 45 h20 l4 24 H18 Z" fill="url(#tdc-fut)"/>
+  <rect x="27" y="52" width="10" height="9" rx="3" fill="#0f172a" opacity="0.35"/>
+
+  <!-- Le socle -->
+  <rect x="12" y="69" width="40" height="6" rx="3" fill="#3b82f6"/>
+</svg>

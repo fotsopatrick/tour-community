@@ -56,12 +56,10 @@ class CommunityAccueil(http.Controller):
 
 
 class LoginCommunity(Home):
-    """Après connexion, atterrir sur l'accueil Community (la tour libre) au
-    lieu du backend Odoo générique. L'accueil Community, c'est /community
-    (tuiles des briques + agents), pas le dashboard du cœur (tour_dashboard
-    n'appartient pas à cette édition)."""
+    """Après connexion, atterrir sur l'accueil de la tour (le dashboard,
+    comme la démo), pas dans le backend Odoo générique."""
 
     def _login_redirect(self, uid, redirect=None):
         if not redirect and is_user_internal(uid):
-            redirect = "/community"
+            redirect = "/tour/dashboard"
         return super()._login_redirect(uid, redirect=redirect)

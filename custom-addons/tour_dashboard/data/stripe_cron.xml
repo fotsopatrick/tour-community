@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Toutes les 4 heures, comme demande. Pas plus souvent : la cagnotte est
+        un chiffre qu on regarde en passant, pas un cours de bourse, et chaque
+        releve consomme des appels chez Stripe.
+    -->
+    <record id="cron_stripe_releve" model="ir.cron">
+        <field name="name">Cagnotte : relever Stripe</field>
+        <field name="model_id" ref="model_stripe_releve"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever()</field>
+        <field name="interval_number">4</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

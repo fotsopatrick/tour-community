@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_cap_liste" model="ir.ui.view">
+        <field name="name">tour.cap.liste</field>
+        <field name="model">tour.cap</field>
+        <field name="arch" type="xml">
+            <list decoration-bf="actif" decoration-muted="atteint">
+                <field name="name"/>
+                <field name="critere"/>
+                <field name="actif"/>
+                <field name="reste"/>
+                <field name="total"/>
+                <field name="atteint"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_cap_form" model="ir.ui.view">
+        <field name="name">tour.cap.form</field>
+        <field name="model">tour.cap</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_activer" type="object" string="Prendre ce cap"
+                            class="btn-primary" invisible="actif or atteint"/>
+                    <button name="action_atteint" type="object" string="Cap atteint"
+                            invisible="atteint"
+                            confirm="Le critere ecrit est-il VRAIMENT rempli, tel qu'il est ecrit ? Si tu hesites, c'est non."/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="La V1 est finie"/></h1>
+                    </div>
+                    <group>
+                        <field name="critere"
+                               placeholder="Un fait observable. Ex : un paiement a 1 EUR aboutit a une connexion sur l'instance livree."/>
+                        <field name="pourquoi" placeholder="Pourquoi celui-la, et pas un autre"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="actif"/>
+                            <field name="atteint"/>
+                        </group>
+                        <group>
+                            <field name="projet_id"/>
+                            <field name="tag" placeholder="v1"/>
+                            <field name="reste"/>
+                            <field name="total"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="status">
+                        Un seul cap a la fois. Deux caps, c'est aucun cap : on
+                        travaille sur ce qui est le plus agreable au moment ou
+                        on s'y met.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cap" model="ir.actions.act_window">
+        <field name="name">Le cap</field>
+        <field name="res_model">tour.cap</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_cap" name="Le cap" parent="tour_dashboard.menu_pilotage"
+              action="action_cap" sequence="5" groups="base.group_system"/>
+</odoo>

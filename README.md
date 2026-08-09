@@ -60,9 +60,11 @@ partie de l'édition complète.
 
 ## L'accueil
 
-Après connexion, vous arrivez sur `/community` : Bonjour + votre prénom, les
-deux agents (Chloé, Braignak), les briques installées, et le fil
-d'actualités. Le login est aux couleurs de la tour, sans marque Odoo.
+Après connexion, vous arrivez sur le **dashboard de la tour** (`/tour/dashboard`,
+le même accueil que la démo) : le menu Actions, les briques installées, le fil
+d'actualités, et Chloé en bas de page. Le login est aux couleurs de la tour,
+sans marque Odoo, et les courriels (invitation, réinitialisation,
+notifications) sont débrandés.
 
 ## Clé d'API ? Aucune n'est exigée pour installer
 

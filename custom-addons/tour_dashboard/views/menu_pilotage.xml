@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        UN MENU RACINE POUR LE PILOTAGE.
+
+        Patrick, le 28/07 : « Tess est où dans le menu apps ? ». Elle était dans
+        Settings — comme Le cap, L'équipe, Ce que fait Claude et les
+        Environnements. Tout ce qui sert à PILOTER la tour avait fini rangé
+        avec ce qui sert à la CONFIGURER.
+
+        La différence compte : on ouvre les réglages deux fois par mois, on
+        regarde son équipe et ses chiffres tous les jours. Enterrer le
+        quotidien sous l'exceptionnel, c'est le rendre invisible — et une page
+        qu'on ne trouve pas n'existe qu'à moitié.
+    -->
+    <!-- L'ICONE. Trois fois signalee par Patrick avant d'etre vraiment reglee.
+         Historique, parce que la lecon vaut mieux que le correctif :
+
+         1. Le menu declarait `icon.png`. Ce fichier n'existe pas — le module
+            n'a qu'un `icon.svg`. Odoo rendait un carre casse.
+         2. Correction precedente : RETIRER l'attribut. Ca n'a rien change,
+            et c'est le piege. Retirer un attribut d'un `menuitem` ne remet
+            PAS la valeur a zero en base : Odoo n'ecrit que les champs
+            declares. Le fichier etait propre, la base gardait le chemin mort.
+            << Ecrit n'est pas pose >>, une fois de plus.
+         3. La seule facon d'effacer une mauvaise valeur est d'en DECLARER une
+            bonne. D'ou cette icone dediee — un cadran avec son aiguille,
+            l'instrument qu'on regarde pour savoir ou on en est. -->
+    <menuitem id="menu_pilotage" name="Pilotage" sequence="2"
+              web_icon="tour_dashboard,static/description/pilotage.svg"/>
+
+    <!-- La page de test (28/07) : agrège épreuves + Emil + Vibe, datés. -->
+    <record id="action_page_tests" model="ir.actions.act_url">
+        <field name="name">Tests</field>
+        <field name="url">/tour/tests</field>
+        <field name="target">self</field>
+    </record>
+    <menuitem id="menu_page_tests" name="Tests"
+              parent="menu_pilotage" sequence="17"
+              action="action_page_tests"
+              groups="base.group_system"/>
+</odoo>

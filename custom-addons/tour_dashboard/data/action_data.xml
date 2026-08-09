@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Accès au tableau de bord depuis la tour.
+
+             PIÈGE À NE PAS REFAIRE : poser cette action comme action d'accueil
+             (`res.users.action_id`) enferme l'utilisateur dehors — `/odoo`
+             exécute l'action d'accueil, qui redirige vers /tour/dashboard, dont
+             le bouton « Ouvrir la tour » repointe sur `/odoo`. Boucle infinie,
+             backend inaccessible. Le dashboard reste donc un menu, pas une
+             action d'accueil. -->
+        <record id="action_accueil" model="ir.actions.act_url">
+            <field name="name">Accueil</field>
+            <field name="url">/tour/dashboard</field>
+            <field name="target">self</field>
+        </record>
+    </data>
+
+    <!-- web_icon DANS le code, pas seulement en base : posée à la main sur la
+         tour mère, l'icône n'existait sur aucune instance cliente (28/07). -->
+    <menuitem id="menu_dashboard_racine" name="Accueil" sequence="1"
+              action="action_accueil"
+              web_icon="tour_dashboard,static/description/icon.svg"/>
+
+    <!-- Derrière chaque compteur de l'accueil : la liste correspondante.
+         Un chiffre sur lequel on ne peut pas cliquer oblige à aller le
+         rechercher à la main, ce qui annule l'intérêt du tableau. -->
+    <record id="action_taches_restantes" model="ir.actions.act_window">
+        <field name="name">Chantiers restants</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('project_id.name', 'ilike', 'ODOO'),
+                              ('stage_id.name', '!=', 'Fait')]</field>
+        <field name="context">{'search_default_group_by_stage': 1}</field>
+    </record>
+
+    <record id="action_taches_moi" model="ir.actions.act_window">
+        <field name="name">Ce qui vous attend</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('project_id.name', 'ilike', 'ODOO'),
+                              ('stage_id.name', '!=', 'Fait'),
+                              ('qui', 'in', ['proprietaire', 'partage'])]</field>
+    </record>
+
+    <record id="action_taches_claude" model="ir.actions.act_window">
+        <field name="name">Côté Claude</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('project_id.name', 'ilike', 'ODOO'),
+                              ('stage_id.name', '!=', 'Fait'),
+                              ('qui', '=', 'claude')]</field>
+    </record>
+
+    <record id="action_taches_non_classees" model="ir.actions.act_window">
+        <field name="name">Pas encore triés</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('project_id.name', 'ilike', 'ODOO'),
+                              ('stage_id.name', '!=', 'Fait'),
+                              ('qui', '=', False)]</field>
+    </record>
+
+    <!--
+        Les taches qui en bloquent d'autres. Un compteur qui ne mene nulle
+        part oblige a chercher soi-meme ce qu'il designe — et on ne cherche
+        pas, on l'ignore.
+    -->
+    <record id="action_taches_bloquantes" model="ir.actions.act_window">
+        <field name="name">Ce que je bloque</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('stage_id.fold','=',False),('qui','in',['proprietaire','partage']),('dependent_ids','!=',False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Tu ne bloques rien</p>
+            <p>Aucune de tes tâches n'en retient une autre.</p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,1341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_accueil" name="Tour — Accueil">
+        <t t-call="web.layout">
+            <!-- web.layout injecte cette variable dans le <head> : c'est « head »,
+                 pas « head_website » (celle-la n'existe que dans le module website). -->
+            <t t-set="head">
+                <!-- SANS CETTE LIGNE, un téléphone rend la page en largeur
+                     d'écran d'ordinateur puis dézoome : tout devient minuscule
+                     et illisible. C'est LA cause du rendu « page web » au lieu
+                     de « application ». -->
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+                <meta name="theme-color" content="#020817"/>
+                <style>
+                    :root {
+                        --fond: #020817; --surface: #0f172a; --surface2: #1e293b;
+                        --primaire: #3b82f6; --texte: #e2e8f0; --doux: #94a3b8;
+                        --alerte: #f59e0b; --ok: #22c55e; --r: .5rem;
+                    }
+                    /* Thème blanc (09/08, Patrick) : choisi par le bouton
+                       « ☀️ Blanc », persisté dans localStorage (clé tour-theme),
+                       partagé avec les cockpits. Palette alignée sur le système
+                       de design validé (cockpit.css, thème light). */
+                    :root[data-theme="light"] {
+                        --fond: #EAEEF2; --surface: #FFFFFF; --surface2: #DDE4EB;
+                        --primaire: #2F6FB0; --texte: #14202B; --doux: #5C6B7A;
+                        --alerte: #B5651D; --ok: #1F8A46; --r: .5rem;
+                    }
+                    * { box-sizing: border-box; }
+                    body { margin: 0; background: var(--fond); color: var(--texte);
+                           font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+                    a { color: inherit; text-decoration: none; }
+                    /* Téléphone d'abord : les tailles ci-dessous sont celles du
+                       mobile, l'écran large vient les élargir plus bas. Faire
+                       l'inverse produit une page d'ordinateur rétrécie. */
+                    .wrap { max-width: 1100px; margin: 0 auto;
+                            padding: 1.25rem 1rem 5rem; }
+                    /* `center`, pas `baseline` : l'en-tete contient un LOGO
+                       (SVG) a cote du titre, et aligner sur la ligne de base
+                       du texte tirait le bouton Actions vers le bas — decale
+                       sur telephone, signale par Patrick le 28/07. Un SVG n'a
+                       pas de ligne de base de texte : baseline ne veut rien
+                       dire pour lui. */
+                    header.tete { display: flex; align-items: center;
+                                  justify-content: space-between; flex-wrap: wrap;
+                                  gap: .75rem; margin-bottom: 1.5rem; }
+                    /* Quand l'ecran est trop etroit et que le bouton passe a
+                       la ligne, il reste colle a droite au lieu de flotter a
+                       gauche sous le titre. */
+                    header.tete .actions { margin-left: auto; }
+                    .lien-quitter { background: transparent; color: var(--doux);
+                                    border: 1px solid var(--surface2);
+                                    padding: .7rem 1rem; font-size: .95rem; }
+                    .lien-quitter:hover { color: var(--alerte); border-color: var(--alerte); }
+                    header.tete h1 { font-size: 1.5rem; margin: 0; font-weight: 650; }
+                    header.tete .sous { color: var(--doux); font-size: 1rem; }
+                    /* Zone tactile confortable : 44px est le minimum pour qu'un
+                       doigt touche juste du premier coup. */
+                    .lien-tour { background: var(--primaire); color: #fff;
+                                 padding: .7rem 1.1rem; border-radius: var(--r);
+                                 font-weight: 600; font-size: .95rem;
+                                 display: inline-block; min-height: 44px;
+                                 line-height: 1.6; }
+                    /* Le menu Actions : barre latérale GAUCHE repliable
+                       (off-canvas), 02/08 — un invité ne voit QUE ses
+                       données (règle de Patrick, 01/08). */
+                    .actions-btn { background: var(--primaire); color: #fff;
+                                 padding: .7rem 1.1rem; border-radius: var(--r);
+                                 font-weight: 600; font-size: .95rem; cursor: pointer;
+                                 min-height: 44px; line-height: 1.6; border: none;
+                                 display: inline-flex; align-items: center; gap: .4rem;
+                                 user-select: none; margin-left: auto; }
+                    .menu-actions { position: fixed; left: 0; top: 0; bottom: 0;
+                                 width: 286px; max-width: 86vw;
+                                 background: var(--surface);
+                                 border-right: 1px solid var(--surface2);
+                                 padding: .6rem; display: flex; flex-direction: column;
+                                 gap: .1rem; overflow-y: auto;
+                                 transform: translateX(-100%);
+                                 transition: transform .22s ease;
+                                 z-index: 60; }
+                    .menu-actions.ouvert { transform: translateX(0); }
+                    .actions-overlay { position: fixed; inset: 0;
+                                 background: rgba(0,0,0,.5); z-index: 55;
+                                 opacity: 0; pointer-events: none;
+                                 transition: opacity .22s ease; }
+                    .actions-overlay.ouvert { opacity: 1; pointer-events: auto; }
+                    .menu-actions-head { display: flex; justify-content: space-between;
+                                 align-items: center; padding: .3rem .3rem .8rem;
+                                 border-bottom: 1px solid var(--surface2);
+                                 margin-bottom: .4rem; }
+                    .menu-actions-head span { font-weight: 700; font-size: 1.05rem; }
+                    .menu-close { background: none; border: none; color: var(--texte);
+                                 font-size: 1.2rem; cursor: pointer; min-height: 44px;
+                                 min-width: 44px; }
+                    .menu-actions a { color: var(--texte); text-decoration: none;
+                                 padding: .7rem .85rem; border-radius: .4rem;
+                                 font-weight: 600; font-size: .95rem; min-height: 44px;
+                                 display: flex; align-items: center; }
+                    .menu-actions a:hover, .menu-actions a:focus { background: var(--surface2); }
+                    .menu-groupe { background: none; border: none; width: 100%;
+                                 text-align: left; font-family: inherit;
+                                 color: var(--doux); font-size: 10px; font-weight: 700;
+                                 text-transform: uppercase; letter-spacing: .8px;
+                                 padding: 10px .85rem 4px; cursor: pointer;
+                                 display: flex; align-items: center;
+                                 justify-content: space-between; min-height: 30px; }
+                    .menu-groupe:hover { color: var(--texte); }
+                    .menu-groupe .chev { font-size: 8px; color: var(--faint);
+                                 transition: transform .18s ease; }
+                    .menu-groupe.ouvert .chev { transform: rotate(90deg); }
+                    .menu-sous { display: none; }
+                    .menu-sous.ouvert { display: block; }
+                    .menu-sous-titre { color: var(--faint); font-size: 9px;
+                                 font-weight: 700; text-transform: uppercase;
+                                 letter-spacing: .6px; padding: 8px .85rem 2px; }
+                    .menu-cherche { padding: .4rem .85rem .6rem; }
+                    .menu-cherche input { width: 100%; box-sizing: border-box;
+                                 padding: .55rem .7rem; border-radius: .4rem;
+                                 border: 1px solid var(--surface2);
+                                 background: var(--surface2);
+                                 color: var(--texte); font-size: .9rem;
+                                 min-height: 40px; outline: none; }
+                    .menu-cherche input:focus { border-color: var(--primaire); }
+                    .menu-cherche input::placeholder { color: var(--faint); }
+                    .menu-groupe.masque, .menu-sous.masque, .menu-actions a.masque { display: none; }
+                    .menu-actions .aucun { display: none; color: var(--faint);
+                                 font-size: .85rem; padding: .8rem .85rem;
+                                 text-align: center; }
+                    .menu-actions .aucun.visible { display: block; }
+
+                    section { margin-bottom: 2rem; }
+                    section h2 { font-size: .8rem; text-transform: uppercase;
+                                 letter-spacing: .08em; color: var(--doux);
+                                 margin: 0 0 .75rem; font-weight: 600; }
+
+                    @media (min-width: 700px) {
+                        .wrap { padding: 2rem 1.25rem 4rem; }
+                        header.tete h1 { font-size: 1.6rem; }
+                        header.tete .sous { font-size: .95rem; }
+                        section h2 { font-size: 1.05rem; letter-spacing: .05em; }
+                    }
+                    .carte { background: var(--surface); border: 1px solid var(--surface2);
+                             border-radius: var(--r); overflow: hidden; }
+                    /* min-height : une ligne de liste doit rester touchable même
+                       quand son texte tient sur une seule ligne. */
+                    .ligne { display: flex; align-items: center; gap: .75rem;
+                             padding: .9rem 1rem; min-height: 56px;
+                             border-bottom: 1px solid var(--surface2); }
+                    .ligne:last-child { border-bottom: 0; }
+                    /* Le cap : une ligne fine, un liseré, rien qui clignote.
+                       Il doit se lire sans se faire remarquer — c'est la
+                       condition pour qu'il soit encore lu dans un mois. */
+                    .cap { display:flex; align-items:baseline; gap:.6rem;
+                        margin:-.5rem 0 1.75rem; padding:.6rem .9rem;
+                        background:var(--surface); border:1px solid var(--surface2);
+                        border-left:3px solid var(--primaire);
+                        border-radius:var(--r); font-size:.88rem; }
+                    .cap-puce { flex:0 0 auto; width:.45rem; height:.45rem;
+                        border-radius:50%; background:var(--primaire);
+                        align-self:center; }
+                    .cap-texte { flex:1; min-width:0; }
+                    .cap-texte b { font-weight:600; }
+                    .cap-critere { display:block; color:var(--doux);
+                        font-size:.8rem; margin-top:.15rem; }
+                    /* La mascotte accompagne le bonjour, elle ne le remplace
+                       pas : l'accueil sert a savoir ce qui attend. 44px sur
+                       telephone, 56 sur grand ecran — assez pour qu'on voie
+                       son regard, pas assez pour qu'elle prenne la vedette. */
+                    .salut { display:flex; align-items:center; gap:.85rem; }
+                    .mascotte { flex:0 0 auto; width:44px; height:auto;
+                        filter:drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+                    @media (min-width:700px) { .mascotte { width:56px; } }
+                    a.cap { text-decoration:none; }
+                    a.cap:hover { border-color:var(--primaire); }
+                    /* Qui attend qui : discret quand tout va, visible
+                       quand quelqu'un attend. Le vert n'est pas une
+                       recompense, c'est l'absence d'obstacle. */
+                    .attente { margin:-1.25rem 0 1.25rem; font-size:.82rem; }
+                    .attente-alerte { color:var(--alerte); font-weight:500;
+                        text-decoration:underline; }
+                    .attente-ok { color:var(--ok); }
+                    .attente-doux { color:var(--doux); }
+                    .essais { display:flex; flex-wrap:wrap; gap:.5rem;
+                        margin:-1.25rem 0 1.75rem; }
+                    .essai { font-size:.78rem; color:var(--doux);
+                        border:1px dashed var(--surface2); border-radius:999px;
+                        padding:.25rem .7rem; text-decoration:none; }
+                    .essai:hover { color:var(--texte); border-color:var(--primaire); }
+                    .cap-reste { flex:0 0 auto; color:var(--doux);
+                        font-size:.78rem; font-variant-numeric:tabular-nums; }
+
+                    /* La cagnotte : un seul chiffre domine, les autres
+                       l'accompagnent. Trois nombres de meme taille ne se
+                       hierarchisent pas et on ne sait plus lequel compte. */
+                    .cagnotte { padding: 1.1rem 1.25rem; }
+                    .cagnotte-chiffres { display: flex; flex-wrap: wrap; gap: 2rem 2.5rem; }
+                    .cagnotte-valeur { font-size: 2rem; font-weight: 700;
+                        line-height: 1.1; letter-spacing: -.02em; }
+                    .cagnotte-valeur.secondaire { font-size: 1.15rem; font-weight: 600;
+                        opacity: .75; }
+                    .cagnotte-libelle { margin-top: .2rem; font-size: .8rem;
+                        opacity: .6; }
+                    .cagnotte-pied { display: flex; flex-wrap: wrap; gap: .75rem;
+                        margin-top: 1rem; padding-top: .7rem;
+                        border-top: 1px solid var(--surface2);
+                        font-size: .75rem; opacity: .55; }
+                    /* Qui est là. Une pastille verte et un chiffre : c'est
+                       l'information la plus courte de la page, elle n'a pas
+                       besoin d'une section à elle. */
+                    .presence { display:inline-flex; align-items:center;
+                        gap:.4rem; margin-left:.6rem; padding:.1rem .55rem .1rem .45rem;
+                        border:1px solid var(--surface2); border-radius:999px;
+                        font-size:.8rem; color:var(--doux); vertical-align:middle; }
+                    .pastille { width:.5rem; height:.5rem; border-radius:50%;
+                        background:var(--ok); box-shadow:0 0 0 3px rgba(34,197,94,.15); }
+                    .cagnotte-test { color: #f59e0b; opacity: 1; font-weight: 600; }
+                    /* Copier un titre sans ouvrir la tache. Le bouton reste
+                       discret jusqu au survol : une rangee de boutons visibles
+                       en permanence transformerait une liste a lire en tableau
+                       de bord a manipuler. Sur telephone, il n y a pas de
+                       survol, donc il est toujours visible la-bas. */
+                    .copier { flex: 0 0 auto; width: 32px; height: 32px;
+                              display: inline-flex; align-items: center;
+                              justify-content: center; border-radius: 8px;
+                              border: 1px solid var(--surface2); color: var(--doux);
+                              font-size: .95rem; cursor: pointer; opacity: 1;
+                              background: transparent; transition: all .12s; }
+                    .copier:hover { border-color: var(--primaire);
+                                    color: var(--primaire); }
+                    .copier.ok { border-color: var(--ok); color: var(--ok); }
+                    @media (hover: hover) {
+                        .copier { opacity: 0; }
+                        .ligne:hover .copier, .copier:focus-visible { opacity: 1; }
+                    }
+
+                    .ligne:active, .ligne:hover { background: var(--surface2); }
+                    .ligne .titre { flex: 1; min-width: 0; }
+                    .ligne .titre b { font-weight: 550; display: block;
+                                      font-size: .98rem; line-height: 1.35; }
+                    .ligne .titre small { color: var(--doux); display: block;
+                                          margin-top: .2rem; font-size: .82rem; }
+                    .puce { flex: 0 0 auto; font-size: .72rem; padding: .2rem .5rem;
+                            border-radius: 999px; border: 1px solid var(--surface2);
+                            color: var(--doux); white-space: nowrap; }
+                    .puce.urgent { color: var(--alerte); border-color: var(--alerte); }
+                    .puce.ok { color: var(--ok); border-color: var(--ok); }
+                    /* TELEPHONE : le titre prend toute la largeur, les pastilles
+                       passent dessous. Sans ca, une ligne qui porte TROIS
+                       pastilles (« Fait recemment » : quand, qui, fait) ecrase
+                       le titre a deux ou trois mots par ligne — mesure a 390 px.
+                       Ce bloc doit rester APRES `.ligne .titre { flex: 1 }`,
+                       sinon il est annule sans bruit. */
+                    .ligne { flex-wrap: wrap; row-gap: .45rem; }
+                    .ligne .titre { flex: 1 1 100%; }
+                    .ligne .titre b { overflow-wrap: anywhere; }
+                    @media (min-width: 700px) {
+                        .ligne { flex-wrap: nowrap; row-gap: 0; }
+                        .ligne .titre { flex: 1 1 auto; }
+                    }
+                    /* Deux colonnes sur téléphone : quatre compteurs empilés
+                       obligeraient à faire défiler pour voir l'essentiel. */
+                    .compteurs { display: grid; gap: .6rem;
+                                 grid-template-columns: repeat(2, 1fr); }
+                    @media (min-width: 700px) {
+                        .compteurs { gap: .75rem;
+                                     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+                    }
+                    .compteur { background: var(--surface); border: 1px solid var(--surface2);
+                                border-radius: var(--r); padding: 1rem;
+                                display: block; transition: border-color .15s; }
+                    a.compteur:hover { border-color: var(--primaire); }
+                    .compteur .n { font-size: 1.9rem; font-weight: 650; line-height: 1; }
+                    .compteur .l { color: var(--doux); font-size: .85rem; margin-top: .35rem; }
+                    .compteur.attention .n { color: var(--alerte); }
+                    .vide { color: var(--doux); padding: 1rem; font-style: italic; }
+                    .actus { display: grid; gap: .75rem;
+                             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+                    .actu { background: var(--surface); border: 1px solid var(--surface2);
+                            border-radius: var(--r); padding: .9rem; }
+                    .actu b { font-weight: 550; font-size: .93rem; }
+                    .actu small { color: var(--doux); display: block; margin-top: .4rem; }
+                </style>
+            </t>
+
+            <div class="wrap">
+                <header class="tete">
+                    <div class="salut">
+                        <!-- La mascotte est en ligne, pas en fichier : cette
+                             page est autonome (aucun asset Odoo), donc une
+                             image externe serait une requete de plus et un
+                             point de panne de plus. -->
+                        <svg class="mascotte" viewBox="0 0 64 78" role="img" aria-label="La tour de contrôle">
+                          <defs>
+                            <linearGradient id="tdc-fut" x1="0" y1="0" x2="0.3" y2="1">
+                              <stop offset="0" stop-color="#334155"/>
+                              <stop offset="1" stop-color="#1e293b"/>
+                            </linearGradient>
+                            <linearGradient id="tdc-cab" x1="0" y1="0" x2="0.2" y2="1">
+                              <stop offset="0" stop-color="#60a5fa"/>
+                              <stop offset="1" stop-color="#3b82f6"/>
+                            </linearGradient>
+                          </defs>
+                          <g stroke="#f59e0b" stroke-linecap="round" opacity="0.55">
+                            <path d="M42 9 L57 4" stroke-width="2.4"/>
+                            <path d="M43 14 L58 13" stroke-width="2" opacity="0.6"/>
+                          </g>
+                          <circle cx="32" cy="9" r="4.2" fill="#f59e0b"/>
+                          <circle cx="30.6" cy="7.6" r="1.4" fill="#fff" opacity="0.75"/>
+                          <rect x="30" y="13" width="4" height="6" rx="2" fill="#475569"/>
+                          <rect x="12" y="18" width="40" height="22" rx="9" fill="url(#tdc-cab)"/>
+                          <rect x="16" y="24" width="32" height="11" rx="5.5" fill="#0f172a" opacity="0.35"/>
+                          <circle cx="25" cy="29.5" r="3.4" fill="#fff"/>
+                          <circle cx="39" cy="29.5" r="3.4" fill="#fff"/>
+                          <circle cx="26" cy="28.6" r="1.1" fill="#0f172a" opacity="0.55"/>
+                          <circle cx="40" cy="28.6" r="1.1" fill="#0f172a" opacity="0.55"/>
+                          <rect x="9" y="40" width="46" height="5" rx="2.5" fill="#3b82f6"/>
+                          <path d="M22 45 h20 l4 24 H18 Z" fill="url(#tdc-fut)"/>
+                          <rect x="27" y="52" width="10" height="9" rx="3" fill="#0f172a" opacity="0.35"/>
+                          <rect x="12" y="69" width="40" height="6" rx="3" fill="#3b82f6"/>
+                        </svg>
+                        <div>
+                        <h1>Bonjour <t t-esc="user.name.split(' ')[0]"/></h1>
+                        <div class="sous">
+                            Voici où en est la tour.
+                            <span t-if="connectes" class="presence">
+                                <span class="pastille"/>
+                                <t t-esc="connectes"/>
+                                <t t-if="connectes &gt; 1"> connectés</t>
+                                <t t-else=""> connecté</t>
+                            </span>
+                            <span class="presence" t-attf-title="Missions terminées ou échouées par l'atelier aujourd'hui.">
+                                <t t-esc="missions_traitees"/>
+                                <t t-if="missions_traitees &gt; 1"> missions traitées aujourd'hui</t>
+                                <t t-else=""> mission traitée aujourd'hui</t>
+                            </span>
+                            <!-- Tâche 430 : chacun voit sa consommation copilote
+                                 du jour et sait quand il pourra recommencer,
+                                 sans avoir à demander. Un chiffre compté,
+                                 pas un score. « appels » et pas « échanges » :
+                                 un message à Chloe peut coûter plusieurs
+                                 appels quand elle se sert de ses outils. -->
+                            <span t-if="copilote and copilote['quota']" class="presence"
+                                  t-attf-title="Il te reste {{ copilote['restant'] }} appel(s) au copilote aujourd hui. Un message peut en couter plusieurs quand Chloe utilise ses outils. Le compteur repart demain.">
+                                Copilote : <t t-esc="copilote['consomme']"/>/<t t-esc="copilote['quota']"/> appels aujourd'hui
+                            </span>
+                            <span t-if="copilote and not copilote['quota']" class="presence"
+                                  title="Pas de limite sur ce compte. Le compteur repart demain.">
+                                Copilote : <t t-esc="copilote['consomme']"/> appels aujourd'hui
+                            </span>
+                        </div>
+                        </div>
+                    </div>
+                    <!-- Les raccourcis, dans une barre latérale GAUCHE repliable.
+                         /odoo/apps et non /odoo : la racine peut rebondir. -->
+                    <button type="button" class="actions-btn" id="actions-btn"
+                            title="Tous les raccourcis de la tour">☰ Actions</button>
+                    <button type="button" class="actions-btn" id="themebtn"
+                            title="Changer le thème : sombre ou clair">☀️ Clair</button>
+                    <a class="lien-tour lien-quitter" href="/web/logout"
+                       title="Se déconnecter de la tour">↪ Se déconnecter</a>
+                    <div class="actions-overlay" id="actions-overlay"></div>
+                    <nav class="menu-actions" id="menu-actions" aria-label="Actions">
+                        <div class="menu-actions-head">
+                            <span>Actions</span>
+                            <button type="button" class="menu-close" id="menu-close"
+                                    aria-label="Fermer le menu">✕</button>
+                        </div>
+                        <div class="menu-cherche">
+                            <input type="search" id="actions-cherche"
+                                   placeholder="Chercher une action..."
+                                   aria-label="Chercher une action" autocomplete="off"/>
+                        </div>
+                        <!-- MENU COMMUNAUTÉ (09/08, Merline) : ne montre que les
+                             pages réellement installées dans l'édition
+                             Community. Les liens vers le cœur (équipage,
+                             circuits, coffre, pentest, moteur de la file
+                             d'agents...) sont retirés : ils n'existent pas ici
+                             et ne doivent pas mener à un 404 ni afficher des
+                             réglages internes. -->
+                        <button type="button" class="menu-groupe" data-cle="piloter" aria-expanded="false"><span>Piloter</span><span class="chev">▶</span></button>
+                        <div class="menu-sous" data-cle="piloter">
+                          <div class="menu-sous-titre">Pilotage</div>
+                          <a t-if="est_admin" href="/odoo/apps">Ouvrir la tour →</a>
+                          <a t-if="est_admin" href="/tour/dashboard">Pilotage</a>
+                          <a t-if="est_admin" href="/tour/projets"
+                             title="Le kanban de gestion de projet">Projets</a>
+                          <div class="menu-sous-titre">Surveillance</div>
+                          <a t-if="est_admin" href="/tour/cockpit/tests"
+                             title="Les cahiers de recette, leurs étapes et leurs derniers passages">Cockpit des tests</a>
+                        </div>
+                        <button type="button" class="menu-groupe" data-cle="moi" aria-expanded="false"><span>Moi &amp; contenu</span><span class="chev">▶</span></button>
+                        <div class="menu-sous" data-cle="moi">
+                          <div class="menu-sous-titre">Mes données</div>
+                          <a t-if="est_admin" href="/tour/reponses"
+                             title="Les réponses gardées">Réponses</a>
+                          <a t-if="est_admin" href="/tour/messages"
+                             title="Les messages prêts à copier">Messages</a>
+                          <a t-if="est_admin" href="/tour/actus"
+                             title="Le fil d'actualités">Actualités</a>
+                          <a t-if="est_admin" href="/tour/apps">Mes applications</a>
+                        </div>
+                        <button type="button" class="menu-groupe" data-cle="agents" aria-expanded="false"><span>Agents</span><span class="chev">▶</span></button>
+                        <div class="menu-sous" data-cle="agents">
+                          <a href="/community/chat"
+                             title="Parler à Chloé, l'assistante">💬 Parler à Chloé</a>
+                          <a href="/community/braignak"
+                             title="Demander à Braignak, l'observateur">🔭 Demander à Braignak</a>
+                        </div>
+                        <button type="button" class="menu-groupe" data-cle="dehors" aria-expanded="false"><span>Dehors</span><span class="chev">▶</span></button>
+                        <div class="menu-sous" data-cle="dehors">
+                          <a t-if="est_admin" href="/tour/sauvegardes"
+                             title="Voir les sauvegardes">💾 Sauvegardes</a>
+                          <a t-if="est_admin or est_owner" href="/zone-detresse/zone-detresse.html"
+                             title="La balise SOS">Zone Détresse (SOS)</a>
+                          <a t-if="est_admin or est_owner" href="/ssh"
+                             title="SSH Quest">SSH Quest</a>
+                        </div>
+                     </nav>
+
+                </header>
+
+                <!-- LES DÉCISIONS QUI T'ATTENDENT — au-dessus de tout, même
+                     du cap. Règle de Patrick : quand des décisions
+                     attendent, ça se voit à l'ouverture, pour lui comme
+                     pour chaque utilisateur. Une décision qui dort bloque
+                     souvent un agent entier. -->
+                <!-- LA BASCULE ACTIVE SE VOIT. Un reglage qui change le
+                     moteur de toute la maison et qu'on oublie, c'est une
+                     surprise le lendemain : des comptes rendus qui ne
+                     construisent rien, sans explication. -->
+                <div t-if="moteur_force" class="cap"
+                     style="border-left-color:#f59e0b">
+                    <span class="cap-puce" style="background:#f59e0b"/>
+                    <span class="cap-texte">
+                        <b>Les agents tournent sur <t t-esc="moteur_force"/>.</b>
+                        <t t-if="moteur_force == 'deepseek-agent'">
+                            Ce moteur CONSTRUIT : il écrit et modifie les
+                            fichiers (prouvé, 50 essais sur 50). À remettre en
+                            normal dès que Claude répond de nouveau.
+                        </t>
+                        <t t-else="">
+                            Ils répondent, ils ne construisent pas : aucun
+                            fichier n'est écrit. À remettre en normal dès que
+                            Claude répond de nouveau.
+                        </t>
+                    </span>
+                </div>
+                <div t-if="degre_pilotage" class="cap"
+                     style="border-left-color:#22c55e">
+                    <span class="cap-puce" style="background:#22c55e"/>
+                    <span class="cap-texte">
+                        <b>Pilotage à la parole : <t t-esc="degre_pilotage['pct']"/> %</b>
+                        <t t-esc="degre_pilotage['pilote']"/> des
+                        <t t-esc="degre_pilotage['total']"/> gestes de la tour se
+                        font en discutant, sans lire de doc. Recalculé en direct.
+                    </span>
+                </div>
+                <div t-if="dispo" class="cap"
+                     t-att-style="'border-left-color:#' + (dispo['etat'] == 'disponible' and '22c55e' or 'f59e0b')">
+                    <span class="cap-puce"
+                          t-att-style="'background:#' + (dispo['etat'] == 'disponible' and '22c55e' or 'f59e0b')"/>
+                    <span class="cap-texte">
+                        <t t-set="prenom" t-value="user.name.split(' ')[0]"/>
+                        <b t-if="dispo['etat'] == 'disponible'"><t t-esc="prenom"/> est disponible.</b>
+                        <b t-else=""><t t-esc="prenom"/> est occupé <t t-if="dispo['raison']">— <t t-esc="dispo['raison']"/></t>.</b>
+                        <t t-esc="dispo['quand']"/> (pointage hôte).
+                    </span>
+                </div>
+                <a t-if="nb_decisions" class="cap"
+                   t-att-href="lien_decisions"
+                   style="border-left-color:#f59e0b">
+                    <span class="cap-puce" style="background:#f59e0b"/>
+                    <span class="cap-texte">
+                        <b><t t-esc="nb_decisions"/> décision<t t-if="nb_decisions &gt; 1">s</t>
+                        t'attend<t t-if="nb_decisions &gt; 1">ent</t></b>
+                        <span class="cap-critere">approuve, ou rejette avec un mot — l'équipe repart avec.</span>
+                        <span class="cap-critere" t-if="nb_predecisions_clone">
+                            dont <b t-esc="nb_predecisions_clone"/> pré-décision<t t-if="nb_predecisions_clone &gt; 1">s</t>
+                            du Clone de Patrick
+                        </span>
+                    </span>
+                </a>
+
+                <!-- LE CAP -->
+                <!-- Une ligne, pas une banniere. L'objectif doit etre lisible
+                     d'un coup d'oeil sans prendre la place de ce qu'il y a a
+                     faire : un cap qui occupe l'ecran devient un decor qu'on
+                     ne lit plus au bout de trois jours. -->
+                <!-- Pas d'apostrophe dans un t-att-title : la valeur est
+                     evaluee comme du Python, et une apostrophe non echappee
+                     casse la COMPILATION du gabarit — donc toute la page,
+                     pas seulement l'attribut. C'est arrive le 27/07. -->
+                <a t-if="cap" class="cap"
+                   t-attf-href="/odoo/action-tour_dashboard.action_cap/{{ cap.id }}"
+                   title="Ouvrir le cap — le declarer atteint se fait ici">
+                    <!-- Le panneau a la flechette (demande du 29/07) : une
+                         cible touchee au centre — le cap est une chose qu'on
+                         vise, pas une puce anonyme. SVG en dur : zero
+                         requete, zero cache d'asset. -->
+                    <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"
+                         style="flex:0 0 auto; align-self:center;">
+                        <circle cx="13" cy="13" r="11" fill="none" stroke="#3b82f6" stroke-width="2"/>
+                        <circle cx="13" cy="13" r="6.5" fill="none" stroke="#3b82f6" stroke-width="2" opacity=".55"/>
+                        <circle cx="13" cy="13" r="2.2" fill="#f59e0b"/>
+                        <path d="M13 13 L22 4" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M22 4 l-4.2 .8 M22 4 l-.8 4.2" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="cap-texte">
+                        <b t-esc="cap.name"/>
+                        <span class="cap-critere">fini quand : <t t-esc="cap.critere"/></span>
+                    </span>
+                    <span t-if="cap.total" class="cap-reste">
+                        <t t-esc="cap.total - cap.reste"/>/<t t-esc="cap.total"/>
+                    </span>
+                </a>
+
+                <!-- Les liens d'essai. Chercher un lien a chaque test, c'est
+                     finir par ne plus tester. -->
+                <!-- QUI ATTEND QUI. Une ligne, deux chiffres, et une
+                     phrase quand il n'y a rien — parce que « rien ne bloque »
+                     est une reponse, et c'est meme la plus utile. -->
+                <div class="attente">
+                    <a t-if="je_bloque" class="attente-alerte"
+                       t-att-href="lien_bloque"
+                       title="Voir lesquelles">
+                        <b t-esc="je_bloque"/>
+                        <t t-if="je_bloque &gt; 1"> de tes tâches en bloquent d'autres</t>
+                        <t t-else=""> de tes tâches en bloque une autre</t>
+                    </a>
+                    <span t-else="" class="attente-ok">Tu ne bloques rien.</span>
+                    <span t-if="en_cours_bloquees" class="attente-doux">
+                        · <b t-esc="en_cours_bloquees"/> de mes tâches attendent quelque chose
+                    </span>
+                </div>
+
+                <div t-if="lien_semaine" class="essais">
+                    <a class="essai" t-att-href="lien_semaine">
+                        Le planning de la semaine
+                    </a>
+                </div>
+
+                <div t-if="essais" class="essais">
+                    <t t-foreach="essais" t-as="e">
+                        <a class="essai" t-att-href="e.lien_paiement" target="_blank" rel="noopener">
+                            Tester le paiement — <t t-esc="'%.2f' % e.prix"/> €
+                        </a>
+                    </t>
+                </div>
+
+                <!-- LA CAGNOTTE -->
+                <!-- Reservee au proprietaire : le chiffre d'affaires n'a rien a
+                     faire devant un invite. Et on n'affiche RIEN tant qu'aucun
+                     releve n'a abouti - un bandeau « 0 € » se lit comme un
+                     echec commercial, pas comme « je n'ai pas encore demande ». -->
+                <section t-if="est_admin and cagnotte">
+                    <h2>La cagnotte</h2>
+                    <div class="carte cagnotte">
+                        <div class="cagnotte-chiffres">
+                            <div class="cagnotte-bloc">
+                                <div class="cagnotte-valeur">
+                                    <t t-esc="'%.2f' % cagnotte.mois"/> €
+                                </div>
+                                <div class="cagnotte-libelle">
+                                    encaissé ce mois-ci
+                                    <t t-if="cagnotte.nb_paiements">
+                                        · <t t-esc="cagnotte.nb_paiements"/> paiement<t t-if="cagnotte.nb_paiements &gt; 1">s</t>
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="cagnotte-bloc">
+                                <div class="cagnotte-valeur secondaire">
+                                    <t t-esc="'%.2f' % cagnotte.disponible"/> €
+                                </div>
+                                <div class="cagnotte-libelle">disponible maintenant</div>
+                            </div>
+                            <div class="cagnotte-bloc" t-if="cagnotte.en_attente">
+                                <div class="cagnotte-valeur secondaire">
+                                    <t t-esc="'%.2f' % cagnotte.en_attente"/> €
+                                </div>
+                                <div class="cagnotte-libelle">en attente</div>
+                            </div>
+                        </div>
+                        <div class="cagnotte-pied">
+                            <span t-if="cagnotte.mode_test" class="cagnotte-test">
+                                clés de test — ces montants ne sont pas réels
+                            </span>
+                            <span>relevé le <t t-esc="cagnotte_date"/></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 1. CE QUI T'ATTEND -->
+                <!-- L'echeance du jour passe AVANT la file d'attente : une liste
+                     de tout ce qui attend, en premier, ne hierarchise rien. On la
+                     lit une fois, on renonce, et on ne la relit plus. -->
+                <section t-if="activites">
+                    <h2>À faire aujourd'hui</h2>
+                    <div class="carte">
+                        <t t-foreach="activites" t-as="a">
+                            <!-- Cliquable : ouvre la fiche concernée. Format
+                                 d'URL hérité, toujours pris en charge, et le
+                                 seul qui marche pour un modèle quelconque. -->
+                            <a class="ligne"
+                               t-attf-href="/web#model={{ a.res_model }}&amp;id={{ a.res_id }}&amp;view_type=form">
+                                <span class="titre">
+                                    <b t-esc="a.summary or a.activity_type_id.name"/>
+                                    <small>
+                                        <t t-esc="a.date_deadline"/>
+                                        <t t-set="quand" t-value="a._quand()"/>
+                                        <t t-if="quand"> · <t t-esc="quand"/></t>
+                                    </small>
+                                </span>
+                                <span class="puce">ouvrir</span>
+                            </a>
+                        </t>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Bloqué chez toi</h2>
+                    <div class="carte">
+                        <t t-if="m_attend">
+                            <t t-foreach="m_attend" t-as="t">
+                                <a class="ligne" t-attf-href="/odoo/project/{{ t.project_id.id }}/tasks/{{ t.id }}">
+                                    <span class="titre">
+                                        <b t-esc="t.name"/>
+                                        <small t-if="t.stage_id" t-esc="t.stage_id.name"/>
+                                    </span>
+                                    <span t-if="t.qui == 'partage'" class="puce">à deux</span>
+                                    <span t-else="" class="puce urgent">à toi</span>
+                                </a>
+                            </t>
+                        </t>
+                        <div t-else="" class="vide">Rien d'urgent aujourd'hui.</div>
+                        <a class="ligne" t-att-href="lien_attend"
+                           t-if="m_attend_total &gt; len(m_attend)">
+                            <span class="titre" style="color:var(--doux)">
+                                Voir tout ce qui t'attend
+                                (<t t-esc="m_attend_total"/>)
+                            </span>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- 3. LES COMPTEURS -->
+                <section>
+                    <h2>L'état du chantier</h2>
+                    <div class="compteurs">
+                        <a class="compteur" t-att-href="lien_reste">
+                            <div class="n" t-esc="reste"/>
+                            <div class="l">chantiers restants</div>
+                        </a>
+                        <a class="compteur attention" t-att-href="lien_attend">
+                            <div class="n" t-esc="len(m_attend)"/>
+                            <div class="l">bloqués chez toi</div>
+                        </a>
+                        <a class="compteur" t-att-href="lien_claude">
+                            <div class="n" t-esc="len(en_cours)"/>
+                            <div class="l">côté Claude</div>
+                        </a>
+                        <a class="compteur" t-if="non_classees"
+                           t-att-href="lien_non_classees">
+                            <div class="n" t-esc="non_classees"/>
+                            <div class="l">pas encore triés</div>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- 4. CE QUE CLAUDE A FAIT.
+                     La liste est courte EXPRÈS (les 8 derniers) — mais une
+                     liste courte sans porte vers le reste donne l'impression
+                     qu'il n'y a rien derrière (Patrick, 28/07 : « qu'on
+                     puisse cliquer voir plus »). D'où les deux liens. -->
+                <section t-if="fait_recemment">
+                    <h2>Fait récemment</h2>
+                    <div class="carte">
+                        <t t-foreach="fait_recemment" t-as="f">
+                            <a class="ligne" t-att-href="f['href']">
+                                <span class="titre"><b t-esc="f['titre']"/></span>
+                                <span class="puce" style="background:rgba(148,163,184,.12); color:#94a3b8;"
+                                      t-if="f.get('quand_txt')" t-esc="f['quand_txt']"/>
+                                <span class="puce" style="background:rgba(59,130,246,.15); color:#60a5fa;"
+                                      t-esc="f['qui']"/>
+                                <span class="puce ok">fait</span>
+                            </a>
+                        </t>
+                    </div>
+                    <p style="margin:.6rem 0 0; display:flex; gap:1.25rem; flex-wrap:wrap;">
+                        <a t-if="projet" t-attf-href="/odoo/project/{{ projet.id }}/tasks"
+                           style="color:var(--doux); font-size:.9rem;">Voir tout le journal →</a>
+                        <a t-if="lien_exploits" t-att-href="lien_exploits"
+                           style="color:var(--doux); font-size:.9rem;">Tout ce que les agents ont fait →</a>
+                    </p>
+                </section>
+
+                <!-- 5. LES ACTUS, EN DERNIER.
+                     Le dropdown change la préférence de l'utilisateur (pas un
+                     réglage global) et recharge la page. Il reste visible même
+                     sans article : c'est lui qui permet d'en RETROUVER si le
+                     filtre courant a tout masqué. -->
+                <section>
+                    <h2 style="display:flex; align-items:center; gap:.75rem;">
+                        <span>Actualités</span>
+                        <select onchange="window.location='/tour_actus/langue?choix='+this.value"
+                                style="font-size:.8rem; padding:.2rem .5rem; border-radius:.4rem;
+                                       background:var(--surface); color:inherit;
+                                       border:1px solid var(--surface2); cursor:pointer;">
+                            <option value="toutes" t-att-selected="'selected' if actus_langue == 'toutes' else None">Toutes</option>
+                            <option value="fr" t-att-selected="'selected' if actus_langue == 'fr' else None">Français</option>
+                            <option value="en" t-att-selected="'selected' if actus_langue == 'en' else None">English</option>
+                            <option value="es" t-att-selected="'selected' if actus_langue == 'es' else None">Español</option>
+                        </select>
+                    </h2>
+                    <p t-if="not articles" style="color:var(--doux); font-size:.9rem;">
+                        Rien dans cette langue pour l'instant — les sources se relèvent toutes les 30 minutes.
+                    </p>
+                    <div class="actus">
+                        <t t-foreach="articles" t-as="art">
+                            <a class="actu" t-att-href="art.lien" target="_blank" rel="noopener">
+                                <b t-esc="art.name"/>
+                                <small t-esc="art.flux_id.name"/>
+                            </a>
+                        </t>
+                    </div>
+                </section>
+
+                <!--
+                    Un bouton « copier » sur chaque ligne, injecte apres coup
+                    plutot qu ecrit dans chaque liste. Deux raisons : on ne
+                    repete pas le meme fragment cinq fois, et toute liste
+                    ajoutee plus tard en herite sans qu on y pense.
+
+                    Il copie le TITRE seul, pas la date ni l etiquette : c est
+                    ce qu on colle dans un message ou une recherche.
+                -->
+                <script type="text/javascript">
+                    /* Thème clair/sombre (09/08, Patrick). Même clé localStorage
+                       que les cockpits : le choix fait ici vaut partout. */
+                    (function () {
+                        var key = "tour-theme", root = document.documentElement;
+                        function appliquer(t) { root.setAttribute("data-theme", t); }
+                        var saved = null;
+                        try { saved = localStorage.getItem(key); } catch (e) {}
+                        if (saved === "light" || saved === "dark") appliquer(saved);
+                        var b = document.getElementById("themebtn");
+                        if (b) {
+                            function marquer() {
+                                var cur = root.getAttribute("data-theme");
+                                if (!cur) cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                                b.textContent = cur === "dark" ? "☀️ Clair" : "🌙 Sombre";
+                            }
+                            b.addEventListener("click", function () {
+                                var cur = root.getAttribute("data-theme");
+                                if (!cur) cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                                var next = cur === "dark" ? "light" : "dark";
+                                appliquer(next);
+                                try { localStorage.setItem(key, next); } catch (e) {}
+                                marquer();
+                            });
+                            marquer();
+                        }
+                    })();
+                    (function () {
+                        var btn = document.getElementById("actions-btn");
+                        var nav = document.getElementById("menu-actions");
+                        var ov = document.getElementById("actions-overlay");
+                        var cl = document.getElementById("menu-close");
+                        var ouvrir = function () {
+                            if (nav) nav.classList.add("ouvert");
+                            if (ov) ov.classList.add("ouvert");
+                        };
+                        var fermer = function () {
+                            if (nav) nav.classList.remove("ouvert");
+                            if (ov) ov.classList.remove("ouvert");
+                        };
+                        if (btn) btn.addEventListener("click", ouvrir);
+                        if (cl) cl.addEventListener("click", fermer);
+                        if (ov) ov.addEventListener("click", fermer);
+                        document.addEventListener("keydown", function (e) {
+                            if (e.key === "Escape") fermer();
+                        });
+                        // Groupes repliables (03/08) : seuls les principaux
+                        // restent ouverts ; la préférence est mémorisée.
+                        var CLE = "tdc_menu_ouvert";
+                        var mem = {};
+                        try { mem = JSON.parse(localStorage.getItem(CLE) || "{}"); } catch (e) {}
+                        var groupes = nav ? nav.querySelectorAll(".menu-groupe") : [];
+                        groupes.forEach(function (g) {
+                            var cle = g.getAttribute("data-cle");
+                            var corps = cle ? nav.querySelector(".menu-sous[data-cle='" + cle + "']") : null;
+                            if (mem[cle] === 1) {
+                                g.classList.add("ouvert");
+                                g.setAttribute("aria-expanded", "true");
+                                if (corps) corps.classList.add("ouvert");
+                            } else if (mem[cle] === 0) {
+                                g.classList.remove("ouvert");
+                                g.setAttribute("aria-expanded", "false");
+                                if (corps) corps.classList.remove("ouvert");
+                            }
+                            g.addEventListener("click", function () {
+                                var ou = g.classList.toggle("ouvert");
+                                g.setAttribute("aria-expanded", ou ? "true" : "false");
+                                if (corps) corps.classList.toggle("ouvert", ou);
+                                mem[cle] = ou ? 1 : 0;
+                                try { localStorage.setItem(CLE, JSON.stringify(mem)); } catch (e2) {}
+                            });
+
+                        // Recherche (08/08) : filtre les liens du menu par
+                        // texte. Quand on tape, chaque groupe ne montre que
+                        // ses liens qui correspondent ; un groupe sans
+                        // resultat se masque. Effacer le champ rend l'etat
+                        // memorise (tous replies par defaut).
+                        var cherche = document.getElementById("actions-cherche");
+                        if (cherche &amp;&amp; nav) {
+                            var toutA = nav.querySelectorAll(".menu-sous a");
+                            var msgAucun = document.createElement("div");
+                            msgAucun.className = "aucun";
+                            msgAucun.textContent = "Aucune action ne correspond.";
+                            nav.insertBefore(msgAucun, nav.querySelector(".menu-groupe") || nav.firstChild);
+                            var filtrer = function () {
+                                var q = cherche.value.trim().toLowerCase();
+                                if (!q) {
+                                    nav.querySelectorAll(".menu-groupe, .menu-sous, .menu-actions a").forEach(function (el) {
+                                        el.classList.remove("masque");
+                                    });
+                                    msgAucun.classList.remove("visible");
+                                    groupes.forEach(function (g) {
+                                        var cle = g.getAttribute("data-cle");
+                                        var corps = nav.querySelector(".menu-sous[data-cle='" + cle + "']");
+                                        if (mem[cle] === 1) {
+                                            g.classList.add("ouvert");
+                                            g.setAttribute("aria-expanded", "true");
+                                            if (corps) corps.classList.add("ouvert");
+                                        } else {
+                                            g.classList.remove("ouvert");
+                                            g.setAttribute("aria-expanded", "false");
+                                            if (corps) corps.classList.remove("ouvert");
+                                        }
+                                    });
+                                    return;
+                                }
+                                var vus = 0;
+                                groupes.forEach(function (g) {
+                                    var cle = g.getAttribute("data-cle");
+                                    var corps = nav.querySelector(".menu-sous[data-cle='" + cle + "']");
+                                    var trouves = 0;
+                                    if (corps) {
+                                        corps.querySelectorAll("a").forEach(function (a) {
+                                            var ok = a.textContent.toLowerCase().indexOf(q) !== -1;
+                                            a.classList.toggle("masque", !ok);
+                                            if (ok) trouves++;
+                                        });
+                                    }
+                                    var visible = trouves > 0;
+                                    g.classList.toggle("masque", !visible);
+                                    if (corps) corps.classList.toggle("masque", !visible);
+                                    if (visible) {
+                                        g.classList.add("ouvert");
+                                        g.setAttribute("aria-expanded", "true");
+                                        if (corps) corps.classList.add("ouvert");
+                                        vus += trouves;
+                                    }
+                                });
+                                msgAucun.classList.toggle("visible", vus === 0);
+                            };
+                            cherche.addEventListener("input", filtrer);
+                        }
+
+                        });
+                    })();
+                    document.querySelectorAll(".ligne").forEach(function (ligne) {
+                        var titre = ligne.querySelector(".titre b");
+                        if (!titre || ligne.querySelector(".copier")) { return; }
+                        var b = document.createElement("span");
+                        b.className = "copier";
+                        b.setAttribute("role", "button");
+                        b.setAttribute("tabindex", "0");
+                        b.title = "Copier le titre";
+                        b.textContent = "⧉";
+                        var copier = function (ev) {
+                            // La ligne entiere est un lien : sans ces deux
+                            // lignes, copier ouvrirait la tache au passage.
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            var texte = titre.textContent.trim();
+                            var fini = function () {
+                                b.classList.add("ok");
+                                b.textContent = "✓";
+                                setTimeout(function () {
+                                    b.classList.remove("ok");
+                                    b.textContent = "⧉";
+                                }, 1200);
+                            };
+                            if (navigator.clipboard &amp;&amp; window.isSecureContext) {
+                                navigator.clipboard.writeText(texte).then(fini);
+                            } else {
+                                // Repli pour les contextes non securises :
+                                // sans lui, le bouton ne ferait rien du tout
+                                // et on ne saurait pas pourquoi.
+                                var z = document.createElement("textarea");
+                                z.value = texte;
+                                z.style.position = "fixed";
+                                z.style.opacity = "0";
+                                document.body.appendChild(z);
+                                z.select();
+                                document.execCommand("copy");
+                                document.body.removeChild(z);
+                                fini();
+                            }
+                        };
+                        b.addEventListener("click", copier);
+                        b.addEventListener("keydown", function (ev) {
+                            if (ev.key === "Enter" || ev.key === " ") { copier(ev); }
+                        });
+                        ligne.appendChild(b);
+                    });
+                </script>
+            </div>
+                <script type="text/javascript" src="/tour_dashboard/static/src/chloe-bulle.js"></script>
+        </t>
+    </template>
+
+    <!-- LA PAGE DE TEST. Demandée le 28/07 (« ok faire la page de test ») :
+         un seul endroit qui répond à « tout est-il vert, et depuis quand ? ».
+         Elle AGRÈGE les trois contrôles existants — épreuves des agents,
+         écarts d'Emil, sites de Vibe — elle n'en invente aucun. Et elle dit
+         honnêtement ce qu'elle ne couvre pas : une page de tests qui tait
+         ses trous fabrique de la confiance en trop. -->
+    <template id="page_tests" name="Tour — Tests">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+                <meta name="theme-color" content="var(--fond)"/>
+                <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+
+                    :root { --fond:var(--fond); --surface:#0f172a; --surface2:#1e293b;
+                            --primaire:#3b82f6; --texte:var(--texte); --doux:#94a3b8;
+                            --alerte:#f59e0b; --ok:#22c55e; --ko:#ef4444; --r:.5rem; }
+                    * { box-sizing:border-box; }
+                    body { margin:0; background:var(--fond); color:var(--texte);
+                           font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+                    a { color:inherit; text-decoration:none; }
+                    .wrap { max-width:1100px; margin:0 auto; padding:1.25rem 1rem 5rem; }
+                    h1 { font-size:1.4rem; font-weight:650; margin:0 0 .25rem; }
+                    .sous { color:var(--doux); margin-bottom:1.5rem; }
+                    h2 { font-size:1.05rem; font-weight:600; margin:1.75rem 0 .75rem; }
+                    .cartes { display:grid; gap:.75rem;
+                              grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
+                    .carte { background:var(--surface); border:1px solid var(--surface2);
+                             border-radius:var(--r); padding:.8rem 1rem;
+                             transition:border-color .15s ease; }
+                    .carte:hover { border-color:var(--primaire); }
+                    .carte b { font-size:.92rem; font-weight:550; display:block; }
+                    .carte small { color:var(--doux); display:block; margin-top:.35rem; }
+                    .etat { display:inline-block; padding:.1rem .55rem; margin-top:.5rem;
+                            border-radius:99px; font-size:.78rem; font-weight:600; }
+                    .etat.ok { background:rgba(34,197,94,.15); color:var(--ok); }
+                    .etat.ko { background:rgba(239,68,68,.18); color:var(--ko); }
+                    .etat.autre { background:rgba(245,158,11,.15); color:var(--alerte); }
+                    .bilan { display:flex; gap:1rem; flex-wrap:wrap; margin:1rem 0 0; }
+                    .chiffre { background:var(--surface); border:1px solid var(--surface2);
+                               border-radius:var(--r); padding:.9rem 1.2rem; min-width:130px; }
+                    .chiffre .n { font-size:1.6rem; font-weight:700; }
+                    .chiffre .l { color:var(--doux); font-size:.85rem; }
+                    .trou { background:var(--surface); border:1px dashed var(--surface2);
+                            border-radius:var(--r); padding:.9rem 1.1rem; color:var(--doux);
+                            font-size:.9rem; line-height:1.5; }
+                    .retour { color:var(--doux); font-size:.9rem; }
+                    .retour:hover { color:var(--texte); }
+                </style>
+<script>(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();</script>
+            </t>
+            <div class="wrap">
+                <p><a class="retour" href="/">← Retour à l'accueil</a></p>
+                <h1>Les tests de la tour</h1>
+                <div class="sous">
+                    Épreuves des agents, promesses (Emil), sites (Vibe) —
+                    et la date de chaque dernier passage.
+                </div>
+
+                <div class="bilan">
+                    <div class="chiffre">
+                        <div class="n"><t t-esc="nb_ok"/>/<t t-esc="nb_total"/></div>
+                        <div class="l">épreuves au vert</div>
+                    </div>
+                    <div class="chiffre">
+                        <div class="n" t-esc="len(ecarts)"/>
+                        <div class="l">écart(s) ouverts chez Emil</div>
+                    </div>
+                    <div class="chiffre">
+                        <div class="n" t-esc="len(cibles)"/>
+                        <div class="l">site(s) surveillés</div>
+                    </div>
+                </div>
+
+                <h2>Épreuves des agents</h2>
+                <div class="cartes">
+                    <t t-foreach="epreuves" t-as="e">
+                        <div class="carte">
+                            <b><t t-esc="e.membre_id.name"/> — <t t-esc="e.name"/></b>
+                            <small t-if="e.passe_le">passée le <t t-esc="e.passe_le.strftime('%d/%m à %H:%M')"/> (UTC)</small>
+                            <span t-attf-class="etat {{ 'ok' if e.dernier_etat == 'ok' else ('ko' if e.dernier_etat == 'ko' else 'autre') }}">
+                                <t t-esc="'Passe' if e.dernier_etat == 'ok' else ('Échoue' if e.dernier_etat == 'ko' else 'Jamais passée')"/>
+                            </span>
+                        </div>
+                    </t>
+                </div>
+
+                <h2>Les promesses (Emil)</h2>
+                <p t-if="not ecarts" class="retour">Aucun écart ouvert : ce qui est annoncé correspond à ce qui existe.</p>
+                <div class="cartes" t-if="ecarts">
+                    <t t-foreach="ecarts" t-as="x">
+                        <div class="carte">
+                            <b t-esc="x.name"/>
+                            <span class="etat autre">ouvert</span>
+                        </div>
+                    </t>
+                </div>
+
+                <h2>Les sites (Vibe)</h2>
+                <div class="cartes">
+                    <t t-foreach="cibles" t-as="c">
+                        <div class="carte">
+                            <b t-esc="c.name"/>
+                            <small t-if="c.dernier_passage">passé le <t t-esc="c.dernier_passage.strftime('%d/%m à %H:%M')"/> (UTC)</small>
+                            <span t-attf-class="etat {{ 'ok' if c.dernier_etat == 'ok' else ('ko' if c.dernier_etat == 'ko' else 'autre') }}">
+                                <t t-esc="c.dernier_etat or 'jamais passé'"/>
+                            </span>
+                        </div>
+                    </t>
+                </div>
+
+                <h2>Tests complets consignés</h2>
+                <p t-if="not campagnes" class="retour">Aucun test complet consigné au journal pour l'instant.</p>
+                <div class="cartes" t-if="campagnes">
+                    <t t-foreach="campagnes" t-as="t_camp">
+                        <div class="carte">
+                            <b t-esc="t_camp.name"/>
+                            <small>consigné le <t t-esc="t_camp.create_date.strftime('%d/%m/%Y à %H:%M')"/> (UTC)</small>
+                        </div>
+                    </t>
+                </div>
+
+                <h2>Ce que cette page ne couvre pas</h2>
+                <div class="trou">
+                    Il n'existe pas encore de cahier de test PAR MODULE : les
+                    épreuves testent les agents, Emil compare les promesses au
+                    réel, Vibe surveille les sites. L'interface (boutons, écrans)
+                    se vérifie encore à l'œil — et la mesure de couverture est un
+                    chantier ouvert au journal. Une case absente ici n'est pas
+                    une case verte.
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="page_resume" name="Résumé de la journée — Tour de Contrôle">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Résumé de la journée</title>
+                <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .wrap { max-width:920px; margin:0 auto; padding:24px 16px 56px; }
+                    header { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+                    h1 { font-size:1.6rem; margin:0; }
+                    .sub { color:#94a3b8; font-size:.88rem; margin:2px 0 0; }
+                    .live { margin-left:auto; color:#22c55e; font-size:.8rem; }
+                    .dot { width:8px; height:8px; border-radius:50%; background:#22c55e;
+                           display:inline-block; margin-right:6px; animation:clignote 1.6s infinite; }
+                    @keyframes clignote { 50% { opacity:.25; } }
+                    .grille { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
+                    .carte { background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:14px 16px; }
+                    .carte h2 { margin:0 0 10px; font-size:.85rem; color:#7dd3fc; text-transform:uppercase;
+                                letter-spacing:.6px; }
+                    .chiffre { font-size:2rem; font-weight:700; color:var(--texte); line-height:1; }
+                    .label { color:#94a3b8; font-size:.8rem; margin-top:4px; }
+                    .badge { font-size:.72rem; font-weight:600; padding:2px 10px; border-radius:20px; }
+                    .ok { background:#14321e; color:#4ade80; }
+                    .ko { background:#3b1d1d; color:#f87171; }
+                    .neutre { background:#1e293b; color:#94a3b8; }
+                    .note { color:#64748b; font-size:.8rem; margin-top:18px; line-height:1.6; }
+                    a.retour { color:#3b82f6; text-decoration:none; font-size:.85rem; }
+                </style>
+<script>(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();</script>
+            </head>
+            <body>
+                <div class="wrap">
+                    <header>
+                        <div>
+                            <h1>Résumé de la journée</h1>
+                            <p class="sub">Ce qui a bougé le <t t-esc="jour"/> — mis à jour automatiquement</p>
+                            <form method="get" action="/tour/resume" style="display:flex;gap:6px;align-items:center;margin-top:6px">
+                                <input type="date" name="date" t-att-value="jour" style="background:#0f172a;color:var(--texte);border:1px solid #1e293b;border-radius:6px;padding:4px 8px;font-size:.8rem"/>
+                                <button type="submit" style="background:#1e293b;color:#7dd3fc;border:none;border-radius:6px;padding:4px 10px;font-size:.8rem;cursor:pointer">Voir ce jour-là</button>
+                            </form>
+                        </div>
+                        <div class="live"><span class="dot"></span> en direct
+                            <t t-if="releve_le"> · relevé à <t t-esc="releve_le"/></t>
+                        </div>
+                    </header>
+                    <div class="grille">
+                        <div class="carte">
+                            <h2>Missions</h2>
+                            <div class="chiffre"><t t-esc="resume['missions_terminees']"/></div>
+                            <div class="label">terminées
+                                <t t-if="resume['missions_en_cours']"> · <t t-esc="resume['missions_en_cours']"/> en cours</t>
+                                <t t-if="resume['missions_echec']"> · <span class="badge ko"><t t-esc="resume['missions_echec']"/> échec</span></t>
+                            </div>
+                        </div>
+                        <div class="carte">
+                            <h2>Guides</h2>
+                            <div class="chiffre"><t t-esc="resume['guides']"/></div>
+                            <div class="label">créés aujourd'hui</div>
+                        </div>
+                        <div class="carte">
+                            <h2>Tâches</h2>
+                            <div class="chiffre"><t t-esc="resume['taches']['creees']"/></div>
+                            <div class="label"><t t-esc="resume['taches']['faites']"/> faites
+                                <t t-if="resume['taches']['en_cours']"> · <t t-esc="resume['taches']['en_cours']"/> en cours</t>
+                            </div>
+                        </div>
+                        <div class="carte">
+                            <h2>Décisions</h2>
+                            <a t-att-href="lien_decisions" style="text-decoration:none;color:inherit">
+                                <div class="chiffre"><t t-esc="resume['decisions_attente']"/></div>
+                                <div class="label">nouvelles aujourd'hui — ouvrir</div>
+                            </a>
+                        </div>
+                        <div class="carte">
+                            <h2>Circuits</h2>
+                            <div class="chiffre"><t t-esc="resume['circuits']"/></div>
+                            <div class="label">créés aujourd'hui</div>
+                        </div>
+                        <div class="carte">
+                            <h2>Appels API</h2>
+                            <div class="chiffre"><t t-esc="resume['appels']['nb']"/></div>
+                            <div class="label">aujourd'hui · <t t-esc="resume['appels']['cout']"/> €</div>
+                        </div>
+                        <div class="carte" t-if="resume['visites']">
+                            <h2>Trafic vitrine</h2>
+                            <div class="chiffre"><t t-esc="resume['visites']['aujourdhui']['vues']"/></div>
+                            <div class="label">vues aujourd'hui ·
+                                <t t-esc="resume['visites']['aujourdhui']['uniques']"/> visiteurs
+                                · <t t-esc="resume['visites']['7j']['vues']"/> sur 7 jours</div>
+                        </div>
+                        <div class="carte" t-if="resume['solde']">
+                            <h2>Solde DeepSeek</h2>
+                            <div class="chiffre"><t t-esc="resume['solde']['solde_actuel']"/> $</div>
+                            <div class="label">réel · consommé <t t-esc="resume['solde']['consomme_reel']"/> $
+                                (estimé <t t-esc="resume['solde']['consomme_estime']"/> €)</div>
+                        </div>
+                        <div class="carte" t-if="resume['degre']">
+                            <h2>Pilotage à la parole</h2>
+                            <div class="chiffre"><t t-esc="resume['degre']['pct']"/> %</div>
+                            <div class="label"><t t-esc="resume['degre']['pilote']"/> gestes sur <t t-esc="resume['degre']['total']"/></div>
+                        </div>
+                    </div>
+                    <div class="grille" t-if="resume['etudes']" style="margin-top:12px">
+                        <div class="carte" style="grid-column:1 / -1">
+                            <h2>Études de Braignak — aujourd'hui</h2>
+                            <t t-foreach="resume['etudes']" t-as="e">
+                                <div style="padding:8px 0; border-top:1px solid #1e293b">
+                                    <div style="font-weight:600; font-size:.9rem"><t t-esc="e['nom']"/></div>
+                                    <div style="color:#94a3b8; font-size:.8rem; margin-top:2px"
+                                         t-if="e['resume']"><t t-esc="e['resume']"/></div>
+                                    <div style="margin-top:4px">
+                                        <span class="badge neutre"><t t-esc="e['etat']"/></span>
+                                        <t t-if="e['verdict']">
+                                            <span class="badge ok">verdict : <t t-esc="e['verdict']"/></span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="grille" t-if="resume['taches']['liste']" style="margin-top:12px">
+                        <div class="carte" style="grid-column:1 / -1">
+                            <h2>Tâches du jour</h2>
+                            <t t-foreach="resume['taches']['liste']" t-as="t">
+                                <div style="padding:6px 0; border-top:1px solid #1e293b; font-size:.85rem">
+                                    <span class="badge neutre"><t t-esc="t['etat']"/></span>
+                                    <span style="margin-left:8px"><t t-esc="t['nom']"/></span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                    <p class="note">
+                        <a class="retour" href="/tour/dashboard">← l'accueil</a>
+                        <t t-esc="'   ·   '"/>La page se rafraîchit toute seule toutes les 60 secondes.
+                    </p>
+                </div>
+                <script>
+                    // AUTO-RAFRAÎCHISSEMENT : la page rechargée seule — la journée
+                    // bouge, le résumé doit la suivre sans qu'on ait à cliquer.
+                    setTimeout(function () { location.reload(); }, 60000);
+                </script>
+            </body>
+        </html>
+    </template>
+    <template id="page_business_plan" name="Business plan — Tour de Contrôle">
+        <html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Business plan — Tour de Contrôle</title>
+        <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+body{background:var(--fond);color:var(--texte);margin:0;font-family:system-ui,sans-serif}
+        .wrap{max-width:760px;margin:0 auto;padding:24px 16px}h1{font-size:1.6rem}a{color:#7dd3fc}
+        .c{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:14px 16px;margin:10px 0}
+        .b{background:#14321e;color:#4ade80;padding:2px 10px;border-radius:20px;font-size:.75rem}</style>
+<script>(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();</script>
+        </head><body><div class="wrap">
+        <h1>Business plan — la Tour de contrôle</h1>
+        <p style="color:#94a3b8">Prod uniquement · réservé au propriétaire.</p>
+        <div class="c"><t t-out="plan"/></div>
+        <div class="c" t-if="etude"><b>Étude Braignak</b> : <t t-esc="etude.name"/> — <span class="b"><t t-esc="etude.etat"/></span></div>
+        <p><a href="/tour/dashboard">← l'accueil</a></p>
+        </div></body></html>
+    </template>
+    <template id="page_assembleur" name="tour-en-assembleur — dépôt privé">
+        <html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>tour-en-assembleur — dépôt privé</title>
+        <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+body{background:var(--fond);color:var(--texte);margin:0;font-family:ui-monospace,monospace;font-size:13px}
+        .wrap{max-width:820px;margin:0 auto;padding:24px 16px}h1{font-size:1.5rem}
+        .priv{background:#3b1d1d;color:#f87171;font-size:.72rem;font-weight:600;padding:3px 12px;border-radius:20px}
+        .c{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:12px 14px;margin:12px 0;
+           white-space:pre-wrap;word-break:break-word;color:#cbd5e1;line-height:1.55}
+        h2{font-size:.8rem;color:#7dd3fc;text-transform:uppercase;letter-spacing:.6px;margin:18px 0 4px}
+        a{color:#7dd3fc}</style>
+<script>(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();</script>
+        </head><body><div class="wrap">
+        <h1>tour-en-assembleur <span class="priv">PRIVÉ</span></h1>
+        <p style="color:#94a3b8">Tâche 1071 — l'essence de la gouvernance en assembleur x86-64.
+        Accès dans le Coffre (vault.secret). Chemin : <b><t t-esc="chemin"/></b></p>
+        <h2>Version</h2>
+        <div class="c"><t t-esc="version"/></div>
+        <h2>README</h2>
+        <div class="c"><t t-esc="readme"/></div>
+        <h2>Fichiers</h2>
+        <div class="c"><t t-esc="fichiers"/></div>
+        <p><a href="/tour/dashboard">← l'accueil</a></p>
+        </div></body></html>
+    </template>
+    <template id="page_braignak" name="Poser à Braignak">
+        <html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Poser à Braignak</title>
+        <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+body{background:var(--fond);color:var(--texte);margin:0;font-family:system-ui,sans-serif}
+        .wrap{max-width:680px;margin:0 auto;padding:26px 16px}h1{font-size:1.6rem}
+        textarea{width:100%;background:#0f172a;color:var(--texte);border:1px solid #1e293b;border-radius:10px;padding:12px;min-height:120px;font-size:1rem}
+        button{background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:10px 18px;cursor:pointer;margin-top:10px;font-size:1rem}
+        .c{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:14px;margin-top:14px}
+        .ok{color:#4ade80}</style>
+<script>(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();</script></head><body><div class="wrap">
+        <h1>Poser une question à Braignak</h1>
+        <p style="color:#94a3b8">Une question qu'on vous a posée, même hors de votre domaine ? Braignak y répond — pour que vous puissiez répondre sans connaître le sujet.</p>
+        <form method="post" action="/tour/poser-a-braignak">
+            <textarea name="question" placeholder="Collez la question qu'on vous a posée…" t-att-value="question"/>
+            <button type="submit">Envoyer à Braignak</button>
+        </form>
+        <t t-if="mission">
+            <div class="c"><span class="ok">✓ Question envoyée</span>
+            <p style="color:#94a3b8">Mission « <t t-esc="mission.name"/> » — la réponse arrive dans quelques minutes, consignée dans Réponses.</p></div>
+        </t>
+        <p style="margin-top:18px"><a href="/tour/dashboard" style="color:#7dd3fc">← l'accueil</a></p>
+        </div></body></html>
+    </template>
+    <template id="page_education" name="Éducation — Tour de Contrôle">
+        <html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Éducation</title>
+        <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+body{background:var(--fond);color:var(--texte);margin:0;font-family:system-ui,sans-serif}
+        .wrap{max-width:720px;margin:0 auto;padding:26px 16px}h1{font-size:1.6rem}
+        .c{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:16px;margin:12px 0}
+        .c h2{margin:0 0 6px;font-size:1.1rem;color:#7dd3fc}.c .r{color:#94a3b8;margin:0 0 8px}
+        .c p{color:#cbd5e1;line-height:1.6;margin:0}.vide{color:#64748b}</style>
+<script>(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();</script></head><body><div class="wrap">
+        <h1>Éducation</h1>
+        <p style="color:#94a3b8">Le monde, expliqué simplement — pour un enfant de 6 ans, et pour toi.</p>
+        <t t-foreach="guides" t-as="g">
+            <div class="c"><h2><t t-esc="g.name"/></h2>
+            <p class="r"><t t-esc="g.resume"/></p>
+            <t t-out="g.contenu"/></div>
+        </t>
+        <t t-if="not guides"><p class="vide">Aucun guide d'éducation pour l'instant.</p></t>
+        <p style="margin-top:16px"><a href="/tour/dashboard" style="color:#7dd3fc">← l'accueil</a></p>
+        </div></body></html>
+    </template>
+    <template id="page_jeu" name="Le Jeu des tours">
+        <html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Le Jeu des tours</title>
+        <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+body{background:var(--fond);color:var(--texte);margin:0;font-family:system-ui,sans-serif}
+        .wrap{max-width:680px;margin:0 auto;padding:26px 16px}h1{font-size:1.6rem}
+        .carte{background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:20px;margin:14px 0}
+        .carte h2{margin:0 0 6px;color:#7dd3fc}.carte .q{color:#cbd5e1;font-size:1.05rem;margin:0 0 6px}
+        .carte .r{color:#94a3b8;line-height:1.6;margin:0}
+        .btn{display:inline-block;background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:10px 18px;cursor:pointer;margin-top:12px;font-size:.95rem;text-decoration:none}
+        .btn.pass{background:#1e293b;color:#94a3b8}
+        .score{display:flex;gap:24px;margin:14px 0}.score div{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:12px 20px;text-align:center}
+        .score .n{font-size:1.6rem;font-weight:700;color:#4ade80}.score .l{color:#94a3b8;font-size:.75rem}
+        .ok{color:#4ade80}</style>
+<script>(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();</script></head><body><div class="wrap">
+        <h1>🎮 Le Jeu des tours</h1>
+        <p style="color:#94a3b8">Une réponse résolue devient un défi : relevez-le, résolvez-le, et la tour qui a posé la question évolue. Le jeu communique avec la tour — rien n'est inventé.</p>
+        <div class="score"><div><div class="n"><t t-esc="score['total']"/></div><div class="l">défis relevés</div></div><div><div class="n"><t t-esc="score['faits']"/></div><div class="l">réussis</div></div></div>
+        <div class="carte" t-if="defi">
+            <h2>Défi du moment</h2>
+            <p class="q"><t t-esc="defi.name"/></p>
+            <p class="r"><t t-esc="defi.reponse"/></p>
+            <form method="post" action="/tour/jeu" style="display:inline">
+                <input type="hidden" name="defi_id" t-att-value="defi.id"/>
+                <input type="hidden" name="defi_nom" t-att-value="defi.name"/>
+                <button class="btn" type="submit">Relever le défi</button>
+            </form>
+            <a class="btn pass" href="/tour/jeu">Passer</a>
+            <p t-if="releve" class="ok" style="margin-top:10px">✓ Défi relevé — une tâche a été créée dans « Jeu des tours ».</p>
+        </div>
+        <div class="carte" t-if="not defi"><p style="color:#94a3b8">Aucun défi disponible pour l'instant.</p></div>
+        <p style="margin-top:16px"><a href="/tour/dashboard" style="color:#7dd3fc">← l'accueil</a></p>
+        </div></body></html>
+    </template>
+</odoo>

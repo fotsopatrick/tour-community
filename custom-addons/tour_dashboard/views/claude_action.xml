@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ce que fait Claude : Patrick veut suivre MON travail, pas que le sien.
+         Toutes les tâches étiquetées « Claude » encore ouvertes. -->
+    <record id="action_taches_claude" model="ir.actions.act_window">
+        <field name="name">Le cerveau — ce qui est en cours</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('tag_ids.name', '=', 'Claude'), ('stage_id.name', 'not in', ['Fait', 'Done', 'Cancelled', 'Terminé'])]</field>
+        <field name="context">{'search_default_group_stage': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien en cours de mon côté.</p>
+            <p>Tout ce qui est à ma charge est fait.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_taches_claude" name="Le cerveau"
+              parent="tour_dashboard.menu_pilotage" sequence="16"
+              action="action_taches_claude"/>
+</odoo>
