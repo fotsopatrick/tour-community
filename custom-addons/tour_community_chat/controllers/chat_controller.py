@@ -35,6 +35,18 @@ DELAI_PONT = 5  # secondes pour décider si le pont est là ; sinon repli local
 
 TOOLS = [
     {"type": "function",
+     "function": {"name": "creer_tache",
+                  "description": "Créer une tâche dans la tour (une chose à faire, un projet à suivre).",
+                  "parameters": {
+                      "type": "object",
+                      "properties": {
+                          "titre": {"type": "string",
+                                    "description": "Le titre de la tâche."},
+                          "description": {"type": "string",
+                                          "description": "Ce qu'il faut faire (optionnel)."},
+                      },
+                      "required": ["titre"]}}},
+    {"type": "function",
      "function": {"name": "construire_app",
                   "description": "Construire une petite application web statique (une page HTML/CSS/JS) et la mettre en ligne. À utiliser quand on demande de créer un site, une app, une page, un formulaire, un petit outil. Écris un index.html complet et autonome (tout le CSS et le JS dedans).",
                   "parameters": {
@@ -294,7 +306,19 @@ class ChloéCommunity(http.Controller):
         return {"reponse": reply}
 
     def _run_tool_local(self, nom, entree, actions):
-        """Exécute l'outil construire_app en local : écrit le fichier servi."""
+        """Exécute un outil de Chloé en local."""
+        if nom == "creer_tache":
+            titre = (entree.get("titre") or "").strip()
+            if not titre:
+                return "Erreur : précise le titre de la tâche."
+            desc = (entree.get("description") or "").strip()
+            vals = {"name": titre}
+            if desc:
+                vals["description"] = "<p>%s</p>" % desc.replace("\n", "<br/>")
+            tache = request.env["project.task"].create(vals)
+            actions.append("Tâche créée : %s" % titre)
+            return "Tâche #%s (%s) créée." % (tache.id, titre)
+
         if nom != "construire_app":
             return "Outil inconnu : %s" % nom
         nom_app = re.sub(r"[^a-z0-9-]", "-",
