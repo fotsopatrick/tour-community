@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_contrat" model="ir.sequence">
+        <field name="name">Contrat d abonnement</field>
+        <field name="code">abonnement.contrat</field>
+        <field name="prefix">ABO/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+
+    <!--
+        Toutes les minutes : c est le delai entre << j ai paye >> et << j ai
+        mes acces >>. Plus lent, le client croit que rien ne s est passe et
+        ecrit pour demander.
+    -->
+    <record id="cron_instances" model="ir.cron">
+        <field name="name">Abonnements : relever les instances montees</field>
+        <field name="model_id" ref="model_abonnement_contrat"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever_instances()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!--
+        Une fois par jour, pas plus : une expiration se compte en jours, et un
+        cron horaire enverrait le meme avertissement vingt-quatre fois.
+    -->
+    <record id="cron_expiration" model="ir.cron">
+        <field name="name">Abonnements : avertir et expirer les essais</field>
+        <field name="model_id" ref="model_abonnement_contrat"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_expirer()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+    <!--
+        Un contrat paye et non livre est la chose la plus grave qui puisse
+        arriver a cette tour. Toutes les heures, parce qu'un client qui a paye
+        n'attend pas jusqu'a demain.
+    -->
+    <record id="cron_souffrance" model="ir.cron">
+        <field name="name">Abonnements : livraisons en souffrance</field>
+        <field name="model_id" ref="model_abonnement_contrat"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_livraisons_en_souffrance()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="Décisions">
+  <!-- Le pouce du decideur : approuver ou rejeter. Deux formes, lisible a
+       16 px, et le geste que tout le monde reconnait. -->
+  <rect width="100" height="100" rx="22" fill="#0f172a"/>
+  <path d="M30 48 h12 v28 H30 z" fill="#3b82f6"/>
+  <path d="M46 76 V48 l10-20 a6 6 0 0 1 6 6 l-3 10 h12 a7 7 0 0 1 7 8 l-4 18 a8 8 0 0 1-8 6 z" fill="#e2e8f0"/>
+</svg>

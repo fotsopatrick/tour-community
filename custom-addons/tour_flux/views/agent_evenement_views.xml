@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_agent_evenement_list" model="ir.ui.view">
+        <field name="name">agent.evenement.list</field>
+        <field name="model">agent.evenement</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="traite == True" default_order="create_date desc">
+                <field name="create_date" string="Quand"/>
+                <field name="base"/>
+                <field name="agent"/>
+                <field name="categorie"/>
+                <field name="sujet"/>
+                <field name="traite" widget="boolean_toggle" string="Vu"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_agent_evenement_form" model="ir.ui.view">
+        <field name="name">agent.evenement.form</field>
+        <field name="model">agent.evenement</field>
+        <field name="arch" type="xml">
+            <form string="Evenement agent">
+                <header>
+                    <button name="action_marquer_vu" type="object"
+                            string="Marquer vu" class="btn-primary"
+                            invisible="traite == True"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="sujet" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="agent" readonly="1"/>
+                            <field name="categorie" readonly="1"/>
+                            <field name="base" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="create_date" readonly="1"/>
+                            <field name="traite" readonly="1"/>
+                            <field name="vu_le" readonly="1" invisible="not vu_le"/>
+                        </group>
+                    </group>
+                    <field name="detail" readonly="1" invisible="not detail"/>
+                    <group string="Origine" invisible="not ref_model">
+                        <field name="ref_model" readonly="1"/>
+                        <field name="ref_id" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_agent_evenement_search" model="ir.ui.view">
+        <field name="name">agent.evenement.search</field>
+        <field name="model">agent.evenement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="sujet"/>
+                <field name="agent"/>
+                <field name="categorie"/>
+                <filter name="a_traiter" string="A voir" domain="[(&apos;traite&apos;,&apos;=&apos;,False)]"/>
+                <group expand="0" string="Grouper par">
+                    <filter name="grp_agent" string="Agent" context="{&apos;group_by&apos;:&apos;agent&apos;}"/>
+                    <filter name="grp_cat" string="Categorie" context="{&apos;group_by&apos;:&apos;categorie&apos;}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_agent_evenement" model="ir.actions.act_window">
+        <field name="name">Flux des agents</field>
+        <field name="res_model">agent.evenement</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{&apos;search_default_a_traiter&apos;: 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien pour l instant.</p>
+            <p>Les agents (Clark, atelier, Braignak, Jonathan) deposeront ici ce qu ils font.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_flux_racine" web_icon="tour_flux,static/description/icon.png" name="Flux agents" sequence="6"/>
+    <menuitem id="menu_flux_evenements" name="Evenements"
+              parent="menu_flux_racine" action="action_agent_evenement"
+              sequence="1"/>
+
+</odoo>

@@ -1,0 +1,86 @@
+{
+    "zones": [
+        {
+            "id": "reseau_ia",
+            "nom": "Coeur IA d Alice",
+            "description": "Etat temps reel",
+            "noeuds": [
+                {
+                    "id": "llm_qwen",
+                    "nom": "Qwen 3B",
+                    "type": "IA",
+                    "etat": "OK",
+                    "description": "Port 8081, 8 tok/s"
+                },
+                {
+                    "id": "routeur",
+                    "nom": "Routeur Python",
+                    "type": "Logiciel",
+                    "etat": "ACTIF",
+                    "description": "Point entree"
+                },
+                {
+                    "id": "memoire",
+                    "nom": "Memoire SQLite",
+                    "type": "Base",
+                    "etat": "ACTIF",
+                    "description": "1 procedure(s)"
+                },
+                {
+                    "id": "export_metrics",
+                    "nom": "Node Exporter",
+                    "type": "Monitoring",
+                    "etat": "OK",
+                    "description": "Port 9100"
+                }
+            ]
+        },
+        {
+            "id": "applications",
+            "nom": "Applications Web",
+            "description": "Interface controle",
+            "noeuds": [
+                {
+                    "id": "web_ui",
+                    "nom": "Web UI 8003",
+                    "type": "Interface",
+                    "etat": "ACTIF",
+                    "description": "Dashboard"
+                },
+                {
+                    "id": "cartes_json",
+                    "nom": "cartes.json",
+                    "type": "Fichier",
+                    "etat": "ACTIF",
+                    "description": "Config carte"
+                }
+            ]
+        }
+    ],
+    "liens": [
+        {
+            "source": "routeur",
+            "target": "llm_qwen",
+            "type": "HTTP",
+            "label": "Appel API"
+        },
+        {
+            "source": "routeur",
+            "target": "memoire",
+            "type": "SQL",
+            "label": "Requetes SQL"
+        },
+        {
+            "source": "web_ui",
+            "target": "cartes_json",
+            "type": "HTTP",
+            "label": "GET /cartes.json"
+        },
+        {
+            "source": "llm_qwen",
+            "target": "memoire",
+            "type": "Logique",
+            "label": "Contexte"
+        }
+    ]
+}

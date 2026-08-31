@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- noupdate : un `-u` ne reecrit pas ces crons. Deux raisons :
+       1. Ils ne changent jamais — les reecrire a l identique n apporte rien.
+       2. Le cron de releve tourne QUASI EN PERMANENCE (il scrute le dossier
+          une minute entiere) : chaque mise a jour percutait son verrou
+          (LockNotAvailable sur ir_cron) et faisait echouer TOUT le
+          deploiement — trois fois le 28/07. Le jour ou un cron doit
+          vraiment changer : passer par <function>, comme pour les gabarits
+          noupdate (le drapeau vit sur ir.model.data, piege connu). -->
+  <data noupdate="1">
+    <record id="cron_atelier" model="ir.cron">
+        <field name="name">Atelier : relever les résultats des missions</field>
+        <field name="model_id" ref="model_atelier_mission"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+  </data>
+</odoo>

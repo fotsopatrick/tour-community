@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Une fois par jour, le matin : le courrier se prépare avant que
+             la journée commence. Le cron existe partout, mais le veilleur
+             ne travaille que si tour_echanges.veille_active est posé —
+             la démo et les instances clientes restent muettes. -->
+        <record id="cron_veille" model="ir.cron">
+            <field name="name">Échanges : le tour du courrier (Jonathan)</field>
+            <field name="model_id" ref="model_echange_veilleur"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_veiller()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

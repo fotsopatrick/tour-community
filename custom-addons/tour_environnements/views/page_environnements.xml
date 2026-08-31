@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="page_environnements" name="Comparer les environnements">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': 'fr-FR'}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Environnements</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .en { max-width:900px; margin:0 auto; padding:22px 16px 64px; }
+                    a.ret { color:#3b82f6; text-decoration:none; font-size:.88rem; }
+                    h1 { font-size:1.6rem; margin:16px 0 6px; }
+                    .sous { color:#94a3b8; margin:0 0 20px; font-size:.93rem; line-height:1.55; }
+                    .onglets { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+                    .onglets a { color:#cbd5e1; text-decoration:none; background:#0f172a;
+                                 border:1px solid #1e293b; border-radius:.5rem;
+                                 padding:8px 14px; font-size:.88rem; font-weight:600; }
+                    .onglets a.actif { background:#3b82f6; border-color:#3b82f6; color:#fff; }
+                    .onglets a.vide { color:#475569; border-style:dashed; }
+                    .cartes { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
+                    .env { flex:1 1 180px; background:#0f172a; border:1px solid #1e293b;
+                           border-radius:.6rem; padding:14px; }
+                    .env .r { font-size:.7rem; text-transform:uppercase; letter-spacing:.09em;
+                              color:#64748b; font-weight:600; }
+                    .env .n { font-size:1.05rem; font-weight:650; margin:4px 0; }
+                    .env .b { color:#64748b; font-size:.78rem; font-family:ui-monospace,monospace; }
+                    .env .m { color:#3b82f6; font-size:.85rem; margin-top:6px; font-weight:600; }
+                    .env.mort { border-color:#f43f5e; }
+                    .env.mort .m { color:#f43f5e; }
+                    .tab-wrap { overflow-x:auto; border:1px solid #1e293b; border-radius:.6rem; }
+                    table { width:100%; border-collapse:collapse; font-size:.9rem; }
+                    th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #1e293b;
+                             white-space:nowrap; }
+                    th { background:#0f172a; color:#64748b; font-size:.72rem;
+                         text-transform:uppercase; letter-spacing:.07em; }
+                    td.mod { font-family:ui-monospace,monospace; font-size:.84rem;
+                             white-space:normal; }
+                    .tech { color:#475569; font-size:.72rem;
+                            font-family:ui-monospace,monospace; margin-top:2px; }
+                    .manque { background:#0f172a; border:1px solid #1e293b;
+                              border-left:3px solid #f59e0b; border-radius:.6rem;
+                              padding:14px 16px; margin-bottom:12px; }
+                    .manque .t { font-weight:650; color:#f7bf6b; margin-bottom:6px; }
+                    .manque .l { color:#94a3b8; font-size:.88rem; line-height:1.7; }
+                    .avance { background:#0f172a; border:1px solid #1e293b;
+                              border-left:3px solid #3b82f6; border-radius:.6rem;
+                              padding:14px 16px; margin-bottom:12px; }
+                    .avance .t { font-weight:650; color:#60a5fa; margin-bottom:6px; }
+                    .avance .l { color:#94a3b8; font-size:.88rem; line-height:1.7; }
+                    .sain { background:#0f172a; border:1px solid #1e293b;
+                            border-left:3px solid #22c55e; border-radius:.6rem;
+                            padding:12px 16px; margin-bottom:12px; color:#7ee29b;
+                            font-size:.9rem; font-weight:600; }
+                    .oui { color:#22c55e; font-weight:700; }
+                    .non { color:#475569; }
+                    .pied { color:#64748b; font-size:.82rem; margin-top:16px; line-height:1.6; }
+                    .rien { background:#0f172a; border:1px solid #1e293b; border-radius:.6rem;
+                            padding:28px; text-align:center; color:#94a3b8; }
+                    .rien b { color:#22c55e; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="en">
+                <a class="ret" href="/tour/dashboard">← Accueil</a>
+                <h1>Environnements</h1>
+                <p class="sous">
+                    Une différence n'est pas toujours un défaut. Un
+                    <b>manque</b> sur ce qui doit refléter la production, c'est
+                    ce qu'on découvre devant un client. De l'<b>avance</b> sur
+                    une base d'essai, c'est son métier.
+                </p>
+
+                <!-- Le selecteur de projet est TOUJOURS la, meme avec un seul
+                     projet : cache tant qu il n y en a qu un, il donnait
+                     l impression que la page ne savait comparer qu un produit.
+                     Un onglet unique dit au moins << c est par projet, et voici
+                     lequel tu regardes >>. -->
+                <div class="onglets">
+                    <t t-foreach="projets" t-as="p">
+                        <a t-attf-href="/tour/environnements?projet=#{p.id}"
+                           t-attf-class="#{p.id == courant.id and 'actif' or ''}">
+                            <t t-esc="p.name"/>
+                        </a>
+                    </t>
+                    <t t-foreach="autres" t-as="p">
+                        <a t-attf-href="/tour/environnements?projet=#{p.id}"
+                           class="vide" t-att-title="'Aucun environnement declare pour ce projet'">
+                            <t t-esc="p.name"/>
+                        </a>
+                    </t>
+                </div>
+
+                <div class="cartes">
+                    <t t-foreach="envs" t-as="e">
+                        <div t-attf-class="env #{not e.repond and 'mort' or ''}">
+                            <div class="r"><t t-esc="dict(e._fields['role'].selection).get(e.role, e.role)"/></div>
+                            <div class="n"><t t-esc="e.name"/></div>
+                            <div class="b"><t t-esc="e.base"/></div>
+                            <div class="m">
+                                <t t-if="e.repond"><t t-esc="e.nb_modules"/> modules</t>
+                                <t t-else="">illisible</t>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <t t-if="lignes">
+                    <t t-foreach="envs" t-as="e">
+                        <t t-set="ano" t-value="anomalies.get(e.id) or []"/>
+                        <t t-set="av" t-value="avances.get(e.id) or []"/>
+                        <!-- Un TROU : cet environnement est censé refléter la
+                             production et il lui manque des choses. C'est ça
+                             qu'on découvre devant un client. -->
+                        <div class="manque" t-if="ano">
+                            <div class="t">⚠ « <t t-esc="e.name"/> » n'a pas ce que
+                                la production a — <t t-esc="len(ano)"/> fonctionnalité(s)</div>
+                            <div class="l"><t t-esc="', '.join(ano[:25])"/><t t-if="len(ano) &gt; 25">, et <t t-esc="len(ano) - 25"/> autres</t></div>
+                        </div>
+                        <!-- DE L'AVANCE : normal sur une base d'essai. Affiché
+                             en bleu, pas en orange : ce n'est pas un défaut. -->
+                        <div class="avance" t-if="av">
+                            <div class="t">🧪 « <t t-esc="e.name"/> » a de l'avance
+                                — <t t-esc="len(av)"/> en essai</div>
+                            <div class="l"><t t-esc="', '.join(av[:20])"/><t t-if="len(av) &gt; 20">, et <t t-esc="len(av) - 20"/> autres</t></div>
+                        </div>
+                        <div class="sain" t-if="not ano and not av and e.role != 'prod'">
+                            ✓ « <t t-esc="e.name"/> » est aligné sur la production.
+                        </div>
+                    </t>
+
+                    <div class="tab-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <t t-foreach="envs" t-as="e"><th><t t-esc="e.name"/></th></t>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="lignes" t-as="l">
+                                    <tr>
+                                        <td class="mod">
+                                            <t t-esc="l['nom']"/>
+                                            <div class="tech"><t t-esc="l['module']"/></div>
+                                        </td>
+                                        <t t-foreach="envs" t-as="e">
+                                            <td>
+                                                <t t-if="l['presence'].get(e.id)">
+                                                    <span class="oui">✓</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="non">—</span>
+                                                </t>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="pied">
+                        <t t-esc="len(lignes)"/> différence(s) —
+                        <t t-esc="identiques"/> modules identiques partout (non listés).
+                    </p>
+                </t>
+                <t t-else="">
+                    <div class="rien">
+                        <t t-if="envs">
+                            <b>Aucune différence.</b><br/>
+                            Les environnements suivis ont exactement les mêmes modules.
+                        </t>
+                        <t t-else="">
+                            Aucun environnement déclaré pour ce projet.<br/>
+                            Ajoute-les dans « Gérer les environnements ».
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>

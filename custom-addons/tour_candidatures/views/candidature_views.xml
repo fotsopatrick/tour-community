@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_candidature_list" model="ir.ui.view">
+        <field name="name">candidature.fiche.list</field>
+        <field name="model">candidature.fiche</field>
+        <field name="arch" type="xml">
+            <list string="Mes candidatures"
+                  decoration-warning="a_relancer"
+                  decoration-muted="etat in ('refusee','arretee','silence')"
+                  decoration-success="etat in ('offre','acceptee')">
+                <field name="date_envoi"/>
+                <field name="entreprise"/>
+                <field name="name" string="Le poste"/>
+                <field name="porte"/>
+                <field name="canal" optional="show"/>
+                <field name="remuneration" sum="Visé" optional="show"/>
+                <field name="remuneration_proposee" sum="Proposé" optional="hide"/>
+                <field name="unite" optional="hide"/>
+                <field name="etat" widget="badge"/>
+                <field name="jours_sans_reponse" string="Silence (j)"/>
+                <field name="a_relancer" optional="hide"/>
+                <field name="contact" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_candidature_form" model="ir.ui.view">
+        <field name="name">candidature.fiche.form</field>
+        <field name="model">candidature.fiche</field>
+        <field name="arch" type="xml">
+            <form string="Candidature">
+                <header>
+                    <button name="action_noter_nouvelle" type="object"
+                            string="Ils m'ont répondu aujourd'hui" class="btn-primary"
+                            help="Remet le compteur de silence à zéro."/>
+                    <button name="action_preparer_entretien" type="object"
+                            string="Préparer l'entretien"
+                            help="Envoie l'offre dans le module Entretiens."/>
+                    <field name="etat" widget="statusbar"
+                           statusbar_visible="envoyee,accusee,entretien,offre,acceptee"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Architecte IA"/></h1>
+                        <h2><field name="entreprise" placeholder="L'entreprise"/></h2>
+                    </div>
+                    <group>
+                        <group string="La candidature">
+                            <field name="porte"/>
+                            <field name="canal"/>
+                            <field name="date_envoi"/>
+                            <field name="source_id"/>
+                            <field name="lien" widget="url"/>
+                        </group>
+                        <group string="L'argent">
+                            <field name="remuneration"/>
+                            <field name="remuneration_proposee"/>
+                            <field name="unite"/>
+                            <field name="ecart"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Le suivi">
+                            <field name="contact"/>
+                            <field name="contact_mail" widget="email"/>
+                            <field name="derniere_nouvelle"/>
+                            <field name="jours_sans_reponse"/>
+                            <field name="a_relancer"/>
+                        </group>
+                        <group string="Préparation">
+                            <field name="entretien_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="L'offre" name="offre">
+                            <field name="offre" nolabel="1"
+                                   placeholder="Colle l'annonce telle quelle. C'est elle qu'on lit pour préparer l'entretien."/>
+                        </page>
+                        <page string="Notes" name="note">
+                            <field name="note" nolabel="1"
+                                   placeholder="Ce qu'il faut retenir : le nom d'un interlocuteur, un montant dit à l'oral, une date promise."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_candidature_search" model="ir.ui.view">
+        <field name="name">candidature.fiche.search</field>
+        <field name="model">candidature.fiche</field>
+        <field name="arch" type="xml">
+            <search string="Chercher une candidature">
+                <field name="entreprise" string="Chercher"
+                       filter_domain="['|','|',
+                                       ('entreprise','ilike',self),
+                                       ('name','ilike',self),
+                                       ('contact','ilike',self)]"/>
+                <!-- « Ouvertes » = tout ce qui n'est pas clos, PRÉPARÉES COMPRISES.
+                     C'est le filtre par défaut depuis le 21/08/2026 : avant, le
+                     filtre « Vivantes » était posé d'office et masquait les
+                     candidatures préparées. Elles existaient, on ne les voyait
+                     pas — un écran qui cache ce qu'on vient d'y ranger fait
+                     croire à une perte. -->
+                <filter name="f_ouvertes" string="Ouvertes"
+                        domain="[('etat','in',['preparee','envoyee','accusee','entretien','offre'])]"/>
+                <filter name="f_preparees" string="Préparées"
+                        domain="[('etat','=','preparee')]"/>
+                <filter name="f_vivantes" string="Vivantes (envoyées)"
+                        domain="[('etat','in',['envoyee','accusee','entretien','offre'])]"/>
+                <filter name="f_relancer" string="À relancer"
+                        domain="[('a_relancer','=',True)]"/>
+                <separator/>
+                <filter name="f_consulting" string="Consulting"
+                        domain="[('porte','=','consulting')]"/>
+                <filter name="f_mission" string="Mission"
+                        domain="[('porte','=','mission')]"/>
+                <filter name="f_salariat" string="Salarié"
+                        domain="[('porte','=','salariat')]"/>
+                <separator/>
+                <filter name="f_formulaire" string="Passées par un formulaire"
+                        domain="[('canal','=','formulaire')]"
+                        help="Celles dont il n'existe aucune trace ailleurs."/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="g_etat" string="Où ça en est" context="{'group_by':'etat'}"/>
+                    <filter name="g_porte" string="La porte" context="{'group_by':'porte'}"/>
+                    <filter name="g_entreprise" string="Entreprise" context="{'group_by':'entreprise'}"/>
+                    <filter name="g_mois" string="Mois d'envoi" context="{'group_by':'date_envoi:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_candidature" model="ir.actions.act_window">
+        <field name="name">Mes candidatures</field>
+        <field name="res_model">candidature.fiche</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_f_ouvertes': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune candidature notée.</p>
+            <p>La trace se prend en postulant, pas en la cherchant six mois après.
+               Une candidature déposée sur un formulaire ne laisse aucune trace
+               dans la boîte mail : si elle n'est pas ici, elle n'existe nulle part.</p>
+        </field>
+    </record>
+
+    <record id="action_candidature_relancer" model="ir.actions.act_window">
+        <field name="name">À relancer</field>
+        <field name="res_model">candidature.fiche</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('a_relancer','=',True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien à relancer.</p>
+            <p>Une candidature vivante et muette depuis plus de dix jours arrive ici
+               toute seule.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_candidature_racine" name="Mes candidatures"
+              web_icon="tour_candidatures,static/description/icon.png"
+              sequence="45"/>
+    <menuitem id="menu_candidature_toutes" name="Toutes"
+              parent="menu_candidature_racine" action="action_candidature" sequence="10"/>
+    <menuitem id="menu_candidature_relancer" name="À relancer"
+              parent="menu_candidature_racine" action="action_candidature_relancer" sequence="20"/>
+
+</odoo>

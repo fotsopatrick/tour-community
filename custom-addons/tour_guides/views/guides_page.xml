@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_guides" name="Guides — Tour de Contrôle">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Guides — Tour de Contrôle</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .wrap { max-width:900px; margin:0 auto; padding:28px 16px 64px; }
+                    h1 { font-size:1.7rem; margin:0 0 4px; }
+                    .sub { color:#94a3b8; margin:0 0 18px; }
+                    h2 { font-size:1rem; color:#7dd3fc; margin:28px 0 10px;
+                         border-bottom:1px solid #1e293b; padding-bottom:4px; }
+                    .recherche { margin:0 0 18px; }
+                    .recherche input { width:100%; max-width:420px; box-sizing:border-box;
+                         background:#0f172a; border:1px solid #1e293b; color:var(--texte);
+                         border-radius:8px; padding:9px 14px; font-size:.95rem; outline:none; }
+                    .recherche input:focus { border-color:#3b82f6; }
+                    .g { background:#0f172a; border:1px solid #1e293b; border-radius:8px;
+                         margin:6px 0; overflow:hidden; }
+                    .g.entete { display:flex; align-items:center; justify-content:space-between;
+                         gap:10px; padding:10px 14px; cursor:pointer; user-select:none; }
+                    .g.entete:hover { background:#111c33; }
+                    .g .n { font-weight:600; font-size:.95rem; }
+                    .g .r { color:#94a3b8; font-size:.84rem; margin-top:3px; line-height:1.5; }
+                    .g .chevron { color:#64748b; font-size:.75rem; flex-shrink:0;
+                         transition:transform .18s ease; }
+                    .g.ouvert .chevron { transform:rotate(90deg); }
+                    .g .corps { display:none; border-top:1px solid #1e293b;
+                         padding:14px 16px; font-size:.92rem; line-height:1.7; color:#cbd5e1; }
+                    .g.ouvert .corps { display:block; }
+                    .g .corps :is(p, ul, ol, h1, h2, h3, h4) { margin:.5em 0; }
+                    .g .corps ul, .g .corps ol { padding-left:22px; }
+                    .g .corps code { background:#1e293b; padding:1px 6px; border-radius:4px;
+                         font-size:.85em; }
+                    .g .corps pre { background:#0b1120; border:1px solid #1e293b;
+                         border-radius:6px; padding:10px 12px; overflow-x:auto; }
+                    .badge { font-size:.7rem; font-weight:600; padding:1px 8px; border-radius:20px;
+                             background:#3b1d1d; color:#f87171; margin-left:8px; }
+                    a.retour { color:#3b82f6; text-decoration:none; font-size:.85rem; }
+                    .pied { color:#64748b; font-size:.8rem; margin-top:26px; }
+                    .aucun { color:#64748b; font-style:italic; padding:14px 0; }
+                    .categorie.cachee { display:none; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </head>
+            <body>
+                <div class="wrap">
+                    <a class="retour" href="/tour/dashboard">← l'accueil</a>
+                    <h1 style="margin-top:10px">Les guides</h1>
+                    <p class="sub"><t t-esc="total"/> guides — réservés au propriétaire.
+                       Ceux marqués <span class="badge">interne</span> contiennent des
+                       références privées et ne sortent pas.</p>
+
+                    <div class="recherche">
+                        <input type="search" id="recherche-guides"
+                               placeholder="Rechercher un guide (titre, résumé, contenu, mots-clés)…"
+                               aria-label="Rechercher un guide"/>
+                    </div>
+
+                    <t t-foreach="groupes" t-as="grp">
+                        <div class="categorie" t-att-data-categorie="grp[0] or 'Sans catégorie'">
+                            <h2 t-esc="grp[0] or 'Sans catégorie'"/>
+                            <t t-foreach="grp[1]" t-as="g">
+                                <div class="g" t-att-data-nom="g.name"
+                                     t-att-data-cherche="(g.name or '') + ' ' + (g.resume or '') + ' ' + (g.mots_cles or '')">
+                                    <div class="entete" t-att-data-ouvrir="1">
+                                        <div>
+                                            <div class="n"><t t-esc="g.name"/>
+                                                <span t-if="g.interne" class="badge">interne</span>
+                                            </div>
+                                            <div class="r" t-if="g.resume"><t t-out="g.resume"/></div>
+                                        </div>
+                                        <span class="chevron">▶</span>
+                                    </div>
+                                    <div class="corps"><t t-if="g.contenu" t-out="g.contenu"/>
+                                        <p class="pied" t-if="not g.contenu">(pas de contenu saisi)</p>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <div class="aucun" id="aucun-guide" hidden="hidden">Aucun guide ne correspond à cette recherche.</div>
+                    <div class="pied">Clique sur un guide pour lire le contenu complet.</div>
+                </div>
+
+                <script type="text/javascript">
+                    (function () {
+                        var entetes = document.querySelectorAll(".g .entete");
+                        for (var i = 0; i &lt; entetes.length; i++) {
+                            entetes[i].addEventListener("click", function () {
+                                this.parentNode.classList.toggle("ouvert");
+                            });
+                        }
+                        var champ = document.getElementById("recherche-guides");
+                        if (champ) {
+                            champ.addEventListener("input", function () {
+                                var q = champ.value.trim().toLowerCase();
+                                var guides = document.querySelectorAll(".g");
+                                var visibles = 0;
+                                var categories = document.querySelectorAll(".categorie");
+                                for (var g = 0; g &lt; guides.length; g++) {
+                                    var cherche = (guides[g].getAttribute("data-cherche") || "").toLowerCase();
+                                    var ok = !q || cherche.indexOf(q) !== -1;
+                                    guides[g].style.display = ok ? "" : "none";
+                                    if (ok) { visibles++; }
+                                }
+                                for (var c = 0; c &lt; categories.length; c++) {
+                                    var el = categories[c];
+                                    var a = el.querySelectorAll(".g");
+                                    var anyVisible = false;
+                                    for (var k = 0; k &lt; a.length; k++) {
+                                        if (a[k].style.display !== "none") { anyVisible = true; break; }
+                                    }
+                                    el.classList.toggle("cachee", !anyVisible);
+                                }
+                                var aucun = document.getElementById("aucun-guide");
+                                if (aucun) { aucun.hidden = visibles !== 0; }
+                            });
+                        }
+                    })();
+                </script>
+            </body>
+        </html>
+    </template>
+</odoo>

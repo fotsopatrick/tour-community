@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_recherche_source_user,recherche.source.user,model_recherche_source,base.group_user,1,0,0,0
+access_recherche_source_admin,recherche.source.admin,model_recherche_source,base.group_system,1,1,1,1
+access_recherche_passage_user,recherche.passage.user,model_recherche_passage,base.group_user,1,0,0,0
+access_recherche_passage_admin,recherche.passage.admin,model_recherche_passage,base.group_system,1,1,1,1

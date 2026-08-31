@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <title>Test recherche extension → navigateur</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    input[type=text] { width: 100%; padding: .6rem .8rem; font-size: 1rem; border: 1px solid #ccc; border-radius: .4rem; }
+    button { padding: .6rem 1.2rem; font-size: 1rem; cursor: pointer; margin-top: .5rem; }
+    #log { background: #0f172a; color: #e2e8f0; border-radius: .5rem; padding: 1rem; margin-top: 1rem;
+           font-family: ui-monospace, monospace; font-size: .85rem; white-space: pre-wrap; }
+    .ok { color: #22c55e; } .ko { color: #ef4444; }
+    .res { border-bottom: 1px solid #1e293b; padding: .5rem 0; }
+    .res .titre { color: #60a5fa; font-weight: 600; }
+    .res .lien { color: #94a3b8; font-size: .8rem; }
+    .res .extrait { color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <h1>Preuve : la recherche se fait dans TON navigateur</h1>
+  <p>L'extension ouvre un onglet sur Bing (session réelle), lit les résultats,
+     et les renvoie ici. <b>Aucune donnée privée n'est lue</b> : elle n'ouvre
+     que la recherche que tu demandes.</p>
+  <input type="text" id="q" value="opencode ai agent"/>
+  <br/>
+  <button id="go">Lancer la recherche</button>
+  <pre id="log">(en attente — écris une recherche, puis clique)</pre>
+
+  <script>
+    const log = document.getElementById('log');
+    function ecrire(ligne, classe) {
+      log.textContent += ligne + "\n";
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.source !== window) return;
+      const data = event.data;
+      if (!data || data.__tour !== 1) return;
+
+      if (data.direction === "page<-ext") {
+        ecrire("[PAGE] extension : " + data.reponse);
+      } else if (data.direction === "resultats") {
+        ecrire("=== RÉSULTATS DE LA RECHERCHE ===");
+        const res = data.resultats || [];
+        if (res.length === 0) {
+          ecrire("(aucun résultat — Bing a peut-être changé de page ou bloqué)", "ko");
+        }
+        for (const r of res) {
+          ecrire("• " + r.titre, "ok");
+          ecrire("  " + r.lien);
+          if (r.extrait) ecrire("  " + r.extrait);
+        }
+        ecrire("=================================");
+      }
+    });
+
+    document.getElementById('go').addEventListener('click', () => {
+      const q = document.getElementById('q').value.trim();
+      if (!q) return;
+      log.textContent = "";
+      ecrire("[PAGE] recherche : " + q);
+      ecrire("[PAGE] envoi à l'extension... (un onglet Bing va s'ouvrir)");
+      window.postMessage({ __tour: 1, question: q }, "*");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_edition_user,braignak.jeu.edition user,model_braignak_jeu_edition,base.group_user,1,0,0,0
+acces_edition_admin,braignak.jeu.edition admin,model_braignak_jeu_edition,base.group_system,1,1,1,1
+acces_participation_user,braignak.jeu.participation user,model_braignak_jeu_participation,base.group_user,1,0,1,0
+acces_participation_admin,braignak.jeu.participation admin,model_braignak_jeu_participation,base.group_system,1,1,1,1

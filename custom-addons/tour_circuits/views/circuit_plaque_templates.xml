@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ============================================================
+  GABARIT : circuit_plaque_essai â€” Â« la plaque d'essai Â»
+  Module : tour_circuits â€” fichier views/circuit_plaque_templates.xml
+  CrÃ©Ã© le 10/08/2026 (Merline) â€” suit le design du cockpit (tour_cockpit).
+
+  QUOI : une plaque d'essai faÃ§on Arduino, interactive : pile, LED,
+        rÃ©sistance, interrupteur, fils. Le courant se propage (BFS) depuis
+        la borne gauche de la pile et les LED s'allument quand le circuit
+        est fermÃ©. Rien n'est envoyÃ© au serveur : tout vit dans la page.
+
+  OÃ™ : injectÃ© dans la page Â« Circuits Â» (template page_circuits du fichier
+        circuit_cockpit_templates.xml) via <t t-call="tour_circuits.
+        circuit_plaque_essai"/>.
+
+  COMMENT L'APPELER (pour le retrouver / le rÃ©utiliser ailleurs) :
+        <t t-call="tour_circuits.circuit_plaque_essai"/>
+  Les identifiants HTML sont prÃ©fixÃ©s Â« bdc Â» (breadboard) et le CSS/JS vit
+  ici, Ã  cÃ´tÃ© du gabarit â€” pas dans les autres fichiers.
+  ============================================================
+-->
+<odoo>
+<template id="circuit_plaque_essai" name="Plaque dessai - simulateur Arduino">
+  <style>
+    .bdc { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; margin:20px 0; }
+    .bdc h2 { margin:0 0 2px; font-size:16px; }
+    .bdc .hint { color:var(--muted); font-size:12.5px; margin:0 0 12px; }
+    .bdc-etat { font-family:var(--mono); font-size:12px; color:var(--c1); margin:0 0 12px; }
+    .bdc-palette { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 14px; }
+    .bdc-btn { font:inherit; font-size:12.5px; font-weight:600; color:var(--muted); cursor:pointer;
+               background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:8px 12px; transition:all .15s ease; }
+    .bdc-btn:hover { border-color:var(--c1); color:var(--text); }
+    .bdc-btn.on { background:rgba(47,111,176,.16); border-color:var(--c1); color:var(--text); }
+    .bdc-planche { position:relative; background:#0f1a2a; border:1px solid var(--line); border-radius:12px; padding:10px; overflow:hidden; }
+    .bdc-rangee { display:flex; gap:5px; margin-bottom:5px; }
+    .bdc-case { flex:1; height:42px; border-radius:7px; border:1px solid rgba(255,255,255,.08);
+                background:rgba(255,255,255,.03); cursor:pointer; display:grid; place-items:center; transition:all .12s ease; }
+    .bdc-case:hover { border-color:#58a6ff; background:rgba(88,166,255,.08); }
+    .bdc-case.vif { background:rgba(63,185,80,.12); border-color:rgba(63,185,80,.35); }
+    .bdc-case.choix { border-color:#d29922; box-shadow:0 0 0 2px rgba(210,153,34,.35); }
+    .bdc-part { font-size:17px; display:grid; place-items:center; width:34px; height:34px; border-radius:7px;
+                background:linear-gradient(160deg,#2b3547,#1d2531); border:1px solid var(--line); }
+    .bdc-part.pile { color:#fff; background:linear-gradient(160deg,#7a4a9e,#5a2d7a); border-color:#8a5fb0; }
+    .bdc-part.led { background:#241313; border-color:#5a3030; filter:grayscale(.6); }
+    .bdc-part.led.allume { background:radial-gradient(circle,#ff4d4d,#b32323); border-color:#ff6b6b; filter:none;
+                            box-shadow:0 0 14px rgba(248,81,73,.8); }
+    .bdc-part.resistance { color:var(--muted); border-color:#d0a74a; }
+    .bdc-part.interrupteur { color:#d29922; font-weight:800; }
+    .bdc-fils { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+    .bdc-fil { stroke:#6e7681; stroke-width:3; opacity:.6; }
+    .bdc-fil.vif { stroke:#3fb950; opacity:.95; stroke-width:4; }
+    .bdc-aide { color:var(--muted); font-size:12.5px; margin:12px 0 0; line-height:1.6; }
+    .bdc-aide b { color:var(--good); }
+  </style>
+
+  <section class="bdc" id="bdc" aria-labelledby="bdc-titre">
+    <h2 id="bdc-titre">Plaque d'essai â€” le circuit que tu construis</h2>
+    <p class="hint">Pose une pile, une LED, relie-les : le courant passe. Interrupteur, rÃ©sistance, fils â€” tout est lÃ .</p>
+    <div class="bdc-etat" id="bdc-etat">Place une pile pour commencer.</div>
+    <div class="bdc-palette" id="bdc-palette"></div>
+    <div class="bdc-planche" id="bdc-planche"></div>
+    <p class="bdc-aide" id="bdc-aide">Choisis un composant, puis clique une case de la plaque pour le poser. <b>Pose une pile et une LED, relie-les : la LED s'allume.</b></p>
+  </section>
+
+  <script><![CDATA[
+  /* ============ PLAQUE D'ESSAI (simulateur Arduino) ============
+     Gabarit circuit_plaque_essai â€” mÃªme logique que la webapp
+     /sites/circuits, en vanilla pour rester dans Odoo : pile, LED,
+     rÃ©sistance, interrupteur, fils. Propagation = BFS depuis la pile. */
+  (function () {
+    var LB = 10, HB = 2;
+    var TYPES = {
+      pile: { nom: "Pile", sym: "9V" },
+      led: { nom: "LED", sym: "\u25CF" },
+      resistance: { nom: "RÃ©sistance", sym: "R" },
+      interrupteur: { nom: "Interrupteur", sym: "\u21C4" }
+    };
+    var etat = { composants: [], fils: [], courant: {}, outil: "pile", choix: null };
+    var elEtat = document.getElementById("bdc-etat");
+    var elPlanche = document.getElementById("bdc-planche");
+    var elPalette = document.getElementById("bdc-palette");
+    if (!elPlanche || !elPalette) return;
+    var nId = 0, cle = function (c, r) { return c + "," + r; };
+    var composantA = function (c, r) {
+      for (var i = 0; i < etat.composants.length; i++)
+        if (etat.composants[i].col === c && etat.composants[i].rangee === r) return etat.composants[i];
+      return null;
+    };
+    function relier(x, y, voisins) {
+      var k1 = cle(x.col, x.rangee), k2 = cle(y.col, y.rangee);
+      (voisins[k1] = voisins[k1] || new Set()).add(k2);
+      (voisins[k2] = voisins[k2] || new Set()).add(k1);
+    }
+    function simuler() {
+      var voisins = {};
+      etat.fils.forEach(function (f) { relier(f.a, f.b, voisins); });
+      etat.composants.forEach(function (c) {
+        if (c.type !== "interrupteur" || c.etat)
+          relier({ col: c.col, rangee: c.rangee }, { col: c.col + 1, rangee: c.rangee }, voisins);
+      });
+      var tension = {};
+      var pile = etat.composants.filter(function (x) { return x.type === "pile"; })[0];
+      if (pile) {
+        var depart = cle(pile.col, pile.rangee), vus = {}, file = [depart];
+        vus[depart] = true;
+        while (file.length) {
+          var k = file.shift(); tension[k] = true;
+          (voisins[k] || []).forEach(function (n) { if (!vus[n]) { vus[n] = true; file.push(n); } });
+        }
+      }
+      var courant = {};
+      etat.composants.forEach(function (c) { courant[c.id] = c.type === "led" && !!tension[cle(c.col, c.rangee)]; });
+      etat.fils.forEach(function (f, i) { courant["f" + i] = !!tension[cle(f.a.col, f.a.rangee)]; });
+      etat.courant = courant;
+    }
+    function message() {
+      if (!etat.composants.filter(function (x) { return x.type === "pile"; }).length) return "Place une pile pour commencer.";
+      var leds = etat.composants.filter(function (x) { return x.type === "led"; });
+      if (!leds.length) return "Ajoute une LED pour voir le courant passer.";
+      var on = leds.filter(function (l) { return etat.courant[l.id]; });
+      if (on.length === leds.length) return "Le circuit est fermÃ© â€” les LED s'allument.";
+      if (!on.length) return "Les LED sont Ã©teintes : le circuit est ouvert ou interrompu.";
+      return on.length + " LED allumÃ©e(s) sur " + leds.length;
+    }
+    function dessiner() {
+      elEtat.textContent = message();
+      elPlanche.innerHTML = "";
+      var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "bdc-fils");
+      svg.setAttribute("viewBox", "0 0 " + (LB * 52) + " " + (HB * 52));
+      etat.fils.forEach(function (f, i) {
+        var ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        ln.setAttribute("x1", f.a.col * 52 + 26); ln.setAttribute("y1", f.a.rangee * 52 + 26);
+        ln.setAttribute("x2", f.b.col * 52 + 26); ln.setAttribute("y2", f.b.rangee * 52 + 26);
+        ln.setAttribute("class", "bdc-fil" + (etat.courant["f" + i] ? " vif" : ""));
+        svg.appendChild(ln);
+      });
+      var r, c;
+      for (r = 0; r < HB; r++) {
+        var rangee = document.createElement("div");
+        rangee.setAttribute("class", "bdc-rangee");
+        for (c = 0; c < LB; c++) {
+          var btn = document.createElement("button");
+          btn.setAttribute("type", "button");
+          btn.setAttribute("class", "bdc-case");
+          if (etat.fils.some(function (f, i) { return etat.courant["f" + i] &&
+              ((f.a.col === c && f.a.rangee === r) || (f.b.col === c && f.b.rangee === r)); }))
+            btn.classList.add("vif");
+          if (etat.choix && etat.choix.col === c && etat.choix.rangee === r) btn.classList.add("choix");
+          var comp = composantA(c, r);
+          if (comp) {
+            var sp = document.createElement("span");
+            sp.setAttribute("class", "bdc-part " + comp.type +
+              (comp.type === "led" && etat.courant[comp.id] ? " allume" : ""));
+            sp.textContent = comp.type === "interrupteur" ? (comp.etat ? "1" : "0") : TYPES[comp.type].sym;
+            sp.addEventListener("click", function (ev, co) {
+              ev.stopPropagation();
+              if (etat.outil === "interrupteur" && co.type === "interrupteur") { co.etat = !co.etat; simuler(); dessiner(); }
+              else if (etat.outil === "main") { etat.composants = etat.composants.filter(function (x) { return x.id !== co.id; }); simuler(); dessiner(); }
+            }.bind(null, null, comp));
+            btn.appendChild(sp);
+          }
+          (function (col, rangee) {
+            btn.addEventListener("click", function () { cliquer(col, rangee); });
+          })(c, r);
+          rangee.appendChild(btn);
+        }
+        elPlanche.appendChild(rangee);
+      }
+      elPlanche.appendChild(svg);
+    }
+    function cliquer(col, rangee) {
+      if (etat.outil === "fil") {
+        if (etat.choix) {
+          if (etat.choix.col === col && etat.choix.rangee === rangee) { etat.choix = null; dessiner(); return; }
+          etat.fils.push({ a: { col: etat.choix.col, rangee: etat.choix.rangee }, b: { col: col, rangee: rangee } });
+          etat.choix = null; simuler(); dessiner(); return;
+        }
+        etat.choix = { col: col, rangee: rangee }; dessiner(); return;
+      }
+      var occ = composantA(col, rangee);
+      if (occ) {
+        if (etat.outil === "main") { etat.composants = etat.composants.filter(function (x) { return x.id !== occ.id; }); simuler(); dessiner(); }
+        return;
+      }
+      etat.composants.push({ id: "p" + (nId++), type: etat.outil, col: col, rangee: rangee, etat: false });
+      simuler(); dessiner();
+    }
+    Object.keys(TYPES).forEach(function (k) {
+      var b = document.createElement("button");
+      b.setAttribute("type", "button");
+      b.setAttribute("class", "bdc-btn" + (etat.outil === k ? " on" : ""));
+      b.innerHTML = TYPES[k].sym + " " + TYPES[k].nom;
+      b.addEventListener("click", function () { etat.outil = k; etat.choix = null; dessiner(); });
+      elPalette.appendChild(b);
+    });
+    ["fil", "main"].forEach(function (k) {
+      var b = document.createElement("button");
+      b.setAttribute("type", "button");
+      b.setAttribute("class", "bdc-btn" + (etat.outil === k ? " on" : ""));
+      b.textContent = k === "fil" ? "â› Fil" : "âœ• Retirer";
+      b.addEventListener("click", function () { etat.outil = k; etat.choix = null; dessiner(); });
+      elPalette.appendChild(b);
+    });
+    dessiner();
+  })();
+  ]]></script>
+</template>
+</odoo>

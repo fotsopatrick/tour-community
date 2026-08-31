@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Pas de noupdate : une mise à jour du module rafraîchit les fichiers
+         embarqués. C'est voulu — la copie téléchargeable doit suivre le dépôt. -->
+
+    <record id="outil_detecter_surveillance" model="tour.outil">
+        <field name="name">Détecteur de surveillance</field>
+        <field name="resume">Dit si un outil de surveillance (espion, keylogger, MDM, prise en main à distance) est installé sur le PC.</field>
+        <field name="categorie">poste</field>
+        <field name="plateforme">Windows 10/11</field>
+        <field name="sequence">10</field>
+        <field name="commande">powershell -ExecutionPolicy Bypass -File .\detecter-surveillance.ps1</field>
+        <field name="emplacement_repo">outils/poste/detecter-surveillance.ps1</field>
+        <field name="fichier" type="base64" file="tour_outils/static/outils/detecter-surveillance.ps1"/>
+        <field name="fichier_nom">detecter-surveillance.ps1</field>
+        <field name="description"><![CDATA[
+<h2>Ce que ça fait</h2>
+<p>Le script regarde six endroits de la machine : les logiciels installés, les
+services, les processus, ce qui se lance au démarrage, les tâches planifiées,
+et le rattachement à une entreprise (domaine / MDM). Il compare tout ça à une
+liste d'outils de surveillance connus (Teramind, ActivTrak, mSpy, keyloggers,
+agents RMM…) et rend un verdict clair : <b>NON / OUI / DOUTEUX</b>.</p>
+<p>Il ne modifie rien et n'envoie rien : tout reste sur le Bureau.</p>
+<h2>Installation</h2>
+<ol>
+<li>Clique sur le fichier <b>detecter-surveillance.ps1</b> en haut de cette fiche pour le télécharger.</li>
+<li>Mets-le dans un dossier, par exemple <i>Téléchargements</i>.</li>
+<li>Dans ce dossier : clic droit &gt; <i>Ouvrir dans le Terminal</i>.</li>
+<li>Colle la commande de lancement (champ ci-dessus) et appuie sur Entrée.</li>
+</ol>
+<p>À la fin, <b>une page web s'ouvre toute seule</b> avec le résultat expliqué
+simplement (vert = personne ne te surveille, rouge = outil trouvé, orange =
+machine rattachée à une organisation). Le rapport technique
+(<code>rapport-surveillance.md</code>) reste sur le Bureau. Ajoute
+<code>-SansOuvrir</code> si tu ne veux pas que le navigateur s'ouvre.</p>
+<h2>Ce n'est pas une garantie</h2>
+<p>L'outil compare la machine à une liste d'outils de surveillance
+<b>connus</b>. Un verdict vert veut dire « aucun signe connu trouvé » — pas
+« impossible qu'on te surveille ». Un espion fait sur mesure, renommé ou caché
+plus profond (rootkit) peut lui échapper, et la surveillance côté réseau (box,
+VPN, réseau du travail) ne se voit pas depuis le poste. La page de résultat et
+le rapport le rappellent à chaque lancement. Si le doute est sérieux :
+réinstallation propre de Windows, et mots de passe changés depuis un
+<b>autre</b> appareil.</p>
+]]></field>
+    </record>
+
+    <record id="outil_inventaire_logiciels" model="tour.outil">
+        <field name="name">Inventaire des logiciels</field>
+        <field name="resume">Recense tout ce qui est installé sur le PC (6 sources) et le classe — la liste de courses avant une réinstallation.</field>
+        <field name="categorie">poste</field>
+        <field name="plateforme">Windows 10/11</field>
+        <field name="sequence">20</field>
+        <field name="commande">powershell -ExecutionPolicy Bypass -File .\inventaire-logiciels.ps1</field>
+        <field name="emplacement_repo">outils/poste/inventaire-logiciels.ps1</field>
+        <field name="fichier" type="base64" file="tour_outils/static/outils/inventaire-logiciels.ps1"/>
+        <field name="fichier_nom">inventaire-logiciels.ps1</field>
+        <field name="description"><![CDATA[
+<h2>Ce que ça fait</h2>
+<p>Il répond à : <b>qu'est-ce qu'il y avait sur cette machine ?</b> Six sources,
+parce qu'aucune ne suffit seule : le registre (32/64 bits + utilisateur), le
+Microsoft Store, winget / scoop / chocolatey, les jeux (Steam, Epic), et les
+dossiers de programmes des autres disques. Lecture seule.</p>
+<h2>Installation</h2>
+<ol>
+<li>Télécharge le fichier en haut de cette fiche.</li>
+<li>Clic droit dans son dossier &gt; <i>Ouvrir dans le Terminal</i>.</li>
+<li>Colle la commande de lancement. Le rapport arrive sur le Bureau.</li>
+</ol>
+<p>Options utiles : <code>-Json</code> (fichier .json en plus),
+<code>-DossiersSupplementaires D:\Logiciels,D:\JEUX</code>, et les paramètres
+<code>-TourUrl/-TourLogin/-TourMdp</code> pour déposer le rapport dans la tour.</p>
+]]></field>
+    </record>
+
+    <record id="outil_ranger_bureau" model="tour.outil">
+        <field name="name">Rangeur de Bureau</field>
+        <field name="resume">Classe et archive les fichiers du Bureau. Ne supprime jamais, simule par défaut, laisse les secrets sur place.</field>
+        <field name="categorie">poste</field>
+        <field name="plateforme">Windows 10/11</field>
+        <field name="sequence">30</field>
+        <field name="commande">powershell -ExecutionPolicy Bypass -File .\ranger-bureau.ps1</field>
+        <field name="emplacement_repo">outils/poste/ranger-bureau.ps1</field>
+        <field name="fichier" type="base64" file="tour_outils/static/outils/ranger-bureau.ps1"/>
+        <field name="fichier_nom">ranger-bureau.ps1</field>
+        <field name="description"><![CDATA[
+<h2>Ce que ça fait</h2>
+<p>Il range le Bureau : il classe, dédoublonne et archive vers un autre disque.
+Trois règles qui ne se négocient pas :</p>
+<ul>
+<li><b>Il ne supprime jamais</b> — il déplace, et un journal dit où chaque fichier est parti.</li>
+<li><b>Les secrets restent sur place</b> — il lit l'intérieur des fichiers texte pour les reconnaître, et n'en recopie jamais le contenu.</li>
+<li><b>La simulation est le défaut</b> — sans <code>-Appliquer</code>, rien ne bouge.</li>
+</ul>
+<h2>Installation</h2>
+<ol>
+<li>Télécharge le fichier en haut de cette fiche.</li>
+<li>Clic droit dans son dossier &gt; <i>Ouvrir dans le Terminal</i>.</li>
+<li>Lance d'abord SANS option pour voir ce qu'il ferait, puis ajoute <code>-Appliquer</code> quand tu es d'accord.</li>
+</ol>
+]]></field>
+    </record>
+
+    <record id="outil_reseau_inventaire" model="tour.outil">
+        <field name="name">Inventaire du réseau</field>
+        <field name="resume">Liste les appareils connectés au réseau de la maison et signale les nouveaux venus.</field>
+        <field name="categorie">poste</field>
+        <field name="plateforme">Windows 10/11</field>
+        <field name="sequence">40</field>
+        <field name="commande">powershell -ExecutionPolicy Bypass -File .\reseau-inventaire.ps1</field>
+        <field name="emplacement_repo">outils/poste/reseau-inventaire.ps1</field>
+        <field name="fichier" type="base64" file="tour_outils/static/outils/reseau-inventaire.ps1"/>
+        <field name="fichier_nom">reseau-inventaire.ps1</field>
+        <field name="description"><![CDATA[
+<h2>Ce que ça fait</h2>
+<p>Il répond à : <b>qui est connecté à mon réseau ?</b> Il liste les appareils,
+tente de les nommer, identifie leur fabricant, et retient l'inventaire pour
+dire « celui-là est nouveau » au prochain passage.</p>
+<p><b>Ce qu'il ne fait pas, et c'est voulu :</b> il ne regarde pas ce que les
+appareils font (pas les sites visités, pas le contenu). Repérer un intrus sur
+son wifi est de l'administration ; intercepter des communications est un délit.
+La bonne réponse à un intrus, c'est de le mettre dehors, pas de l'espionner.</p>
+<h2>Installation</h2>
+<ol>
+<li>Télécharge le fichier en haut de cette fiche.</li>
+<li>Clic droit dans son dossier &gt; <i>Ouvrir dans le Terminal</i>.</li>
+<li>Colle la commande de lancement. <code>-Rapide</code> pour un scan en 2 secondes.</li>
+<li>Pour nommer un appareil : <code>-Nommer "a4:83:e7:11:22:33=iPhone de Patrick"</code>.</li>
+</ol>
+]]></field>
+    </record>
+
+    <record id="outil_tour_client" model="tour.outil">
+        <field name="name">Client de la tour (PowerShell)</field>
+        <field name="resume">Bibliothèque JSON-RPC : permet à un script du PC de créer des notes ou des tâches dans la tour.</field>
+        <field name="categorie">poste</field>
+        <field name="plateforme">Windows 10/11</field>
+        <field name="sequence">50</field>
+        <field name="commande">. .\tour-client.ps1</field>
+        <field name="emplacement_repo">outils/poste/tour-client.ps1</field>
+        <field name="fichier" type="base64" file="tour_outils/static/outils/tour-client.ps1"/>
+        <field name="fichier_nom">tour-client.ps1</field>
+        <field name="description"><![CDATA[
+<h2>Ce que ça fait</h2>
+<p>Ce n'est pas un outil qu'on lance, c'est une <b>brique</b> pour les autres :
+elle sait se connecter à la tour et créer un enregistrement (note, tâche…)
+depuis un script PowerShell. Elle n'utilise que des modèles standard : rien à
+installer côté serveur.</p>
+<h2>Utilisation</h2>
+<ol>
+<li>Télécharge le fichier et mets-le à côté de ton script.</li>
+<li>Charge-le avec <code>. .\tour-client.ps1</code> (le point devant compte).</li>
+<li>Puis :</li>
+</ol>
+<pre>
+$s = Connexion-Tour -Url https://tour.matourdecontrole.fr -Base tour -Login moi@exemple.fr -Mdp '...'
+Creer-Enregistrement -Session $s -Modele project.task -Valeurs @{ name = 'Une note' }
+</pre>
+<p><b>Jamais de mot de passe en dur dans un fichier</b> : on le passe en
+paramètre au moment de s'en servir.</p>
+]]></field>
+    </record>
+</odoo>

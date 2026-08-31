@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_theories" model="ir.actions.act_window">
+        <field name="name">Les théories</field>
+        <field name="res_model">theorie.fiche</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="vue_theories_liste" model="ir.ui.view">
+        <field name="name">theorie.fiche.liste</field>
+        <field name="model">theorie.fiche</field>
+        <field name="arch" type="xml">
+            <list string="Les théories" default_group_by="statut">
+                <field name="name"/>
+                <field name="statut"/>
+                <field name="nb_etudes"/>
+                <field name="cree_le"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_theories_form" model="ir.ui.view">
+        <field name="name">theorie.fiche.form</field>
+        <field name="model">theorie.fiche</field>
+        <field name="arch" type="xml">
+            <form string="Théorie">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="statut"/>
+                        <field name="cree_le"/>
+                    </group>
+                    <group string="L'idée">
+                        <field name="enonce" nolabel="1"/>
+                    </group>
+                    <group string="Ce que la théorie a donné">
+                        <field name="donne" nolabel="1"/>
+                    </group>
+                    <group string="Preuve">
+                        <field name="preuve" nolabel="1"/>
+                    </group>
+                    <group string="Ressources de Braignak">
+                        <field name="etude_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menu_theories" name="Théories"
+              action="action_theories" sequence="50"
+              parent="tour_dashboard.menu_pilotage_savoir"/>
+</odoo>

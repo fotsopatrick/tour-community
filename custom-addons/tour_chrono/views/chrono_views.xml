@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_temps_liste" model="ir.ui.view">
+        <field name="name">chrono.temps.liste</field>
+        <field name="model">chrono.temps</field>
+        <field name="arch" type="xml">
+            <list default_group_by="agent" create="false" edit="false">
+                <field name="quand"/>
+                <field name="agent"/>
+                <field name="projet"/>
+                <field name="minutes" sum="Total"/>
+                <field name="source"/>
+                <field name="note" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_temps" model="ir.actions.act_window">
+        <field name="name">Pointages</field>
+        <field name="res_model">chrono.temps</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien de pointé encore</p>
+            <p>Chaque mission relevée pointe son temps toute seule — et les
+            estimations humaines se marquent comme telles, jamais mélangées
+            aux mesures.</p>
+        </field>
+    </record>
+
+    <!-- La page « en ce moment » : temps réel simple, rechargée chaque minute. -->
+    <record id="action_page_chrono" model="ir.actions.act_url">
+        <field name="name">Chrono</field>
+        <field name="url">/tour/chrono</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_chrono" name="Chrono"
+              parent="tour_dashboard.menu_pilotage_chiffres" sequence="19"
+              action="action_page_chrono"/>
+    <menuitem id="menu_chrono_pointages" name="Pointages (détail)"
+              parent="menu_chrono" sequence="1"
+              action="action_temps"/>
+
+    <template id="page_chrono" name="Tour — Chrono">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+                <meta http-equiv="refresh" content="60"/>
+                <meta name="theme-color" content="#020817"/>
+                <style>
+                    :root { --fond:#020817; --surface:#0f172a; --surface2:#1e293b;
+                            --primaire:#3b82f6; --texte:#e2e8f0; --doux:#94a3b8;
+                            --ok:#22c55e; --r:.5rem; }
+                    * { box-sizing:border-box; }
+                    body { margin:0; background:var(--fond); color:var(--texte);
+                           font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+                    a { color:inherit; text-decoration:none; }
+                    .wrap { max-width:1100px; margin:0 auto; padding:1.25rem 1rem 5rem; }
+                    h1 { font-size:1.4rem; font-weight:650; margin:0 0 .25rem; }
+                    .sous { color:var(--doux); margin-bottom:1.4rem; }
+                    h2 { font-size:1.05rem; font-weight:600; margin:1.6rem 0 .7rem; }
+                    .carte { background:var(--surface); border:1px solid var(--surface2);
+                             border-radius:var(--r); padding:.8rem 1rem; margin-bottom:.6rem;
+                             display:flex; justify-content:space-between; gap:1rem;
+                             align-items:center; transition:border-color .15s ease; }
+                    .carte:hover { border-color:var(--primaire); }
+                    .carte b { font-weight:550; font-size:.93rem; }
+                    .duree { font-variant-numeric:tabular-nums; color:var(--doux); }
+                    .vivant { color:var(--ok); font-weight:600; }
+                    .retour { color:var(--doux); font-size:.9rem; }
+                    .retour:hover { color:var(--texte); }
+                    .deux { display:grid; gap:1.25rem;
+                            grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+                    .total { font-size:1.5rem; font-weight:700; }
+                    .etiquette { color:var(--doux); font-size:.85rem; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="wrap">
+                <p><a class="retour" href="/">← Retour à l'accueil</a></p>
+                <h1>Chrono</h1>
+                <div class="sous">Le temps passé, mesuré aux horodatages —
+                    la page se rafraîchit toute seule chaque minute.</div>
+
+                <div class="deux">
+                    <div class="carte" style="display:block">
+                        <div class="total"><t t-esc="'%.1f' % total_mesure"/> h</div>
+                        <div class="etiquette">mesurées (missions relevées)</div>
+                    </div>
+                    <div class="carte" style="display:block">
+                        <div class="total"><t t-esc="'%.0f' % total_estime"/> h</div>
+                        <div class="etiquette">estimées (la construction, 23-28/07 —
+                            marquées « estimation », jamais mélangées)</div>
+                    </div>
+                </div>
+
+                <h2>En ce moment</h2>
+                <p t-if="not en_cours" class="retour">Personne ne travaille à l'instant.</p>
+                <t t-foreach="en_cours" t-as="e">
+                    <div class="carte">
+                        <b><span class="vivant">●</span> <t t-esc="e['agent']"/> — <t t-esc="e['nom']"/></b>
+                        <span class="duree"><t t-esc="e['minutes']"/> min écoulées</span>
+                    </div>
+                </t>
+
+                <div class="deux">
+                    <div>
+                        <h2>Par agent — 7 derniers jours (mesuré)</h2>
+                        <p t-if="not par_agent_7j" class="retour">Rien encore.</p>
+                        <t t-foreach="par_agent_7j" t-as="l">
+                            <div class="carte"><b t-esc="l[0]"/>
+                                <span class="duree"><t t-esc="'%.1f' % l[1]"/> h</span></div>
+                        </t>
+                    </div>
+                    <div>
+                        <h2>Par projet (tout)</h2>
+                        <t t-foreach="par_projet" t-as="l">
+                            <div class="carte"><b t-esc="l[0]"/>
+                                <span class="duree"><t t-esc="'%.1f' % l[1]"/> h</span></div>
+                        </t>
+                    </div>
+                </div>
+
+                <h2>Les estimations, à part</h2>
+                <t t-foreach="estimations" t-as="l">
+                    <div class="carte"><b t-esc="l[0]"/>
+                        <span class="duree"><t t-esc="'%.0f' % l[1]"/> h (estimé)</span></div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>

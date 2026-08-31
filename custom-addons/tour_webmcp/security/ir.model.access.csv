@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_circuit_lecture,webmcp.circuit lecture,model_webmcp_circuit,base.group_user,1,0,0,0
+acces_circuit_admin,webmcp.circuit admin,model_webmcp_circuit,base.group_system,1,1,1,1
+acces_etape_lecture,webmcp.circuit.etape lecture,model_webmcp_circuit_etape,base.group_user,1,0,0,0
+acces_etape_admin,webmcp.circuit.etape admin,model_webmcp_circuit_etape,base.group_system,1,1,1,1

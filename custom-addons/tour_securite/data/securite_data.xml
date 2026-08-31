@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Une fois par jour, pas une fois par heure. Un controle de securite qui
+        passe toutes les heures ne trouve rien de plus : les reglages qu il
+        verifie ne changent pas dix fois par jour. Il ne ferait qu apprendre a
+        ignorer ses propres courriels.
+    -->
+    <record id="cron_securite" model="ir.cron">
+        <field name="name">Victor : controler la securite</field>
+        <field name="model_id" ref="model_securite_agent"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_controler()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+    <!--
+        L'ingestion du pentest, elle, tourne plus souvent : le sondage externe
+        peut etre relance a la main apres un changement de configuration, et on
+        veut voir le resultat sans attendre le lendemain. Elle ne fait que lire
+        un fichier : si le fichier n'a pas bouge, elle ne cree rien.
+    -->
+    <record id="cron_pentest" model="ir.cron">
+        <field name="name">Victor : ingerer le rapport de pentest</field>
+        <field name="model_id" ref="model_securite_agent"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_ingerer_pentest()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- PASSAGE IMMÉDIAT (01/08) : toutes les 15 min, si un écart est détecté
+         (cahier en échec, conteneur manquant), Victor contrôle TOUT DE SUITE. -->
+    <record id="cron_passage_immediat" model="ir.cron">
+        <field name="name">Victor : passage immédiat de sécurité</field>
+        <field name="model_id" ref="model_securite_agent"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_passage_immediat()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

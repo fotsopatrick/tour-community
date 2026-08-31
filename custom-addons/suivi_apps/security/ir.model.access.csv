@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_app_suivi_user,app.suivi user,model_app_suivi,base.group_user,1,1,1,1
+access_app_offre_user,app.offre user,model_app_offre,base.group_user,1,1,1,1
+access_app_apporteur_user,app.apporteur user,model_app_apporteur,base.group_user,1,1,1,1
+access_app_capture_user,app.capture.user,model_app_capture,base.group_user,1,1,1,1

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_braignak_etude_admin,braignak.etude admin,model_braignak_etude,base.group_system,1,1,1,1
+access_braignak_capacite_admin,braignak.capacite admin,model_braignak_capacite,base.group_system,1,1,1,1
+access_braignak_journal_lecture,braignak.journal lecture seule,model_braignak_journal,base.group_user,1,0,0,0
+access_braignak_journal_admin,braignak.journal admin (creation uniquement),model_braignak_journal,base.group_system,1,0,1,0
+access_braignak_etude_user,braignak.etude user (webapp),model_braignak_etude,base.group_user,1,0,0,0
+access_braignak_debit_admin,braignak.debit admin,model_braignak_debit,base.group_system,1,1,1,1
+access_braignak_relance_wizard_admin,braignak.relance.wizard admin,model_braignak_relance_wizard,base.group_system,1,1,1,1

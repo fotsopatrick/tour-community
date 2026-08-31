@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_appel_api_liste" model="ir.ui.view">
+        <field name="name">api.appel.liste</field>
+        <field name="model">api.appel</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="refuse">
+                <field name="horodatage"/>
+                <field name="agent"/>
+                <field name="mission_nom"/>
+                <field name="moteur"/>
+                <field name="modele"/>
+                <field name="tokens_entree" sum="Total entrée"/>
+                <field name="tokens_sortie" sum="Total sortie"/>
+                <field name="cout_estime" sum="Total coût"/>
+                <field name="refuse"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_appel_api_form" model="ir.ui.view">
+        <field name="name">api.appel.form</field>
+        <field name="model">api.appel</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="horodatage"/>
+                            <field name="agent"/>
+                            <field name="mission"/>
+                            <field name="mission_nom"/>
+                        </group>
+                        <group>
+                            <field name="moteur"/>
+                            <field name="modele"/>
+                            <field name="refuse"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="tokens_entree"/>
+                        <field name="tokens_sortie"/>
+                        <field name="cout_estime"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_appels_api" model="ir.actions.act_window">
+        <field name="name">Appels API</field>
+        <field name="res_model">api.appel</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>Chaque appel fait avec la clé DeepSeek, consigné par le garde-fou.
+               « Ce qui consomme encore des tokens ».</p>
+            <p>Le budget du jour se règle sur l'hôte :
+               <code>~/atelier/.budget-journalier</code> (un entier = jetons par
+               jour). Au-delà, le garde-fou refuse et la mission s'arrête.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_appels_api_racine" web_icon="tour_appels,static/description/icon.png" name="Appels API" sequence="29"
+              action="action_appels_api"/>
+</odoo>

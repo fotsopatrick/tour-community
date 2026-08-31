@@ -7,9 +7,14 @@ marche dans le navigateur), servies sur /community/app/<nom>/.
 Deux chemins, le même but :
 1. Si le PONT smolagents de l'hôte répond (172.18.0.1:3023) — c'est le cas sur
    la tour complète — le harnais construit et publie, comme en prod.
-2. Sinon (installation locale sans le pont), elle appelle DeepSeek DIRECTEMENT
+2. Sinon (installation locale sans le pont), elle appelle l'API DIRECTEMENT
    avec la clé que l'administrateur a posée, et écrit l'app dans le dossier
    servi. C'est le mode « utilisateur lambda » : une clé suffit.
+
+Moteurs : DeepSeek par défaut (paramètre tour_community_chat.moteur =
+« deepseek »). Mis à « gemini », Chloé passe par Gemini
+(generativelanguage.googleapis.com, clé tour_community_chat.gemini_key ou
+tour_webmcp.gemini_key). Même garde-fou invite dans les deux cas.
 
 Le garde-fou invite est le même que la prod : un invité ne reçoit pas les
 outils qui écrivent. Aucune dépendance au cœur (pas d'atelier, pas
@@ -18,6 +23,7 @@ import json
 import logging
 import os
 import re
+import urllib.parse
 import urllib.request as _ur
 
 import requests
@@ -28,10 +34,38 @@ from odoo.http import request
 _logger = logging.getLogger(__name__)
 
 PARAM_CLE = "tour_community_chat.api_key"
+PARAM_CLE_GEMINI = "tour_community_chat.gemini_key"
+PARAM_MOTEUR = "tour_community_chat.moteur"
+PARAM_MODELE = "tour_community_chat.modele"
+PARAM_DEEPSEEK_BASE = "tour_community_chat.deepseek_base"
+PARAM_DEEPSEEK_MODELE = "tour_community_chat.deepseek_modele"
+BASE_DEEPSEEK = "https://api.deepseek.com"
+MODELE_DEEPSEEK = "deepseek-chat"
+CLE_GEMINI_PARTAGEE = "tour_webmcp.gemini_key"
 CLE_COFFRE = "DeepSeek — clé API Community (chat)"
 PONT_SMOLAGENTS = "http://172.18.0.1:3023/"
 DOSSIER_APPS = "/var/lib/odoo/community-apps"
 DELAI_PONT = 5  # secondes pour décider si le pont est là ; sinon repli local
+MODELE_GEMINI = "gemini-3.6-flash"
+BASE_GEMINI = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent"
+
+CDN_DAISYUI = (
+    '<link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.13/dist/full.min.css" '
+    'rel="stylesheet" type="text/css" />\n'
+    '<script src="https://cdn.tailwindcss.com"></script>'
+)
+
+DOC_SITE_WEB = (
+    "Construire une application web statique complète (un index.html autonome) "
+    "et la mettre en ligne. Mets OBLIGATOIREMENT ces 2 lignes dans le <head> : "
+    + CDN_DAISYUI.replace("\n", " ") +
+    " . Style la page avec DaisyUI (Tailwind CSS) : structure avec navbar/hero/card/"
+    "footer/mockup-window ; boutons avec btn btn-primary btn-outline btn-ghost ; "
+    "badge pour les étiquettes ; formulaires avec input select textarea checkbox "
+    "toggle join ; retour avec alert loading progress toast modal. Choisis un thème "
+    "via data-theme sur <html> (light, dark, emerald, cupcake, forest). Écris du CSS "
+    "et du JavaScript fonctionnel dans la même page."
+)
 
 TOOLS = [
     {"type": "function",
@@ -48,7 +82,7 @@ TOOLS = [
                       "required": ["titre"]}}},
     {"type": "function",
      "function": {"name": "construire_app",
-                  "description": "Construire une petite application web statique (une page HTML/CSS/JS) et la mettre en ligne. À utiliser quand on demande de créer un site, une app, une page, un formulaire, un petit outil. Écris un index.html complet et autonome (tout le CSS et le JS dedans).",
+                  "description": DOC_SITE_WEB,
                   "parameters": {
                       "type": "object",
                       "properties": {
@@ -57,7 +91,7 @@ TOOLS = [
                           "titre": {"type": "string",
                                     "description": "Le titre de la page."},
                           "html": {"type": "string",
-                                   "description": "Le code HTML complet de la page."},
+                                   "description": "Le code HTML complet de la page, avec le CDN DaisyUI/Tailwind et des composants DaisyUI."},
                       },
                       "required": ["nom", "titre", "html"]}}},
 ]
@@ -66,7 +100,8 @@ SYSTEME_LOCAL = (
     "Tu es Chloé, l'assistante de l'édition Community de la Tour de contrôle. "
     "Tu réponds en français, simplement. Quand on te demande de CONSTRUIRE une "
     "app, un site, une page ou un petit outil, utilise l'outil construire_app "
-    "et écris un index.html complet et autonome. Sinon, tu réponds en texte."
+    "et écris un index.html complet et autonome, stylé avec DaisyUI (Tailwind CSS). "
+    "Sinon, tu réponds en texte."
 )
 
 
@@ -96,15 +131,45 @@ class ChloéCommunity(http.Controller):
         request.env["ir.config_parameter"].sudo().set_param(PARAM_CLE, cle)
         return {"ok": True}
 
-    def _cle_api(self):
+    def _cle_api(self, env=None):
         """La clé DeepSeek : d'abord dans le Coffre, puis le paramètre."""
-        if "vault.secret" in request.env:
-            cle = request.env["vault.secret"].sudo()._lire(
+        env = env or request.env
+        if "vault.secret" in env:
+            cle = env["vault.secret"].sudo()._lire(
                 CLE_COFFRE, "chat Community (DeepSeek)")
             if cle:
                 return cle
-        return (request.env["ir.config_parameter"].sudo()
+        return (env["ir.config_parameter"].sudo()
                 .get_param(PARAM_CLE) or "").strip()
+
+    def _moteur(self, env=None):
+        env = env or request.env
+        m = (env["ir.config_parameter"].sudo()
+             .get_param(PARAM_MOTEUR) or "").strip().lower()
+        return "gemini" if m == "gemini" else "deepseek"
+
+    def _cle_gemini(self, env=None):
+        env = env or request.env
+        icp = env["ir.config_parameter"].sudo()
+        return (icp.get_param(PARAM_CLE_GEMINI)
+                or icp.get_param(CLE_GEMINI_PARTAGEE) or "").strip()
+
+    def _modele_gemini(self, env=None):
+        env = env or request.env
+        m = (env["ir.config_parameter"].sudo()
+             .get_param(PARAM_MODELE) or "").strip()
+        return m or MODELE_GEMINI
+
+    def _deepseek_base(self, env=None):
+        env = env or request.env
+        return (env["ir.config_parameter"].sudo()
+                .get_param(PARAM_DEEPSEEK_BASE) or BASE_DEEPSEEK).strip().rstrip("/")
+
+    def _deepseek_modele(self, env=None):
+        env = env or request.env
+        m = (env["ir.config_parameter"].sudo()
+             .get_param(PARAM_DEEPSEEK_MODELE) or "").strip()
+        return m or MODELE_DEEPSEEK
 
     @http.route("/community/app/<nom_app>/", type="http", auth="public",
                 website=False, csrf=False)
@@ -128,6 +193,18 @@ class ChloéCommunity(http.Controller):
         if not texte:
             return {"erreur": "Écris quelque chose d'abord."}
         invite = not request.env.user.has_group("base.group_system")
+        return self._repondre(texte, historique, invite)
+
+    def _repondre(self, texte, historique=None, invite=False, env=None):
+        """Le chemin complet de la réponse de Chloé (pont puis moteur local).
+
+        env : environnement à utiliser (par défaut request.env). Le serveur
+        WebMCP passe un environnement sudo() pour agir au nom de la clé d'API.
+        """
+        env = env or request.env
+        texte = (texte or "").strip()
+        if not texte:
+            return {"erreur": "Écris quelque chose d'abord."}
 
         fil = []
         taille = 0
@@ -158,14 +235,24 @@ class ChloéCommunity(http.Controller):
             except Exception:  # noqa: BLE001 — pont absent en local
                 pass
 
-        # 2) Repli local : DeepSeek direct avec la clé de l'instance.
-        cle = self._cle_api()
+        # 2) Repli local : le moteur choisi, direct avec la clé de l'instance.
+        moteur = self._moteur(env)
+        if moteur == "gemini":
+            cle = self._cle_gemini(env)
+            if not cle:
+                return {"erreur": (
+                    "Le moteur est réglé sur Gemini mais aucune clé n'est "
+                    "posée (paramètre %s ou %s)." % (PARAM_CLE_GEMINI,
+                                                     CLE_GEMINI_PARTAGEE))}
+            return self._gemini_local(cle, fil, texte, invite, env)
+
+        cle = self._cle_api(env)
         if not cle:
             return {"erreur": (
                 "La clé API n'est pas configurée sur cette instance. "
                 "L'administrateur la pose dans le Coffre (secret « %s ») "
                 "ou dans Réglages (paramètre %s)." % (CLE_COFFRE, PARAM_CLE))}
-        return self._deepseek_local(cle, fil, texte, invite)
+        return self._deepseek_local(cle, fil, texte, invite, env)
 
     @http.route("/tour_copilote/chat", type="json", auth="user")
     def bulle_chat(self, messages=None, piece_jointe=None):
@@ -193,7 +280,7 @@ class ChloéCommunity(http.Controller):
             if role == "bot":
                 role = "assistant"
             historique.append({"role": role, "content": m.get("content")})
-        rep = self.message(texte=texte, historique=historique)
+        rep = self._repondre(texte, historique, invite=False)
         if "erreur" in rep:
             return {"error": rep["erreur"]}
         return {"reply": rep.get("reponse", ""), "actions": []}
@@ -226,20 +313,24 @@ class ChloéCommunity(http.Controller):
             rep = "\n".join(lignes).strip()
         return rep
 
-    # --- repli local (DeepSeek direct + construire_app) ------------------
+    # --- repli local (moteur direct + construire_app) --------------------
 
-    def _deepseek_local(self, cle, fil, texte, invite):
+    def _outils_oa(self):
+        return [{"type": "function",
+                 "function": {"name": o["function"]["name"],
+                              "description": o["function"]["description"],
+                              "parameters": o["function"]["parameters"]}}
+                for o in TOOLS]
+
+    def _deepseek_local(self, cle, fil, texte, invite, env=None):
+        env = env or request.env
         msgs = [{"role": "system", "content": SYSTEME_LOCAL}]
         for m in fil[-10:]:
             msgs.append({"role": m.get("role", "user"),
                          "content": m.get("content", "")})
         msgs.append({"role": "user", "content": texte})
 
-        outils_oa = [{"type": "function",
-                      "function": {"name": o["function"]["name"],
-                                   "description": o["function"]["description"],
-                                   "parameters": o["function"]["parameters"]}}
-                     for o in TOOLS]
+        outils_oa = self._outils_oa()
 
         reply = ""
         actions = []
@@ -248,9 +339,9 @@ class ChloéCommunity(http.Controller):
         for _ in range(4):  # boucle bornee d'outils
             try:
                 r = requests.post(
-                    "https://api.deepseek.com/chat/completions",
+                    "%s/chat/completions" % self._deepseek_base(env),
                     headers={"Authorization": "Bearer %s" % cle},
-                    json={"model": "deepseek-chat", "messages": msgs,
+                    json={"model": self._deepseek_modele(env), "messages": msgs,
                           "tools": outils_oa, "max_tokens": 3000},
                     timeout=120)
             except requests.RequestException:
@@ -281,7 +372,8 @@ class ChloéCommunity(http.Controller):
                     entree = {}
                 nom_outil = appel.get("function", {}).get("name") or ""
                 try:
-                    resultat = self._run_tool_local(nom_outil, entree, actions)
+                    resultat = self._run_tool_local(nom_outil, entree,
+                                                    actions, env=env)
                 except Exception as exc:  # noqa: BLE001
                     resultat = "Erreur lors de l'exécution : %s" % exc
                 if resultat.startswith("App"):
@@ -295,6 +387,98 @@ class ChloéCommunity(http.Controller):
             if actions:
                 break
 
+        return self._reponse_finale(reply, actions, derniere_reponse,
+                                    dernier_resultat_outil)
+
+    def _gemini_local(self, cle, fil, texte, invite, env=None):
+        env = env or request.env
+        contents = []
+        for m in fil[-10:]:
+            role = {"assistant": "model", "bot": "model"}.get(m.get("role"),
+                                                              "user")
+            contenu = (m.get("content") or "")
+            if not contenu:
+                continue
+            contents.append({"role": role, "parts": [{"text": contenu}]})
+        contents.append({"role": "user", "parts": [{"text": texte}]})
+
+        payload = {
+            "systemInstruction": {"parts": [{"text": SYSTEME_LOCAL}]},
+            "contents": contents,
+            "tools": [{"functionDeclarations": [
+                {"name": o["function"]["name"],
+                 "description": o["function"]["description"],
+                 "parameters": o["function"]["parameters"]}
+                for o in TOOLS]}],
+            "generationConfig": {"maxOutputTokens": 3000},
+        }
+        url = BASE_GEMINI % urllib.parse.quote(
+            self._modele_gemini(env)) + "?key=" + urllib.parse.quote(cle)
+
+        reply = ""
+        actions = []
+        derniere_reponse = ""
+        dernier_resultat_outil = ""
+        for _ in range(4):  # boucle bornee d'outils
+            try:
+                r = requests.post(url, headers={"Content-Type": "application/json"},
+                                  json=payload, timeout=120)
+            except requests.RequestException:
+                return {"erreur": "Impossible de joindre l'API Gemini — réseau du serveur."}
+            if r.status_code == 401:
+                return {"erreur": "Clé Gemini invalide ou expirée — vérifie %s." % PARAM_CLE_GEMINI}
+            if r.status_code == 429:
+                return {"erreur": "Limite de débit Gemini atteinte — réessaie dans un instant."}
+            if r.status_code >= 400:
+                _logger.warning("Chat Community : Gemini %s : %s", r.status_code, r.text[:200])
+                return {"erreur": "Erreur API Gemini (%s)." % r.status_code}
+            data = r.json()
+            candidats = data.get("candidates") or []
+            if not candidats:
+                retour = data.get("promptFeedback") or {}
+                return {"erreur": "Gemini n'a pas répondu (%s)." % (
+                    retour.get("blockReason") or "réponse vide")}
+            parts = ((candidats[0].get("content") or {}).get("parts") or [])
+            contenu = ""
+            appels = []
+            partie_modele = []
+            for p in parts:
+                if p.get("thought"):
+                    continue
+                if "text" in p:
+                    contenu = (contenu + " " + p["text"]).strip()
+                if "functionCall" in p:
+                    appels.append(p["functionCall"])
+                partie_modele.append(p)
+            if contenu:
+                derniere_reponse = contenu
+            if not appels:
+                reply = contenu
+                break
+            contents.extend(partie_modele)
+            for appel in appels:
+                nom_outil = appel.get("name") or ""
+                entree = appel.get("args") or {}
+                try:
+                    resultat = self._run_tool_local(nom_outil, entree,
+                                                    actions, env=env)
+                except Exception as exc:  # noqa: BLE001
+                    resultat = "Erreur lors de l'exécution : %s" % exc
+                if resultat.startswith("App"):
+                    dernier_resultat_outil = resultat
+                contents.append({"role": "function",
+                                 "parts": [{"functionResponse": {
+                                     "name": nom_outil,
+                                     "response": {"result": resultat,
+                                                  "ok": True}}}]})
+            if actions:
+                break
+
+        return self._reponse_finale(reply, actions, derniere_reponse,
+                                    dernier_resultat_outil)
+
+    def _reponse_finale(self, reply, actions, derniere_reponse,
+                        dernier_resultat_outil):
         if not reply and actions:
             reply = "J'ai construit : %s." % " ; ".join(actions)
             if dernier_resultat_outil:
@@ -305,8 +489,9 @@ class ChloéCommunity(http.Controller):
             reply = derniere_reponse or "(réponse vide)"
         return {"reponse": reply}
 
-    def _run_tool_local(self, nom, entree, actions):
+    def _run_tool_local(self, nom, entree, actions, env=None):
         """Exécute un outil de Chloé en local."""
+        env = env or request.env
         if nom == "creer_tache":
             titre = (entree.get("titre") or "").strip()
             if not titre:
@@ -315,7 +500,7 @@ class ChloéCommunity(http.Controller):
             vals = {"name": titre}
             if desc:
                 vals["description"] = "<p>%s</p>" % desc.replace("\n", "<br/>")
-            tache = request.env["project.task"].create(vals)
+            tache = env["project.task"].create(vals)
             actions.append("Tâche créée : %s" % titre)
             return "Tâche #%s (%s) créée." % (tache.id, titre)
 

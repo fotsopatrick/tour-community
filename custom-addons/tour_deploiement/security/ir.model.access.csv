@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_deploiement_site,deploiement.site,model_deploiement_site,base.group_system,1,1,1,1
+access_deploiement_passage,deploiement.passage,model_deploiement_passage,base.group_system,1,1,1,1

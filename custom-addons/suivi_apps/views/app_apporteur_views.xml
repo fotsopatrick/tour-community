@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="app_apporteur_view_list" model="ir.ui.view">
+        <field name="name">app.apporteur.list</field>
+        <field name="model">app.apporteur</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" string="Apporteur"/>
+                <field name="canal" optional="show"/>
+                <field name="mode" optional="show"/>
+                <field name="commission_pct" string="Commission (%)"
+                       optional="show"/>
+                <field name="redevance_fixe" string="Fixe (€)" optional="show"/>
+                <field name="nb_ventes"/>
+                <field name="du_mensuel" string="Dû / mois (€)" sum="Total"/>
+                <field name="du_ponctuel" string="Dû une fois (€)" sum="Total"/>
+                <field name="telephone" optional="hide"/>
+                <field name="actif" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="app_apporteur_view_form" model="ir.ui.view">
+        <field name="name">app.apporteur.form</field>
+        <field name="model">app.apporteur</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nom de l'apporteur"/></h1>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <b><field name="resume_remuneration" readonly="1"
+                                  nolabel="1"/></b>
+                        <div>C'est ce que cette personne touche aujourd'hui,
+                             d'après les ventes actives qui lui sont rattachées.</div>
+                    </div>
+                    <group>
+                        <group string="Qui">
+                            <field name="canal"/>
+                            <field name="telephone"/>
+                            <field name="email"/>
+                            <field name="actif"/>
+                        </group>
+                        <group string="Son accès">
+                            <field name="user_id"/>
+                            <div class="text-muted" colspan="2">
+                                Rattachez-lui un compte et il suivra ses apports
+                                lui-même, en direct. Il ne verra que sa fiche et
+                                que ses propres ventes — pensez à lui donner le
+                                groupe « Apporteur d'affaires ».
+                            </div>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Ce qu'il touche">
+                            <field name="mode"/>
+                            <field name="commission_pct"
+                                   invisible="mode == 'fixe'"/>
+                            <field name="redevance_fixe"
+                                   invisible="mode == 'pourcentage'"/>
+                            <field name="duree_mois"/>
+                        </group>
+                        <group string="Ce que ça donne">
+                            <field name="nb_ventes"/>
+                            <field name="du_mensuel"/>
+                            <field name="du_ponctuel"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="💼 Ventes apportées" name="ventes">
+                            <field name="offre_ids">
+                                <list>
+                                    <field name="name" string="Offre"/>
+                                    <field name="client"/>
+                                    <field name="prix" string="Prix (€)"/>
+                                    <field name="periodicite"/>
+                                    <field name="statut" widget="badge"
+                                           decoration-muted="statut == 'brouillon'"
+                                           decoration-success="statut == 'active'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="🤝 Accord" name="accord">
+                            <field name="accord"/>
+                        </page>
+                        <page string="🗒 Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="app_apporteur_action" model="ir.actions.act_window">
+        <field name="name">Apporteurs</field>
+        <field name="res_model">app.apporteur</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun apporteur d'affaires</p>
+            <p>Qui t'amène des clients ? Note la commission convenue,
+               relie ses ventes : sa fiche calcule ce que tu lui dois.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_suivi_apporteurs" name="Apporteurs"
+              parent="menu_suivi_apps_root"
+              action="app_apporteur_action" sequence="30"/>
+
+</odoo>

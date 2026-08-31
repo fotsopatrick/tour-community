@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page" name="Chloe — webapp">
+        <html>
+            <head>
+                <title>Chloe — webapp</title>
+                <link rel="stylesheet" type="text/css" href="/tour_chloe/static/src/chloe.css"/>
+            </head>
+            <body>
+                <div id="chloe-app" class="chloe-app">
+                    <div class="chloe-tabs">
+                        <div class="chloe-tabs-head">
+                            <span>Conversations</span>
+                            <button id="chloe-new" title="Nouvelle conversation">+</button>
+                        </div>
+                        <div id="chloe-tab-list" class="chloe-tab-list"></div>
+                    </div>
+                    <div class="chloe-chat">
+                        <div class="chloe-chat-head" id="chloe-chat-head">Chloe</div>
+                        <div id="chloe-messages" class="chloe-messages"></div>
+                        <div class="chloe-input">
+                            <textarea id="chloe-msg" placeholder="Écris à Chloé… (Entrée pour envoyer)"></textarea>
+                            <button id="chloe-send">Envoyer</button>
+                        </div>
+                    </div>
+                    <div class="chloe-etapes">
+                        <div class="chloe-etapes-head">Missions &amp; étapes</div>
+                        <div id="chloe-etapes-list" class="chloe-etapes-list"></div>
+                    </div>
+                </div>
+                <script type="text/javascript" src="/tour_chloe/static/src/chloe.js"></script>
+            </body>
+        </html>
+    </template>
+</odoo>

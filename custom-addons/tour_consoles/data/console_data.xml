@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="console_ovh" model="tour.console">
+            <field name="name">OVH — espace client</field>
+            <field name="url">https://www.ovh.com/manager/</field>
+            <field name="categorie">hebergement</field>
+            <field name="a_quoi">Serveur, domaines, DNS, sauvegarde hors-site</field>
+            <field name="notes">C'est ici qu'on active la sauvegarde automatique du serveur, et qu'on ajoute un sous-domaine (enregistrement A vers l'adresse du serveur).</field>
+        </record>
+
+        <record id="console_stripe" model="tour.console">
+            <field name="name">Stripe — tableau de bord</field>
+            <field name="url">https://dashboard.stripe.com/</field>
+            <field name="categorie">paiement</field>
+            <field name="a_quoi">Paiements, webhooks, clés d'API, remboursements</field>
+            <field name="notes">Le sélecteur mode test / mode réel est en haut à droite : bien vérifier lequel est actif avant de lire des chiffres. Clés et webhooks dans la section Développeurs.</field>
+        </record>
+
+        <record id="console_supabase" model="tour.console">
+            <field name="name">Supabase</field>
+            <field name="url">https://supabase.com/dashboard/projects</field>
+            <field name="categorie">donnees</field>
+            <field name="a_quoi">Bases des applications mobiles</field>
+            <field name="notes">Les projets du plan gratuit se mettent en pause après une semaine sans activité : il faut les réveiller depuis cet écran avant de s'en servir. Les clés sont au nouveau format, pas les anciens jetons.</field>
+        </record>
+
+        <record id="console_anthropic" model="tour.console">
+            <field name="name">Anthropic — console</field>
+            <field name="url">https://console.anthropic.com/</field>
+            <field name="categorie">ia</field>
+            <field name="a_quoi">Clé d'API du copilote, crédits, consommation réelle</field>
+            <field name="notes">C'est ici qu'on recharge le crédit et qu'on voit la dépense réelle. Le suivi interne de la tour est une estimation ; celui-ci fait foi.</field>
+        </record>
+
+        <record id="console_google" model="tour.console">
+            <field name="name">Compte Google — sécurité</field>
+            <field name="url">https://myaccount.google.com/apppasswords</field>
+            <field name="categorie">autre</field>
+            <field name="a_quoi">Mots de passe d'application (envoi et lecture des courriels)</field>
+            <field name="notes">Exige la validation en deux étapes, sans quoi la page n'existe pas. Un mot de passe ne s'affiche qu'une seule fois, et se révoque depuis cette même page.</field>
+        </record>
+
+        <record id="console_alexa" model="tour.console">
+            <field name="name">Amazon — console développeur Alexa</field>
+            <field name="url">https://developer.amazon.com/alexa/console/ask</field>
+            <field name="categorie">vocal</field>
+            <field name="a_quoi">Compétence vocale : nom d'invocation, compilation, test</field>
+            <field name="notes">Après toute modification, relancer la compilation du modèle. Le sélecteur de l'onglet Test se remet parfois sur « Off » tout seul — première chose à vérifier quand la compétence ne répond plus.</field>
+        </record>
+
+        <record id="console_odoo_store" model="tour.console">
+            <field name="name">Boutique — tableau de bord vendeur</field>
+            <field name="url">https://apps.odoo.com/apps/dashboard</field>
+            <field name="categorie">boutique</field>
+            <field name="a_quoi">Modules publiés, ventes, analyse du dépôt</field>
+            <field name="notes">Après chaque évolution d'un module publié, relancer l'analyse du dépôt depuis ce tableau de bord, sinon la boutique continue de servir l'ancienne version.</field>
+        </record>
+
+        <record id="console_github" model="tour.console">
+            <field name="name">GitHub</field>
+            <field name="url">https://github.com/</field>
+            <field name="categorie">code</field>
+            <field name="a_quoi">Dépôts du projet et des modules publiés</field>
+        </record>
+    </data>
+</odoo>

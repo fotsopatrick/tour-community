@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_membre_clone_permissions" model="ir.ui.view">
+        <field name="name">equipe.membre.form.clone.permissions</field>
+        <field name="model">equipe.membre</field>
+        <field name="inherit_id" ref="tour_equipage.vue_membre_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Permissions du Clone"
+                      invisible="name != 'Clone de Patrick'">
+                    <group string="Il PEUT (tu peux cocher/décocher quand tu veux)">
+                        <field name="clone_peut_apprendre"/>
+                        <field name="clone_peut_veiller"/>
+                        <field name="clone_peut_proposer"/>
+                    </group>
+                    <group string="Garde-fous — il ne PEUT PAS, sauf si tu coches">
+                        <field name="clone_peut_envoyer"/>
+                        <field name="clone_peut_publier"/>
+                        <field name="clone_peut_modifier"/>
+                        <field name="clone_peut_decider"/>
+                    </group>
+                    <p class="text-muted">Changement appliqué immédiatement.
+                       Les crons ne tournent que si leurs cases sont cochées.
+                       Les garde-fous restent fermés par défaut.</p>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

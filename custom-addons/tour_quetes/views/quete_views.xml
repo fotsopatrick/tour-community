@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_quetes_offre" model="ir.actions.act_window">
+        <field name="name">Offres &amp; quêtes</field>
+        <field name="res_model">quete.offre</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="action_quetes_fiche" model="ir.actions.act_window">
+        <field name="name">Quêtes</field>
+        <field name="res_model">quete.fiche</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="action_quetes_guilde" model="ir.actions.act_window">
+        <field name="name">Guildes</field>
+        <field name="res_model">quete.guilde</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_quetes" name="Quêtes" web_icon="tour_quetes,static/description/icon.svg"
+              sequence="60"/>
+    <menuitem id="menu_quetes_offre" parent="menu_quetes"
+              action="action_quetes_offre" sequence="10"/>
+    <menuitem id="menu_quetes_fiche" parent="menu_quetes"
+              action="action_quetes_fiche" sequence="20"/>
+    <menuitem id="menu_quetes_guilde" parent="menu_quetes"
+              action="action_quetes_guilde" sequence="30"/>
+
+    <record id="view_quetes_offre_tree" model="ir.ui.view">
+        <field name="name">quete.offre.tree</field>
+        <field name="model">quete.offre</field>
+        <field name="arch" type="xml">
+            <list string="Offres transformées en quêtes">
+                <field name="name"/>
+                <field name="entreprise"/>
+                <field name="etat"/>
+                <field name="nb_skills"/>
+                <field name="nb_quetes"/>
+                <field name="nb_faites"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_quetes_offre_form" model="ir.ui.view">
+        <field name="name">quete.offre.form</field>
+        <field name="model">quete.offre</field>
+        <field name="arch" type="xml">
+            <form string="Offre d'emploi">
+                <header>
+                    <button name="action_regenerer" type="object"
+                            string="(Re)générer les quêtes" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="entreprise"/>
+                        <field name="etat"/>
+                        <field name="skills" readonly="1"/>
+                        <field name="couverture" readonly="1"/>
+                    </group>
+                    <field name="texte"/>
+                    <field name="quete_ids" readonly="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_quetes_fiche_tree" model="ir.ui.view">
+        <field name="name">quete.fiche.tree</field>
+        <field name="model">quete.fiche</field>
+        <field name="arch" type="xml">
+            <list string="Quêtes">
+                <field name="name"/>
+                <field name="etat"/>
+                <field name="domaine_id"/>
+                <field name="guilde_id"/>
+                <field name="skill"/>
+                <field name="xp"/>
+                <field name="offre_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_quetes_fiche_form" model="ir.ui.view">
+        <field name="name">quete.fiche.form</field>
+        <field name="model">quete.fiche</field>
+        <field name="arch" type="xml">
+            <form string="Quête">
+                <header>
+                    <button name="action_en_cours" type="object" string="En cours"/>
+                    <button name="action_terminer" type="object"
+                            string="Terminer" class="btn-primary"/>
+                    <button name="action_relancer" type="object" string="Relancer"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="etat"/>
+                        <field name="xp"/>
+                        <field name="domaine_id"/>
+                        <field name="guilde_id"/>
+                        <field name="source"/>
+                        <field name="skill"/>
+                        <field name="offre_id"/>
+                        <field name="date_faite"/>
+                    </group>
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

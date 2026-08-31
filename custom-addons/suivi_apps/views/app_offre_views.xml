@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="app_offre_view_list" model="ir.ui.view">
+        <field name="name">app.offre.list</field>
+        <field name="model">app.offre</field>
+        <field name="arch" type="xml">
+            <list default_order="sequence">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Offre"/>
+                <field name="app_id" string="App liée" optional="show"/>
+                <field name="client" optional="show"/>
+                <field name="apporteur_id" string="Apporté par" optional="show"/>
+                <field name="prix" string="Prix (€)"/>
+                <field name="periodicite"/>
+                <field name="statut" widget="badge"
+                       decoration-muted="statut == 'brouillon'"
+                       decoration-success="statut == 'active'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="app_offre_view_form" model="ir.ui.view">
+        <field name="name">app.offre.form</field>
+        <field name="model">app.offre</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="statut" widget="statusbar"
+                           statusbar_visible="brouillon,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nom de l'offre"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="prix"/>
+                            <field name="periodicite"/>
+                        </group>
+                        <group>
+                            <field name="app_id"/>
+                            <field name="client"/>
+                            <field name="apporteur_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="📦 Ce que comprend l'offre" name="description">
+                            <field name="description"/>
+                        </page>
+                        <page string="🗒 Notes internes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="app_offre_action" model="ir.actions.act_window">
+        <field name="name">Offres</field>
+        <field name="res_model">app.offre</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune offre</p>
+            <p>Crée tes offres commerciales (services gérés, abonnements)
+               et lie-les aux apps du suivi.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_suivi_offres" name="Offres"
+              parent="menu_suivi_apps_root"
+              action="app_offre_action" sequence="20"/>
+
+</odoo>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="tour_bus_view_list" model="ir.ui.view">
+        <field name="name">tour.bus.message.list</field>
+        <field name="model">tour.bus.message</field>
+        <field name="arch" type="xml">
+            <list string="Le bus des agents" default_order="create_date desc">
+                <field name="create_date" string="Quand"/>
+                <field name="expediteur"/>
+                <field name="destinataire"/>
+                <field name="sujet"/>
+                <field name="etat" widget="badge"
+                       decoration-success="etat == 'fait'"
+                       decoration-warning="etat == 'pris'"
+                       decoration-danger="etat in ('echoue','bloque')"/>
+                <field name="pris_par" optional="show"/>
+                <field name="tentative" optional="hide"/>
+                <field name="lu" widget="boolean_toggle" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="tour_bus_view_form" model="ir.ui.view">
+        <field name="name">tour.bus.message.form</field>
+        <field name="model">tour.bus.message</field>
+        <field name="arch" type="xml">
+            <form string="Message entre agents">
+                <header>
+                    <button name="action_marquer_lu" type="object"
+                            string="Marquer lu"
+                            invisible="lu == True"/>
+                    <button name="action_fait" type="object"
+                            string="C'est fait" class="btn-primary"
+                            invisible="etat in ('fait','bloque')"/>
+                    <button name="action_rendre" type="object"
+                            string="Remettre dans la file"
+                            invisible="etat == 'nouveau'"/>
+                    <field name="etat" widget="statusbar"
+                           statusbar_visible="nouveau,pris,fait"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="sujet" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="expediteur" readonly="1"/>
+                            <field name="destinataire" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="create_date" readonly="1" string="Quand"/>
+                            <field name="lu" readonly="1"/>
+                            <field name="pris_par" readonly="1"/>
+                            <field name="pris_le" readonly="1"/>
+                            <field name="tentative" readonly="1"/>
+                            <field name="reponse_a" readonly="1"/>
+                            <field name="mission_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Message">
+                        <field name="corps" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="tour_bus_view_search" model="ir.ui.view">
+        <field name="name">tour.bus.message.search</field>
+        <field name="model">tour.bus.message</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="expediteur"/>
+                <field name="destinataire"/>
+                <field name="sujet"/>
+                <field name="corps"/>
+                <filter name="f_nonlus" string="Non lus" domain="[('lu','=',False)]"/>
+                <separator/>
+                <filter name="f_afaire" string="A prendre" domain="[('etat','=','nouveau')]"/>
+                <filter name="f_encours" string="En cours" domain="[('etat','=','pris')]"/>
+                <filter name="f_bloques" string="Bloques" domain="[('etat','=','bloque')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="g_etat" string="Etat" context="{'group_by':'etat'}"/>
+                    <filter name="g_dest" string="Destinataire" context="{'group_by':'destinataire'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="tour_bus_action" model="ir.actions.act_window">
+        <field name="name">Le bus des agents</field>
+        <field name="res_model">tour.bus.message</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Le bus est silencieux.</p>
+            <p>Les messages que les agents se sont écrits, dans l'ordre.
+               Ce journal ne se modifie pas et ne s'efface pas : c'est la
+               trace de ce que l'équipage s'est dit.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_bus" name="Bus des agents" sequence="47"
+              web_icon="tour_bus,static/description/icon.svg"
+              groups="base.group_system"
+              action="tour_bus_action"/>
+
+    <record id="cron_bus_depiler" model="ir.cron">
+        <field name="name">Bus : envoyer a l'atelier les missions qui attendent</field>
+        <field name="model_id" ref="model_tour_bus_message"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_depiler_atelier()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_bus_reprise" model="ir.cron">
+        <field name="name">Bus : remettre dans la file ce qui est reste en plan</field>
+        <field name="model_id" ref="model_tour_bus_message"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_reprise()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="cron_bus_drainer" model="ir.cron">
+        <field name="name">Bus : ramasser les messages des agents</field>
+        <field name="model_id" ref="model_tour_bus_message"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_drainer()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

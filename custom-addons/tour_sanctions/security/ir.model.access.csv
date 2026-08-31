@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_sanction_admin,equipe.sanction admin,model_equipe_sanction,base.group_system,1,1,1,0

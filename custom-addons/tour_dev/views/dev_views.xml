@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dev_ticket_list" model="ir.ui.view">
+        <field name="name">dev.ticket.list</field>
+        <field name="model">dev.ticket</field>
+        <field name="arch" type="xml">
+            <list string="Tickets" create="false"
+                  decoration-muted="traite" decoration-warning="not reconnu">
+                <field name="create_date" string="Reçu"/>
+                <field name="cle"/>
+                <field name="name"/>
+                <field name="resume" string="En bref" optional="show"/>
+                <field name="expediteur" optional="hide"/>
+                <field name="reconnu" optional="hide"/>
+                <field name="traite" widget="boolean_toggle"/>
+                <button name="action_ouvrir_jira" type="object" string="Ouvrir"
+                        icon="fa-external-link" invisible="not url"/>
+                <field name="url" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dev_ticket_form" model="ir.ui.view">
+        <field name="name">dev.ticket.form</field>
+        <field name="model">dev.ticket</field>
+        <field name="arch" type="xml">
+            <form string="Ticket">
+                <header>
+                    <button name="action_ouvrir_jira" type="object"
+                            string="Ouvrir dans Jira" class="btn-primary"
+                            invisible="not url"/>
+                    <button name="action_confier_atelier" type="object"
+                            string="Confier à l'atelier" class="btn-secondary"/>
+                    <button name="action_traiter" type="object"
+                            string="Marquer traité" invisible="traite"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="cle" placeholder="PROJ-142"/></h1>
+                        <field name="name" readonly="1"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="expediteur" readonly="1"/>
+                            <field name="url" widget="url" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="reconnu" readonly="1"/>
+                            <field name="traite"/>
+                            <field name="boite_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="En bref">
+                        <field name="resume" nolabel="1" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Détail">
+                            <field name="contenu" nolabel="1" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dev_boite_form" model="ir.ui.view">
+        <field name="name">dev.boite.form</field>
+        <field name="model">dev.boite</field>
+        <field name="arch" type="xml">
+            <form string="Boîte surveillée">
+                <header>
+                    <button name="action_relever" type="object"
+                            string="Relever maintenant" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="adresse" placeholder="moi@gmail.com"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="secret_id"/>
+                            <field name="expediteur"/>
+                            <field name="actif"/>
+                        </group>
+                        <group>
+                            <field name="serveur"/>
+                            <field name="port"/>
+                            <field name="nb_tickets"/>
+                        </group>
+                    </group>
+                    <group string="Dernière relève">
+                        <field name="derniere_releve" readonly="1"/>
+                        <field name="dernier_message" readonly="1"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        Le mot de passe n'est jamais saisi ici : créez-le dans le
+                        <b>Coffre</b>, puis sélectionnez-le ci-dessus. La tour lit
+                        votre boîte sans jamais marquer vos messages comme lus.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dev_boite_list" model="ir.ui.view">
+        <field name="name">dev.boite.list</field>
+        <field name="model">dev.boite</field>
+        <field name="arch" type="xml">
+            <list string="Boîtes">
+                <field name="adresse"/>
+                <field name="expediteur"/>
+                <field name="derniere_releve"/>
+                <field name="dernier_message"/>
+                <field name="nb_tickets"/>
+                <field name="actif" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_dev_ticket" model="ir.actions.act_window">
+        <field name="name">Mes tickets</field>
+        <field name="res_model">dev.ticket</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('traite', '=', False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun ticket en attente</p>
+            <p>Les notifications non lues de votre gestionnaire de tickets
+               remontent ici automatiquement, toutes les quinze minutes.</p>
+        </field>
+    </record>
+
+    <record id="action_dev_boite" model="ir.actions.act_window">
+        <field name="name">Boîtes surveillées</field>
+        <field name="res_model">dev.boite</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_dev_jira_form" model="ir.ui.view">
+        <field name="name">dev.jira.form</field>
+        <field name="model">dev.jira</field>
+        <field name="arch" type="xml">
+            <form string="Connexion Jira">
+                <header>
+                    <button name="action_tester" type="object"
+                            string="Tester la connexion" class="btn-primary"/>
+                    <button name="action_confier_ticket" type="object"
+                            string="Confier ce ticket à l'atelier"
+                            invisible="not cle_a_confier"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="site" placeholder="monequipe.atlassian.net"/>
+                        <field name="email" placeholder="vous@exemple.fr"/>
+                        <field name="secret_id"/>
+                        <field name="actif"/>
+                        <field name="dernier_message" readonly="1"
+                               invisible="not dernier_message"/>
+                    </group>
+                    <group string="Confier un ticket directement">
+                        <field name="cle_a_confier" placeholder="PROJ-301"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <b>Le jeton n'est pas votre mot de passe.</b> Un jeton
+                        d'API Atlassian se crée dans les paramètres de sécurité
+                        de votre compte, et se révoque seul — sans toucher au
+                        reste. Déposez-le dans le Coffre, puis désignez la fiche
+                        ci-dessus : la tour ne le stocke jamais en clair.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dev_jira_list" model="ir.ui.view">
+        <field name="name">dev.jira.list</field>
+        <field name="model">dev.jira</field>
+        <field name="arch" type="xml">
+            <list string="Connexions Jira">
+                <field name="site"/>
+                <field name="email"/>
+                <field name="actif"/>
+                <field name="dernier_message" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_dev_jira" model="ir.actions.act_window">
+        <field name="name">Connexion Jira</field>
+        <field name="res_model">dev.jira</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Brancher votre Jira</p>
+            <p>Une fois branché, vous pouvez confier un ticket à l'atelier en
+               tapant seulement sa clé — le contenu à jour est lu dans Jira.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_dev_racine" name="Dev" sequence="70"/>
+    <menuitem id="menu_dev_tickets" name="Mes tickets" parent="menu_dev_racine"
+              action="action_dev_ticket" sequence="10"/>
+    <menuitem id="menu_dev_boites" name="Boîtes surveillées" parent="menu_dev_racine"
+              action="action_dev_boite" sequence="20"/>
+    <menuitem id="menu_dev_jira" name="Connexion Jira" parent="menu_dev_racine"
+              action="action_dev_jira" sequence="30"/>
+</odoo>

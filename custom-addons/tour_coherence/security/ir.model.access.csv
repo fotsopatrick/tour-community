@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_ecart_user,coherence.ecart lecture,model_coherence_ecart,base.group_user,1,0,0,0
+acces_ecart_admin,coherence.ecart admin,model_coherence_ecart,base.group_system,1,1,1,1

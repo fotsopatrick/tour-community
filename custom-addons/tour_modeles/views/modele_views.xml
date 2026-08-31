@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_modele_liste" model="ir.ui.view">
+        <field name="name">produit.modele.liste</field>
+        <field name="model">produit.modele</field>
+        <field name="arch" type="xml">
+            <list string="Recettes de produits">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="quoi"/>
+                <field name="fichiers"/>
+                <field name="url" widget="url"/>
+                <field name="rejoue_le"/>
+                <field name="rejoue_ok"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_modele_form" model="ir.ui.view">
+        <field name="name">produit.modele.form</field>
+        <field name="model">produit.modele</field>
+        <field name="arch" type="xml">
+            <form string="Recette">
+                <header>
+                    <button name="action_rejouer" type="object" class="btn-primary"
+                            string="Rejouer cette recette"
+                            confirm="Une nouvelle mission va partir à l'atelier avec cette recette. C'est le seul contrôle qui vaut : une recette jamais rejouée est une recette dont on ignore si elle produit encore quelque chose. On y va ?"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="quoi"/>
+                            <field name="origine"/>
+                            <field name="mission_id"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="fichiers"/>
+                            <field name="url" widget="url"/>
+                            <field name="rejoue_le"/>
+                        </group>
+                    </group>
+                    <separator string="La recette — à donner telle quelle"/>
+                    <field name="prompt"/>
+                    <separator string="Ce qu'on a appris en le faisant"/>
+                    <field name="lecons"
+                           placeholder="Ce qui a raté, ce qu'il fallait préciser. Sans cette partie, on reproduit aussi les erreurs."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_modele" model="ir.actions.act_window">
+        <field name="name">Recettes de produits</field>
+        <field name="res_model">produit.modele</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune recette encore.</p>
+            <p>Chaque produit livré par l'atelier laisse ici de quoi le reproduire.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_modeles" name="Recettes de produits"
+              parent="tour_dashboard.menu_pilotage_chiffres" sequence="26"
+              action="action_modele"/>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_memoire" model="ir.actions.act_url">
+    <field name="name">Mémoire (rappel)</field>
+    <field name="url">/tour/memoire</field>
+    <field name="target">self</field>
+  </record>
+
+  <menuitem id="menu_memoire_root" web_icon="tour_memoire,static/description/icon.png" name="Mémoire"
+            action="action_memoire" sequence="61"
+            groups="base.group_system"/>
+</odoo>

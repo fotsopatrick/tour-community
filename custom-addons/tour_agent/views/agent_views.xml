@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_form_agent" model="ir.ui.view">
+        <field name="name">project.task.form.agent</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <field name="qui" position="after">
+                <field name="pour_agent"/>
+                <field name="agent_tentatives" invisible="not pour_agent" readonly="1"/>
+            </field>
+            <xpath expr="//sheet" position="inside">
+                <group string="Retour de l'agent" invisible="not agent_dernier_retour">
+                    <field name="agent_dernier_retour" nolabel="1" readonly="1"/>
+                </group>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_agent_maintenant" type="object"
+                        string="Confier à l'agent maintenant"
+                        invisible="not pour_agent"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_task_list_agent" model="ir.ui.view">
+        <field name="name">project.task.list.agent</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2"/>
+        <field name="arch" type="xml">
+            <field name="qui" position="after">
+                <field name="pour_agent" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="action_taches_agent" model="ir.actions.act_window">
+        <field name="name">Confiées à l'agent</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('pour_agent', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune tâche confiée à l'agent</p>
+            <p>Cochez « Confier à l'agent » sur une tâche : il la tentera seul à
+               son prochain passage, et écrira dans le fil ce qu'il a fait — ou
+               ce qui lui a manqué.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_agent" name="Confiées à l'agent"
+              parent="tour_dashboard.menu_dashboard_racine"
+              action="action_taches_agent" sequence="20"/>
+</odoo>

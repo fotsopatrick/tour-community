@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+clone_membre_admin,equipe.membre admin (clone),model_equipe_membre,base.group_system,1,1,1,1
+clone_feedback_admin,clone.feedback admin,model_clone_feedback,base.group_system,1,1,1,1
+clone_feedback_user,clone.feedback user,model_clone_feedback,base.group_user,1,1,0,0
+access_clone_debat,clone.debat,model_clone_debat,base.group_system,1,1,1,1
+access_clone_debat_tour,clone.debat.tour,model_clone_debat_tour,base.group_system,1,1,1,1

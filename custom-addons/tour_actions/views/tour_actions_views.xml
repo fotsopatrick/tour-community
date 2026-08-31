@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Tableau de configuration du menu Actions. Chaque ligne = un item du
+         menu, avec deux cases : PROD et DEMO. Activable par l'admin. -->
+
+    <record id="view_tour_actions_list" model="ir.ui.view">
+        <field name="name">tour.actions.config.list</field>
+        <field name="model">tour.actions.config</field>
+        <field name="arch" type="xml">
+            <list string="Menu Actions — PROD / DEMO"
+                  editable="bottom">
+                <field name="sequence" widget="handle" string=""/>
+                <field name="groupe"/>
+                <field name="name" string="Item du menu" readonly="1"/>
+                <field name="prod" string="PROD" widget="boolean_facade"/>
+                <field name="demo" string="DEMO" widget="boolean_facade"/>
+                <field name="ouvrable_invite" string="Invités ?" widget="boolean_facade"/>
+                <field name="url" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tour_actions_form" model="ir.ui.view">
+        <field name="name">tour.actions.config.form</field>
+        <field name="model">tour.actions.config</field>
+        <field name="arch" type="xml">
+            <form string="Item du menu Actions">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="groupe"/>
+                            <field name="url"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="Visibilité">
+                            <field name="prod"/>
+                            <field name="demo"/>
+                            <field name="ouvrable_invite"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- L'action DOIT être déclarée avant le menuitem qui la référence :
+         Odoo résout ref="action_tour_actions" au moment du parse. -->
+    <record id="action_tour_actions" model="ir.actions.act_window">
+        <field name="name">Menu Actions — PROD/DEMO</field>
+        <field name="res_model">tour.actions.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Coche pour chaque item du menu Actions s'il est visible en PROD, en DEMO, ou les deux.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu du backend : à côté des autres réglages de la tour -->
+    <record id="menu_root_tour_actions" model="ir.ui.menu">
+        <field name="name">Cocher Actions PROD/DEMO</field>
+        <field name="sequence">90</field>
+        <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
+        <field name="parent_id" ref="tour_dashboard.menu_pilotage_systeme"/>
+        <field name="action" ref="action_tour_actions"/>
+    </record>
+
+</odoo>

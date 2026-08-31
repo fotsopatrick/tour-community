@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="page_apps" name="Mes applications">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': 'fr-FR'}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Mes applications</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .ap { max-width:760px; margin:0 auto; padding:22px 16px 64px; }
+                    a.ret { color:#3b82f6; text-decoration:none; font-size:.88rem; }
+                    h1 { font-size:1.7rem; margin:16px 0 6px; }
+                    .sous { color:#94a3b8; margin:0 0 26px; font-size:.93rem; line-height:1.55; }
+                    .app { background:#0f172a; border:1px solid #1e293b;
+                           border-radius:.7rem; padding:18px; margin-bottom:14px; }
+                    .app h2 { margin:0 0 4px; font-size:1.1rem; }
+                    .meta { color:#64748b; font-size:.8rem; margin-bottom:12px; }
+                    .ouvrir { display:inline-block; background:#3b82f6; color:#fff;
+                              text-decoration:none; padding:11px 18px; border-radius:.5rem;
+                              font-weight:650; font-size:.92rem; min-height:44px;
+                              line-height:1.5; }
+                    .adresse { display:block; color:#60a5fa; font-size:.82rem;
+                               margin-top:10px; word-break:break-all; text-decoration:none; }
+                    .recette { margin-top:14px; padding-top:12px;
+                               border-top:1px solid #1e293b; }
+                    .recette summary { color:#64748b; font-size:.82rem; cursor:pointer;
+                                       font-weight:600; }
+                    .recette pre { white-space:pre-wrap; color:#94a3b8; font-size:.78rem;
+                                   line-height:1.5; background:var(--fond); padding:12px;
+                                   border-radius:.45rem; margin:10px 0 0;
+                                   max-height:320px; overflow:auto; }
+                    .vide { color:#64748b; text-align:center; padding:54px 18px;
+                            line-height:1.7; }
+                    .vide b { color:#94a3b8; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="ap">
+                <a class="ret" href="/tour/dashboard">← Accueil</a>
+                <h1>Mes applications</h1>
+                <p class="sous">
+                    Ce que la tour a construit pour vous, et qui est
+                    <b>en ligne</b>. Une adresse qui ne répond plus ne serait pas
+                    une application — elle n'est pas listée ici.
+                </p>
+
+                <t t-if="apps">
+                    <t t-foreach="apps" t-as="a">
+                        <div class="app">
+                            <div style="display:flex;align-items:center;gap:14px">
+                                <img t-att-src="icones.get(a.id)"
+                                     style="width:44px;height:44px;border-radius:10px;object-fit:cover;background:#1e293b;border:1px solid #334155"
+                                     onerror="this.style.display='none'"/>
+                                <div>
+                                    <h2 style="margin:0 0 4px"><t t-esc="a.name"/></h2>
+                                    <div class="meta" style="margin-bottom:0">
+                                        Livrée le <t t-esc="a.livree_le or a.create_date" t-options="{'widget': 'datetime'}"/>
+                                        · <t t-esc="a.nb_fichiers"/> fichier(s)
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="ouvrir" t-att-href="a.url" target="_blank"
+                               rel="noopener">Ouvrir l'application »</a>
+                            <a class="adresse" t-att-href="a.url" target="_blank"
+                               rel="noopener"><t t-esc="a.url"/></a>
+
+                            <t t-if="admin and recettes.get(a.id)">
+                                <details class="recette">
+                                    <summary>La recette — comment elle a été faite</summary>
+                                    <pre><t t-esc="recettes[a.id].prompt"/></pre>
+                                </details>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+                <t t-else="">
+                    <div class="vide">
+                        <b>Aucune application pour l'instant.</b><br/>
+                        Décrivez ce que vous voulez à Chloe, ou déposez une mission
+                        dans l'Atelier : ce qui en sort et part en ligne apparaît ici.
+                    </div>
+                </t>
+
+                <h2 style="margin-top:36px;font-size:1.25rem;border-bottom:1px solid #1e293b;padding-bottom:8px">🎮 Les jeux (VPS2)</h2>
+                <p class="sous" style="margin:6px 0 18px">Créés et servis depuis le VPS2 — jouables tout de suite.</p>
+
+                <div class="app">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="width:44px;height:44px;border-radius:10px;background:#1e293b;border:1px solid #334155;display:flex;align-items:center;justify-content:center;font-size:22px">🎮</div>
+                        <div>
+                            <h2 style="margin:0 0 4px">Pokémon — step 1</h2>
+                            <div class="meta" style="margin-bottom:0">Le jeu Game Boy (émulateur) + le Studio où on crée ton jeu canvas</div>
+                        </div>
+                    </div>
+                    <a class="ouvrir" href="/sites/pokemon/" target="_blank" rel="noopener">Jouer »</a>
+                    <a class="ouvrir" style="background:#1e293b;margin-left:8px" href="/sites/pokemon/studio.html" target="_blank" rel="noopener">Studio »</a>
+                    <a class="adresse" href="/sites/pokemon/" target="_blank" rel="noopener">/sites/pokemon/</a>
+                </div>
+
+                <div class="app">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="width:44px;height:44px;border-radius:10px;background:#1e293b;border:1px solid #334155;display:flex;align-items:center;justify-content:center;font-size:22px">🃏</div>
+                        <div>
+                            <h2 style="margin:0 0 4px">CheckGames</h2>
+                            <div class="meta" style="margin-bottom:0">Le jeu de cartes camerounais</div>
+                        </div>
+                    </div>
+                    <a class="ouvrir" href="https://checkgames.matourdecontrole.fr/" target="_blank" rel="noopener">Jouer »</a>
+                    <a class="adresse" href="https://checkgames.matourdecontrole.fr/" target="_blank" rel="noopener">checkgames.matourdecontrole.fr</a>
+                </div>
+
+                <div class="app">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="width:44px;height:44px;border-radius:10px;background:#1e293b;border:1px solid #334155;display:flex;align-items:center;justify-content:center;font-size:22px">🗣️</div>
+                        <div>
+                            <h2 style="margin:0 0 4px">DebatDuo</h2>
+                            <div class="meta" style="margin-bottom:0">L'app gamifiée de débat</div>
+                        </div>
+                    </div>
+                    <a class="ouvrir" href="/sites/debatduo/" target="_blank" rel="noopener">Jouer »</a>
+                    <a class="adresse" href="/sites/debatduo/" target="_blank" rel="noopener">/sites/debatduo/</a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

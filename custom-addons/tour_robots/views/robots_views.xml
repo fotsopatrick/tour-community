@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- L'écran Odoo classique : utile pour trier, filtrer et exporter.
+       La page « cockpit » (plus jolie) est ailleurs : /tour/cockpit/robots -->
+  <record id="view_tour_robot_passage_list" model="ir.ui.view">
+    <field name="name">tour.robot.passage.list</field>
+    <field name="model">tour.robot.passage</field>
+    <field name="arch" type="xml">
+      <list string="Passages de robots" default_order="jour desc, requetes desc">
+        <field name="jour"/>
+        <field name="robot"/>
+        <field name="categorie"/>
+        <field name="site"/>
+        <field name="requetes" sum="Total"/>
+        <field name="nb_pages"/>
+        <field name="fouille" sum="Fouilles"/>
+        <field name="nb_ips"/>
+        <field name="premiere"/>
+        <field name="derniere"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_tour_robot_passage_form" model="ir.ui.view">
+    <field name="name">tour.robot.passage.form</field>
+    <field name="model">tour.robot.passage</field>
+    <field name="arch" type="xml">
+      <form string="Passage d'un robot">
+        <sheet>
+          <group>
+            <group>
+              <field name="jour"/>
+              <field name="robot"/>
+              <field name="categorie"/>
+              <field name="site"/>
+              <field name="robots_txt"/>
+            </group>
+            <group>
+              <field name="requetes"/>
+              <field name="nb_pages"/>
+              <field name="octets"/>
+              <field name="nb_ips"/>
+              <field name="fouille"/>
+              <field name="fouille_200"/>
+              <field name="pointe_minute"/>
+              <field name="premiere"/>
+              <field name="derniere"/>
+            </group>
+          </group>
+          <group string="Carte de visite">
+            <field name="agent" nolabel="1"/>
+          </group>
+          <group string="Détail (JSON)">
+            <field name="techniques" nolabel="1"/>
+            <field name="pages" nolabel="1"/>
+            <field name="pages_200" nolabel="1"/>
+            <field name="pages_fouille" nolabel="1"/>
+            <field name="statuts" nolabel="1"/>
+            <field name="ips" nolabel="1"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_tour_robot_passage_search" model="ir.ui.view">
+    <field name="name">tour.robot.passage.search</field>
+    <field name="model">tour.robot.passage</field>
+    <field name="arch" type="xml">
+      <search string="Passages de robots">
+        <field name="robot"/>
+        <field name="site"/>
+        <filter name="f_fouille" string="Fouilleurs seulement"
+                domain="[('fouille','&gt;',0)]"/>
+        <filter name="f_ia" string="Intelligences artificielles"
+                domain="[('categorie','=','ia')]"/>
+        <filter name="f_moteur" string="Moteurs de recherche"
+                domain="[('categorie','=','moteur')]"/>
+        <group expand="0" string="Regrouper par">
+          <filter name="g_jour" string="Jour" context="{'group_by':'jour'}"/>
+          <filter name="g_robot" string="Robot" context="{'group_by':'robot'}"/>
+          <filter name="g_case" string="Case" context="{'group_by':'categorie'}"/>
+          <filter name="g_site" string="Site" context="{'group_by':'site'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_tour_robot_passage" model="ir.actions.act_window">
+    <field name="name">Passages de robots</field>
+    <field name="res_model">tour.robot.passage</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <record id="action_cockpit_robots" model="ir.actions.act_url">
+    <field name="name">Robots (cockpit)</field>
+    <field name="url">/tour/cockpit/robots</field>
+    <field name="target">self</field>
+  </record>
+
+  <menuitem id="menu_robots_root" name="Robots"
+            action="action_cockpit_robots" sequence="61"
+            groups="base.group_system"/>
+  <menuitem id="menu_robots_liste" name="Tableau brut"
+            parent="menu_robots_root" action="action_tour_robot_passage"
+            sequence="10" groups="base.group_system"/>
+</odoo>

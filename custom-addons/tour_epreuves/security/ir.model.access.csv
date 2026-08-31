@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_epreuve_user,epreuve lecture,model_agent_epreuve,base.group_user,1,0,0,0
+acces_epreuve_admin,epreuve admin,model_agent_epreuve,base.group_system,1,1,1,1
+acces_passage_user,passage lecture,model_agent_passage,base.group_user,1,0,0,0
+acces_passage_admin,passage admin,model_agent_passage,base.group_system,1,1,1,1

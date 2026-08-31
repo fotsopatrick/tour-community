@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="item_chloe_webapp" model="tour.actions.config">
+            <field name="name">Chloe — webapp</field>
+            <field name="groupe">Piloter</field>
+            <field name="url">/tour/chloe</field>
+            <field name="sequence">5</field>
+            <field name="prod">True</field>
+            <field name="demo">True</field>
+        </record>
+    </data>
+</odoo>

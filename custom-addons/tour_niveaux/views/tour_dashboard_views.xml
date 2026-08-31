@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue tableau de bord des missions -->
+    <record id="view_tour_mission_tree" model="ir.ui.view">
+        <field name="name">tour.mission.tree</field>
+        <field name="model">tour.mission</field>
+        <field name="arch" type="xml">
+            <list string="Mes missions" default_order="date_creation desc">
+                <field name="name"/>
+                <field name="assigned_to"/>
+                <field name="state" widget="badge" decoration-success="state == 'terminee'"
+                       decoration-warning="state == 'en_cours'"
+                       decoration-danger="state == 'annulee'"/>
+                <field name="date_limite"/>
+                <field name="xp_gagne" string="XP" optional="show"/>
+                <button name="action_demarrer" type="object" string="Démarrer"
+                        invisible="state != 'brouillon'"/>
+                <button name="action_terminer" type="object" string="✓ Terminer"
+                        invisible="state in ('terminee', 'annulee')"
+                        class="btn-success"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tour_mission_form" model="ir.ui.view">
+        <field name="name">tour.mission.form</field>
+        <field name="model">tour.mission</field>
+        <field name="arch" type="xml">
+            <form string="Mission">
+                <header>
+                    <button name="action_demarrer" type="object" string="Démarrer"
+                            invisible="state != 'brouillon'"
+                            class="btn-primary"/>
+                    <button name="action_terminer" type="object" string="Terminer"
+                            invisible="state in ('terminee', 'annulee')"
+                            class="btn-success"/>
+                    <button name="action_annuler" type="object" string="Annuler"
+                            invisible="state in ('terminee', 'annulee')"
+                            class="btn-danger"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="Titre de la mission..."/>
+                            <field name="assigned_to"/>
+                            <field name="date_limite"/>
+                        </group>
+                        <group>
+                            <field name="date_creation"/>
+                            <field name="date_terminee" invisible="not date_terminee"/>
+                            <field name="xp_gagne" string="XP gagné" invisible="xp_gagne == 0"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" placeholder="Décrivez la mission..." nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action d'ouverture du menu Missions -->
+    <record id="action_tour_mission" model="ir.actions.act_window">
+        <field name="name">Missions</field>
+        <field name="res_model">tour.mission</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre première mission !
+            </p>
+            <p>
+                Les missions terminées rapportent de l'expérience (XP)
+                et font monter votre niveau.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_tour_root" name="Tour" sequence="10"/>
+    <menuitem id="menu_tour_missions" name="Missions" parent="menu_tour_root"
+              action="action_tour_mission" sequence="10"/>
+</odoo>

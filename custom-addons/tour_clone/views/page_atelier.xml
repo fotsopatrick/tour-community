@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- L'ATELIER DU CLONE (04/08, Patrick : « genre un vieil ordi par exemple
+       et on discute avec lui via un chat »).
+
+       Le parti pris visuel n'est pas décoratif : un terminal à phosphore vert
+       dit « on cause à une machine ». Une bulle de messagerie moderne dirait
+       « on cause à un service ». Ce n'est pas la même conversation. -->
+  <template id="page_atelier" name="L'atelier du clone">
+    <t t-call="web.frontend_layout">
+      <t t-set="no_header" t-value="True"/>
+      <t t-set="no_footer" t-value="True"/>
+      <div class="cl-fond">
+        <style>
+          .cl-fond{min-height:100vh;background:#0a0e0a;color:#7dfa8b;
+            font-family:"Courier New",ui-monospace,monospace;padding:1.2rem}
+          .cl-ecran{max-width:1000px;margin:0 auto;background:#0d140d;
+            border:14px solid #2b2b28;border-radius:18px;
+            box-shadow:0 0 0 3px #16160f,0 24px 60px rgba(0,0,0,.7),
+                       inset 0 0 120px rgba(0,255,80,.05);padding:0;overflow:hidden}
+          .cl-barre{background:#1a1f1a;border-bottom:1px solid #26332a;
+            padding:.5rem .9rem;display:flex;gap:.7rem;align-items:center;
+            font-size:.78rem;color:#5d8a63;letter-spacing:.08em}
+          .cl-diode{width:9px;height:9px;border-radius:50%;background:#3fbf6f;
+            box-shadow:0 0 8px #3fbf6f}
+          .cl-corps{padding:1.1rem 1.3rem 1.4rem;
+            background:repeating-linear-gradient(180deg,transparent 0 3px,
+              rgba(0,0,0,.13) 3px 4px)}
+          .cl-titre{font-size:1.05rem;color:#a8ffb4;margin:.2rem 0 .1rem}
+          .cl-sujet{border:1px dashed #2f4a34;border-radius:6px;
+            padding:.7rem .9rem;margin:.8rem 0;background:rgba(0,40,10,.25)}
+          .cl-sujet a{color:#5fd3ff;text-decoration:none}
+          .cl-fil{min-height:16rem;max-height:26rem;overflow-y:auto;
+            padding:.4rem 0;margin:.6rem 0}
+          .cl-ligne{margin:.55rem 0;line-height:1.6;white-space:pre-wrap}
+          .cl-moi{color:#d7ffe0}
+          .cl-lui{color:#7dfa8b}
+          .cl-nom{color:#4f7a56;margin-right:.4rem}
+          .cl-desaccord{border-left:3px solid #ffb454;padding-left:.7rem}
+          .cl-saisie{display:flex;gap:.6rem;margin-top:.8rem}
+          .cl-saisie textarea{flex:1;background:#08110a;color:#a8ffb4;
+            border:1px solid #2f4a34;border-radius:5px;padding:.6rem .7rem;
+            font-family:inherit;font-size:.92rem;resize:vertical;min-height:3.2rem}
+          .cl-b{background:#14311b;color:#a8ffb4;border:1px solid #3d6b45;
+            border-radius:5px;padding:.5rem .95rem;cursor:pointer;
+            font-family:inherit;font-size:.88rem}
+          .cl-b:hover{background:#1c4526}
+          .cl-b:disabled{opacity:.45;cursor:not-allowed}
+          select.cl-b{padding:.45rem .6rem}
+          .cl-pied{color:#4f7a56;font-size:.78rem;margin-top:.9rem;
+            border-top:1px solid #1e2a20;padding-top:.6rem}
+          .cl-curseur::after{content:"▋";animation:cl-clign 1s steps(2) infinite}
+          @keyframes cl-clign{0%,50%{opacity:1}51%,100%{opacity:0}}
+        </style>
+
+        <div class="cl-ecran">
+          <div class="cl-barre">
+            <span class="cl-diode"/>
+            <span>TOUR DE CONTRÔLE — ATELIER DU CLONE</span>
+            <span style="margin-left:auto">v1</span>
+          </div>
+          <div class="cl-corps">
+            <div class="cl-titre">&gt; Débat d'idées</div>
+            <div style="color:#4f7a56;font-size:.84rem">
+              Il a un avis et il le donne. S'il pense que tu te trompes, il le
+              dit. Ce n'est pas un assistant : c'est un contradicteur.
+            </div>
+
+            <div style="display:flex;gap:.6rem;margin-top:.9rem;flex-wrap:wrap;
+                        align-items:center">
+              <span style="color:#4f7a56">thématique :</span>
+              <select id="cl-theme" class="cl-b">
+                <option value="">— au hasard —</option>
+                <t t-foreach="themes" t-as="t">
+                  <option t-att-value="t"><t t-esc="t"/></option>
+                </t>
+              </select>
+              <button class="cl-b" id="cl-nouveau">▸ Tirer un sujet</button>
+              <button class="cl-b" id="cl-clore" disabled="1">■ Clore et retenir</button>
+            </div>
+
+            <div class="cl-sujet" id="cl-sujet" style="display:none"/>
+            <div class="cl-fil" id="cl-fil"/>
+
+            <div class="cl-saisie">
+              <textarea id="cl-texte" rows="2"
+                        placeholder="Ta réponse… (Entrée pour envoyer, Maj+Entrée pour aller à la ligne)"/>
+              <button class="cl-b" id="cl-envoyer">Envoyer</button>
+            </div>
+
+            <div class="cl-pied">
+              Ce que TU dis est conservé — c'est sa matière d'apprentissage.
+              Ce qu'il dit, lui, ne lui sert qu'à tenir sa position.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script type="application/json" id="cl-csrf"><t t-out="csrf_token"/></script>
+      <script src="/tour_clone/static/src/atelier.js"/>
+    </t>
+  </template>
+</odoo>

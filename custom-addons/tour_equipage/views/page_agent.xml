@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="page_agent" name="Tableau de bord d'un agent">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': 'fr-FR'}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Tableau de bord</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .ag { max-width:1060px; margin:0 auto; padding:22px 16px 64px; }
+                    a.ret { color:var(--primaire); text-decoration:none; font-size:.88rem; }
+                    .tete { display:flex; align-items:center; gap:16px; margin:16px 0 6px; }
+                    .emb { font-size:2.6rem; line-height:1; }
+                    .tete h1 { margin:0; font-size:1.6rem; }
+                    .poste { color:var(--doux); font-size:.95rem; }
+                    .niv { margin-left:auto; text-align:right; }
+                    .niv .n { font-size:1.5rem; font-weight:700; color:var(--primaire); line-height:1; }
+                    .niv .t { color:var(--texte); font-size:.85rem; }
+                    .barre { background:var(--surface2); border-radius:99px; height:8px;
+                             overflow:hidden; margin:14px 0 6px; }
+                    .barre i { display:block; height:100%; background:var(--primaire); }
+                    .xp { color:var(--doux); font-size:.78rem; }
+                    h2 { font-size:.75rem; text-transform:uppercase; letter-spacing:.09em;
+                         color:var(--doux); margin:30px 0 12px; font-weight:600; }
+                    .carte { background:var(--surface); border:1px solid var(--surface2);
+                             border-radius:.6rem; padding:14px 16px; margin-bottom:10px; }
+                    .ligne { display:flex; align-items:center; gap:12px; padding:9px 0;
+                             border-top:1px solid var(--surface2); font-size:.9rem; }
+                    .ligne:first-child { border-top:0; }
+                    .ligne .q { flex:1 1 auto; min-width:0; overflow:hidden;
+                                text-overflow:ellipsis; white-space:nowrap; }
+                    .ligne .d { color:var(--doux); font-size:.78rem; white-space:nowrap; }
+                    .pastille { width:8px; height:8px; border-radius:50%; flex:0 0 auto;
+                                background:#475569; }
+                    .pastille.ok { background:var(--ok); }
+                    .att { background:rgba(245,158,11,.1); border-left:3px solid var(--alerte);
+                           border-radius:.5rem; padding:12px 15px; margin-bottom:9px;
+                           color:#f7bf6b; font-size:.92rem; font-weight:600; }
+                    .comp { display:flex; align-items:center; gap:12px; padding:8px 0;
+                            border-top:1px solid var(--surface2); font-size:.88rem; }
+                    .comp:first-child { border-top:0; }
+                    .comp .cn { flex:1 1 auto; }
+                    .comp .cv { color:var(--doux); font-variant-numeric:tabular-nums; }
+                    .et { color:var(--primaire); letter-spacing:2px; white-space:nowrap; }
+                    .et span { color:#334155; }
+                    .txt { color:var(--doux); font-size:.9rem; line-height:1.6; }
+                    .txt b, .txt strong { color:var(--texte); }
+                    .refus { color:var(--alerte); }
+                    .vide { color:var(--doux); font-size:.9rem; font-style:italic; }
+                    .eteint { background:rgba(239,68,68,.1); border-left:3px solid #ef4444;
+                              border-radius:.5rem; padding:12px 15px; margin-bottom:10px;
+                              color:#fca5a5; font-size:.92rem; font-weight:600; }
+                    .btn-int { display:block; width:100%; border:0; border-radius:.5rem;
+                               padding:12px 16px; font:inherit; font-weight:700; cursor:pointer;
+                               margin:14px 0 4px; text-align:left; }
+                    .btn-int.eteindre { background:#7f1d1d; color:#fecaca; }
+                    .btn-int.eteindre:hover { background:#991b1b; }
+                    .btn-int.allumer { background:#14532d; color:#bbf7d0; }
+                    .btn-int.allumer:hover { background:#166534; }
+                    .av { flex:0 0 auto; font-size:.72rem; font-weight:700;
+                          padding:2px 9px; border-radius:99px; text-transform:uppercase;
+                          letter-spacing:.05em; white-space:nowrap; }
+                    .av.fait { background:rgba(34,197,94,.15); color:#4ade80; }
+                    .av.en_cours { background:rgba(59,130,246,.15); color:#60a5fa; }
+                    .av.pas_fait { background:rgba(239,68,68,.15); color:#f87171; }
+                    .av.non_consigne { background:var(--surface2); color:var(--doux); }
+                    .det { color:var(--doux); font-size:.8rem; margin-top:4px;
+                           width:100%; line-height:1.45; }
+                    .etapes { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;
+                              width:100%; }
+                    .ep { font-size:.72rem; padding:2px 9px; border-radius:99px;
+                          border:1px solid var(--surface2); color:var(--doux); }
+                    .ep.fait { border-color:rgba(34,197,94,.4); color:#4ade80; }
+                    .ep.en_cours { border-color:rgba(59,130,246,.4); color:#60a5fa; }
+                    .ep.pas_fait { border-color:rgba(239,68,68,.4); color:#f87171; }
+                    /* ---- layout 2 colonnes + onglets ---- */
+                    .grille { display:grid; grid-template-columns:340px 1fr; gap:18px;
+                              align-items:start; margin-top:18px; }
+                    @media (max-width:820px) { .grille { grid-template-columns:1fr; } }
+                    .col-g { position:sticky; top:16px; }
+                    .spec-card { background:var(--surface); border:1px solid var(--surface2);
+                                 border-radius:.6rem; padding:14px 16px; }
+                    .spec-card h2 { margin-top:6px; }
+                    .champ { margin:12px 0; }
+                    .champ label { display:block; font-size:.72rem; text-transform:uppercase;
+                                   letter-spacing:.07em; color:var(--doux); margin-bottom:5px;
+                                   font-weight:600; }
+                    .champ input, .champ textarea { width:100%; box-sizing:border-box;
+                                   background:var(--fond); border:1px solid var(--surface2); color:var(--texte);
+                                   border-radius:.5rem; padding:9px 11px; font:inherit;
+                                   font-size:.86rem; }
+                    .champ textarea { min-height:74px; resize:vertical; }
+                    .champ textarea.tall { min-height:130px; }
+                    .spec-lect { color:var(--doux); font-size:.9rem; line-height:1.6;
+                                 background:var(--fond); border-radius:.5rem; padding:10px 12px; }
+                    .btn-spec { width:100%; border:0; border-radius:.5rem; padding:11px 16px;
+                                background:var(--primaire); color:#fff; font:inherit; font-weight:700;
+                                cursor:pointer; margin-top:6px; }
+                    .btn-spec:hover { background:#2563eb; }
+                    .onglets { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+                    .otab { background:none; border:1px solid var(--surface2); color:var(--doux);
+                            border-radius:99px; padding:7px 14px; font:inherit; font-size:.82rem;
+                            cursor:pointer; }
+                    .otab.actif { background:var(--primaire); border-color:var(--primaire); color:#fff; }
+                    .opane { display:none; }
+                    .opane.ouvert { display:block; }
+                    .mono { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+                    /* ---- la carte des circuits de l'agent, en detail ---- */
+                    .circuit { padding:12px 14px; }
+                    .circ-nom { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+                    .circ-nom .q { font-size:.95rem; font-weight:600; color:var(--texte); }
+                    .badge { font-size:.68rem; font-weight:700; text-transform:uppercase;
+                             letter-spacing:.05em; background:rgba(59,130,246,.15);
+                             color:#60a5fa; border-radius:99px; padding:2px 9px; white-space:nowrap; }
+                    .circ-portes { display:flex; flex-direction:column; gap:5px; }
+                    .porte { display:flex; align-items:center; gap:10px; padding:6px 10px;
+                             border:1px solid var(--surface2); border-radius:.5rem; background:var(--fond);
+                             font-size:.85rem; }
+                    .porte.sienne { border-color:var(--primaire); background:rgba(59,130,246,.1); }
+                    .pseq { flex:0 0 auto; width:20px; height:20px; border-radius:50%;
+                            background:var(--surface2); color:var(--doux); display:flex; align-items:center;
+                            justify-content:center; font-size:.7rem; font-weight:700; }
+                    .porte.sienne .pseq { background:var(--primaire); color:#fff; }
+                    .pnom { flex:1 1 auto; color:var(--texte); }
+                    .porte.sienne .pnom { color:#fff; font-weight:600; }
+                    .pagent { color:var(--doux); font-size:.78rem; white-space:nowrap; }
+                    .porte.sienne .pagent { color:#93c5fd; }
+                    .prole { font-size:.66rem; text-transform:uppercase; letter-spacing:.04em;
+                             color:var(--doux); border:1px solid var(--surface2); border-radius:99px;
+                             padding:1px 7px; }
+                    .porte.sienne .prole { border-color:rgba(59,130,246,.5); color:#93c5fd; }
+                    .fiche-md { font-size:.86rem; line-height:1.6; color:var(--texte); }
+                    .fiche-md pre, .fiche-md code { font-family:ui-monospace,Consolas,monospace;
+                        font-size:.82rem; background:var(--fond); border-radius:.4rem; padding:2px 5px; }
+                    .fiche-md pre { padding:10px 12px; overflow-x:auto; }
+                    .fiche-md h1, .fiche-md h2, .fiche-md h3 { color:var(--texte); }
+                    .fiche-md h1 { font-size:1rem; }
+                    .fiche-md h2 { font-size:.9rem; text-transform:none; letter-spacing:0; margin:18px 0 6px; }
+                    .fiche-md h3 { font-size:.86rem; }
+                    .fiche-md li { margin:3px 0; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="ag">
+                <a class="ret" href="/tour/equipe">← L'équipe</a>
+
+                <t t-if="not m.active">
+                    <div class="eteint">⚠️ Agent éteint : il ne reçoit plus de
+                        nouvelles conversations ni de nouvelles missions.
+                        Son historique et ses consignes restent intacts.</div>
+                </t>
+
+                <div class="tete">
+                    <div class="emb"><t t-esc="m.embleme"/></div>
+                    <div>
+                        <h1><t t-esc="m.name"/></h1>
+                        <div class="poste"><t t-esc="m.poste"/></div>
+                        <!-- D'où vient son nom — pour l'ADMIN seulement.
+                             Patrick, 29/07 : « quand je voudrai discuter
+                             avec un agent, me rappeler d'où vient son nom,
+                             que je m'en serve comme indice de début de
+                             réflexion ». C'est sa clé de lecture à lui ; un
+                             invité n'a pas à connaître nos références. -->
+                        <div t-if="est_admin and m.origine" class="poste"
+                             style="color:#f7bf6b;font-style:italic;margin-top:6px">
+                            🗝️ <t t-esc="m.origine"/>
+                        </div>
+                    </div>
+                    <div class="niv">
+                        <div class="n">Niv. <t t-esc="m.niveau"/></div>
+                        <div class="t"><t t-esc="m.titre"/> <t t-esc="m.titre_jp"/></div>
+                    </div>
+                </div>
+                <div class="barre"><i t-attf-style="width:#{m.avancement}%"/></div>
+                <div class="xp">
+                    <t t-esc="m.xp"/> points
+                    <t t-if="m.xp_palier"> — palier suivant à <t t-esc="m.xp_palier"/></t>
+                </div>
+
+                <div class="grille">
+
+                    <!-- ====== COLONNE GAUCHE : LA SPEC (éditable, admin) ====== -->
+                    <div class="col-g">
+                        <div class="spec-card">
+                            <h2>Sa spec — la connaissance de l'agent</h2>
+                            <t t-if="est_admin">
+                                <form method="post" t-attf-action="/tour/specs/#{spec['id']}/sauver">
+                                    <input type="hidden" name="csrf_token"
+                                           t-att-value="request.csrf_token()"/>
+                                    <div class="champ">
+                                        <label>Poste</label>
+                                        <input type="text" name="poste" t-att-value="spec['poste']"/>
+                                    </div>
+                                    <div class="champ">
+                                        <label>Son périmètre — ce qu'il fait</label>
+                                        <textarea name="perimetre" class="tall"><t t-esc="spec['perimetre']"/></textarea>
+                                    </div>
+                                    <div class="champ">
+                                        <label>Ce qu'il ne fait pas</label>
+                                        <textarea name="refus" class="tall"><t t-esc="spec['refus']"/></textarea>
+                                    </div>
+                                    <div class="champ">
+                                        <label>Consignes — comment il travaille</label>
+                                        <textarea name="consignes" class="tall"><t t-esc="spec['consignes']"/></textarea>
+                                    </div>
+                                    <div class="champ">
+                                        <label>Exemples — ce qu'on attend de lui</label>
+                                        <textarea name="exemples" class="tall"><t t-esc="spec['exemples']"/></textarea>
+                                    </div>
+                                    <button type="submit" class="btn-spec">💾 Enregistrer sa spec</button>
+                                </form>
+                            </t>
+                            <t t-else="">
+                                <div t-if="spec['perimetre']" class="spec-lect"><t t-out="spec['perimetre']"/></div>
+                                <div t-if="spec['refus']" class="spec-lect refus" style="margin-top:10px"><b>Il ne fait pas :</b> <t t-out="spec['refus']"/></div>
+                            </t>
+                        </div>
+
+                        <t t-if="est_admin">
+                            <form method="post" t-attf-action="/tour/equipe/#{m.id}/basculer">
+                                <input type="hidden" name="csrf_token"
+                                       t-att-value="request.csrf_token()"/>
+                                <button type="submit" t-attf-class="btn-int #{m.active and 'eteindre' or 'allumer'}">
+                                    <t t-if="m.active">⏻ Éteindre <t t-esc="m.name"/></t>
+                                    <t t-else="">⏻ Rallumer <t t-esc="m.name"/></t>
+                                </button>
+                            </form>
+                        </t>
+                    </div>
+
+                    <!-- ====== COLONNE DROITE : ONGLETS ====== -->
+                    <div class="col-d">
+                        <div class="onglets">
+                            <button type="button" class="otab actif" data-pane="p-attente">Ce qui l'attend</button>
+                            <button type="button" class="otab" data-pane="p-carte">Sa carte</button>
+                            <button type="button" class="otab" data-pane="p-fiche">Sa fiche</button>
+                            <button type="button" class="otab" data-pane="p-evolution">Évolution</button>
+                            <button type="button" class="otab" data-pane="p-travaux">Ce qu'il a fait</button>
+                            <button type="button" class="otab" data-pane="p-competences">Compétences</button>
+                        </div>
+
+                        <div class="opane ouvert" id="p-attente">
+                            <t t-if="attente">
+                                <t t-foreach="attente" t-as="a">
+                                    <div class="att">⏳ <t t-esc="a"/></div>
+                                </t>
+                            </t>
+                            <t t-if="attente_agent">
+                                <h2>Une porte de circuit l'attend</h2>
+                                <div class="carte">
+                                    <t t-foreach="attente_agent" t-as="aa">
+                                        <div class="ligne">
+                                            <span class="q"><t t-esc="aa['name']"/></span>
+                                            <span class="poste">→ <t t-esc="aa['modele']"/> · <t t-esc="aa['porte']"/></span>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-if="not attente and not attente_agent">
+                                <div class="vide">Rien ne l'attend pour l'instant.</div>
+                            </t>
+                            <t t-if="conso">
+                                <h2>Ce qu'il consomme</h2>
+                                <div class="carte">
+                                    <div class="comp">
+                                        <span class="cn">Échanges (30 derniers jours)</span>
+                                        <span class="cv"><t t-esc="conso['echanges']"/></span>
+                                    </div>
+                                    <div class="comp">
+                                        <span class="cn">Ce que ça a coûté</span>
+                                        <span class="cv"><t t-esc="'%.2f' % conso['cout']"/> €</span>
+                                    </div>
+                                    <div class="comp">
+                                        <span class="cn">Sur un mois, au rythme actuel</span>
+                                        <span class="cv"><t t-esc="'%.2f' % (conso['par_jour'] * 30)"/> €</span>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div class="opane" id="p-carte">
+                            <h2>Sa carte — les circuits où il a une porte</h2>
+                            <t t-if="circuits_agent">
+                                <t t-foreach="circuits_agent" t-as="c">
+                                    <div class="carte circuit">
+                                        <div class="circ-nom">
+                                            <span class="q"><t t-esc="c['name']"/></span>
+                                            <span class="badge"><t t-esc="c['type_operation']"/></span>
+                                        </div>
+                                        <div class="circ-portes">
+                                            <t t-foreach="c['portes']" t-as="p">
+                                                <div t-attf-class="porte #{p['agent'] == m.name and 'sienne' or ''}">
+                                                    <span class="pseq"><t t-esc="p_index + 1"/></span>
+                                                    <span class="pnom"><t t-esc="p['nom']"/></span>
+                                                    <span class="pagent"><t t-esc="p['agent']"/></span>
+                                                    <span t-if="p['role'] == 'agent'" class="prole">relit</span>
+                                                    <span t-else="" class="prole"><t t-esc="p['role']"/></span>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </t>
+                                <div class="det">Sa porte est surlignée. Toute la carte : menu Actions → Cockpit des circuits → « tous les agents » → <t t-esc="m.name"/>.</div>
+                            </t>
+                            <t t-else="">
+                                <div class="vide">Aucun circuit ne lui assigne de porte pour l'instant.</div>
+                            </t>
+                        </div>
+
+                        <div class="opane" id="p-fiche">
+                            <h2>Sa fiche — la connaissance qui part dans ses missions</h2>
+                            <t t-if="connaissance_agent">
+                                <div class="carte txt fiche-md"><t t-out="connaissance_agent"/></div>
+                                <div class="det">C'est cette fiche (<span class="mono">agents/&lt;nom&gt;.md</span>) qui est
+                                    injectée en tête de chaque mission de <t t-esc="m.name"/>. Modifie-la dans le
+                                    dépôt pour changer ce qu'il sait de son métier.</div>
+                            </t>
+                            <t t-else="">
+                                <div class="vide">Pas de fiche de poste dédiée pour <t t-esc="m.name"/> : il n'a pas
+                                    de mission injectée. Sa connaissance vit dans ses consignes (onglet Specs).</div>
+                            </t>
+                        </div>
+
+                        <div class="opane" id="p-evolution">
+                            <h2>Son évolution — où il en est</h2>
+                            <div class="carte">
+                                <t t-if="evolution">
+                                    <t t-foreach="evolution" t-as="e">
+                                        <div class="ligne">
+                                            <span t-attf-class="pastille #{e['ok'] and 'ok' or ''}"/>
+                                            <span class="q"><t t-esc="e['quoi']"/></span>
+                                            <span t-attf-class="av #{e['avancement'] or 'non_consigne'}">
+                                                <t t-esc="e['avancement'] or 'non_consigne'"/>
+                                            </span>
+                                            <span class="d"><t t-esc="e['quand']" t-options="{'widget': 'date'}"/></span>
+                                            <t t-if="e['detail']">
+                                                <div class="det"><t t-esc="e['detail']"/></div>
+                                            </t>
+                                            <t t-if="e['etapes']">
+                                                <div class="etapes">
+                                                    <t t-foreach="e['etapes']" t-as="s">
+                                                        <span t-attf-class="ep #{s['etat']}"><t t-esc="s['nom']"/></span>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="vide">Rien consigné pour l'instant : le prochain compte rendu de
+                                        <t t-esc="m.name"/> portera son avancement (fait / en cours / pas fait).</div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="opane" id="p-travaux">
+                            <h2>Ce qu'il a fait</h2>
+                            <div class="carte">
+                                <t t-if="travaux">
+                                    <t t-foreach="travaux" t-as="t">
+                                        <div class="ligne">
+                                            <span t-attf-class="pastille #{t['ok'] and 'ok' or ''}"/>
+                                            <span class="q"><t t-esc="t['quoi']"/></span>
+                                            <span class="d"><t t-esc="t['etat']"/></span>
+                                            <span class="d"><t t-esc="t['quand']" t-options="{'widget': 'date'}"/></span>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="vide">Rien encore. Il n'a pas été utilisé.</div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="opane" id="p-competences">
+                            <h2>Ses compétences</h2>
+                            <div class="carte">
+                                <t t-foreach="m.competence_ids" t-as="c">
+                                    <div class="comp" t-if="est_admin or not c.confidentiel">
+                                        <span class="cn"><t t-esc="c.name"/></span>
+                                        <span class="cv"><t t-esc="c.valeur"/></span>
+                                        <span class="et">
+                                            <t t-foreach="[1,2,3,4,5]" t-as="n">
+                                                <t t-if="n &lt;= c.etoiles">★</t>
+                                                <span t-else="">★</span>
+                                            </t>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    var tabs = document.querySelectorAll(".otab");
+                    if (!tabs.length) return;
+                    var panes = {};
+                    tabs.forEach(function (b) { panes[b.dataset.pane] = b; });
+                    function ouvrir(nom) {
+                        document.querySelectorAll(".opane").forEach(function (p) {
+                            p.classList.toggle("ouvert", p.id === nom);
+                        });
+                        tabs.forEach(function (b) {
+                            b.classList.toggle("actif", b.dataset.pane === nom);
+                        });
+                    }
+                    tabs.forEach(function (b) {
+                        b.addEventListener("click", function () { ouvrir(b.dataset.pane); });
+                    });
+                })();
+            </script>
+        </t>
+    </template>
+
+</odoo>

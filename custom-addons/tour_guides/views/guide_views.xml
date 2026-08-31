@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tour_guide_list" model="ir.ui.view">
+        <field name="name">tour.guide.list</field>
+        <field name="model">tour.guide</field>
+        <field name="arch" type="xml">
+            <list string="Guides">
+                <field name="name"/>
+                <field name="resume"/>
+                <field name="categorie"/>
+                <field name="date_reference" optional="show"/>
+                <field name="mots_cles" optional="hide"/>
+                <field name="interne" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tour_guide_form" model="ir.ui.view">
+        <field name="name">tour.guide.form</field>
+        <field name="model">tour.guide</field>
+        <field name="arch" type="xml">
+            <form string="Guide">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Comment se créer un rappel"/></h1>
+                        <field name="resume" placeholder="En une phrase : ce que ça explique."/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="categorie"/>
+                            <field name="date_reference"/>
+                        </group>
+                        <group>
+                            <field name="mots_cles" placeholder="rappel, activité, horloge, sauvegarde"/>
+                            <field name="interne"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Détail">
+                            <field name="contenu" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_tour_guide_search" model="ir.ui.view">
+        <field name="name">tour.guide.search</field>
+        <field name="model">tour.guide</field>
+        <field name="arch" type="xml">
+            <search string="Chercher dans les guides">
+                <!-- Un seul champ de recherche qui balaie tout : on cherche
+                     une idée, pas un titre exact. -->
+                <field name="name" string="Chercher"
+                       filter_domain="['|','|','|',
+                                       ('name','ilike',self),
+                                       ('resume','ilike',self),
+                                       ('mots_cles','ilike',self),
+                                       ('contenu','ilike',self)]"/>
+                <filter name="f_astuce" string="Astuces"
+                        domain="[('categorie','=','astuce')]"/>
+                <filter name="f_archi" string="Architecture"
+                        domain="[('categorie','=','architecture')]"/>
+                <filter name="f_decision" string="Décisions"
+                        domain="[('categorie','=','decision')]"/>
+                <filter name="f_piege" string="Pièges"
+                        domain="[('categorie','=','piege')]"/>
+                <separator/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="g_cat" string="Type" context="{'group_by': 'categorie'}"/>
+                    <filter name="g_date" string="Date" context="{'group_by': 'date_reference'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_tour_guide" model="ir.actions.act_window">
+        <field name="name">Guides</field>
+        <field name="res_model">tour.guide</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_tour_guide_search"/>
+        <field name="context">{'search_default_g_cat': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun guide pour l'instant</p>
+            <p>Les astuces d'utilisation et la mémoire technique de la tour.
+               Tapez n'importe quel mot dans la recherche : elle regarde aussi
+               dans le contenu et les mots-clés.</p>
+        </field>
+    </record>
+
+    <!-- Règle : ce qui est marqué « interne » ne sort pas de chez l'admin. -->
+    <record id="rule_tour_guide_public" model="ir.rule">
+        <field name="name">Guides : masquer les fiches internes</field>
+        <field name="model_id" ref="model_tour_guide"/>
+        <field name="domain_force">[('interne', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="rule_tour_guide_admin" model="ir.rule">
+        <field name="name">Guides : tout pour les administrateurs</field>
+        <field name="model_id" ref="model_tour_guide"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+
+    <menuitem id="menu_guides_racine" name="Guides" sequence="80"
+              web_icon="tour_guides,static/description/icon.svg"/>
+    <menuitem id="menu_guides" name="Astuces et mémoire"
+              parent="menu_guides_racine" action="action_tour_guide"/>
+</odoo>

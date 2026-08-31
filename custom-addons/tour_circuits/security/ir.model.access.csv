@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_circuit_modele,circuit.modele,model_circuit_modele,base.group_system,1,1,1,1
+acces_circuit_etape,circuit.etape,model_circuit_etape,base.group_system,1,1,1,1
+acces_circuit_instance,circuit.instance,model_circuit_instance,base.group_system,1,1,1,1
+acces_circuit_passage,circuit.passage,model_circuit_passage,base.group_system,1,1,1,1
+acces_circuit_import,circuit.modele.import,model_circuit_modele_import,base.group_system,1,1,1,1

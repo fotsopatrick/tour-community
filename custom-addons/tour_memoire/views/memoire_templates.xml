@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page" name="Mémoire — rappel">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Mémoire indexée — rappel</title>
+        <style>
+          :root{
+            --fond:#0b1120; --panel:#0f172a; --line:#1e293b; --texte:#e2e8f0;
+            --muted:#94a3b8; --faint:#64748b; --accent:#3b82f6; --good:#22c55e;
+            --mono:ui-monospace,Menlo,Consolas,monospace;
+          }
+          *{box-sizing:border-box}
+          body{margin:0;background:var(--fond);color:var(--texte);
+               font-family:ui-sans-serif,system-ui,"Segoe UI",sans-serif;line-height:1.6}
+          .wrap{max-width:900px;margin:0 auto;padding:1.2rem}
+          h1{font-size:1.35rem;margin:0 0 .2rem}
+          .sub{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+          .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+                 padding:1rem;margin:0 0 1rem}
+          h2{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
+             color:var(--muted);margin:0 0 .8rem;font-weight:600}
+          input#q{width:100%;padding:.7rem .9rem;font-size:1rem;color:var(--texte);
+                  background:#0b1120;border:1px solid var(--line);border-radius:8px}
+          input#q:focus{outline:none;border-color:var(--accent)}
+          button{background:var(--accent);color:#fff;border:0;border-radius:8px;
+                 padding:.65rem 1.2rem;font-size:.95rem;margin-top:.6rem;cursor:pointer}
+          .entree{border-top:1px solid var(--line);padding:.7rem 0}
+          .entree:first-of-type{border-top:0}
+          .entree .t{font-weight:600;font-size:1rem}
+          .entree .t a{color:var(--texte);text-decoration:none}
+          .entree .t a:hover{color:var(--accent)}
+          .entree .r{color:var(--muted);font-size:.9rem;margin-top:.2rem}
+          .entree .m{font-size:.75rem;color:var(--faint);margin-top:.3rem;font-family:var(--mono)}
+          .badge{display:inline-block;font-size:.72rem;font-family:var(--mono);
+                 padding:1px 8px;border-radius:20px;background:#1e293b;color:var(--muted)}
+          .badge.tour{background:rgba(59,130,246,.15);color:#60a5fa}
+          .badge.site{background:rgba(34,197,94,.15);color:var(--good)}
+          .empty{color:var(--faint);font-style:italic;font-size:.9rem}
+          .hint{color:var(--faint);font-size:.78rem;margin-top:.4rem}
+          ul{list-style:none;padding:0;margin:0}
+          li{font-size:.85rem;color:var(--muted);margin-bottom:.35rem}
+          li b{color:var(--texte);font-weight:600}
+          a.back{color:var(--accent);text-decoration:none;font-size:.85rem}
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <h1>Mémoire indexée — rappel</h1>
+          <p class="sub"><a class="back" href="/tour/cockpit">← cockpit</a> ·
+            on ne charge pas tout en contexte : on cherche, on rappelle l'essentiel.</p>
+
+          <div class="panel">
+            <input id="q" placeholder="Que veux-tu te rappeler ? (ex. sauvegarde, carte 3D, port ssh, sauvegarde…)"
+                   autocomplete="off"/>
+            <button id="go" type="button">Rappeler</button>
+            <p class="hint" id="compte">—</p>
+          </div>
+
+          <div class="panel" id="resultats">
+            <h2>Résultats</h2>
+            <p class="empty">Tape une question puis « Rappeler ».</p>
+          </div>
+
+          <div class="panel">
+            <h2>Ce qui est indexé</h2>
+            <ul id="catalogue"></ul>
+            <p class="hint">Convention : la tour déclare ses modèles (une ligne chacun) ;
+              chaque site statique dépose un <code>memoire.json</code> à sa racine.
+              Une nouvelle webapp n'a qu'à faire l'un des deux.</p>
+          </div>
+        </div>
+
+        <script>
+        //<![CDATA[
+        (function () {
+          "use strict";
+          var q = document.getElementById("q");
+          var go = document.getElementById("go");
+          var res = document.getElementById("resultats");
+          var compte = document.getElementById("compte");
+          var cat = document.getElementById("catalogue");
+
+          function esc(s) {
+            return String(s == null ? "" : s)
+              .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+          }
+
+          function rappel() {
+            var v = q.value.trim();
+            if (!v) { return; }
+            fetch("/tour/memoire/rappel?q=" + encodeURIComponent(v),
+                  { credentials: "same-origin" })
+              .then(function (r) { return r.json(); })
+              .then(function (d) {
+                if (d.error) { compte.textContent = d.error; return; }
+                var liste = d.entrees || [];
+                compte.textContent = liste.length
+                  ? liste.length + " entrée(s) rappelée(s) pour « " + v + " »"
+                  : "Aucune entrée rappelée pour « " + v + " »";
+                if (!liste.length) {
+                  res.innerHTML = '<h2>Résultats</h2><p class="empty">Rien trouvé — la mémoire ne connaît pas encore ce sujet.</p>';
+                  return;
+                }
+                res.innerHTML = '<h2>Résultats</h2>' + liste.map(function (e) {
+                  return '<div class="entree">' +
+                    '<div class="t"><a href="' + esc(e.url) + '" target="_blank">' + esc(e.titre) + "</a></div>" +
+                    (e.resume ? '<div class="r">' + esc(e.resume) + "</div>" : "") +
+                    '<div class="m"><span class="badge ' + (e.source === "tour" ? "tour" : "site") + '">' +
+                    esc(e.source) + "</span> · " + esc(e.type) +
+                    (e.date ? " · " + esc(e.date) : "") +
+                    (e.statut ? " · " + esc(e.statut) : "") + "</div></div>";
+                }).join("");
+              })
+              .catch(function () {
+                res.innerHTML = '<h2>Résultats</h2><p class="empty">Le robinet ne répond pas.</p>';
+              });
+          }
+
+          if (go) { go.addEventListener("click", rappel); }
+          if (q) {
+            q.addEventListener("keydown", function (e) { if (e.key === "Enter") { rappel(); } });
+          }
+
+          fetch("/tour/memoire/data", { credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.error || !cat) { return; }
+              var html = "";
+              (d.modeles || []).forEach(function (m) {
+                html += "<li><b>" + esc(m.label) + "</b> — modèle <code>" + esc(m.model) + "</code></li>";
+              });
+              (d.statiques || []).forEach(function (e) {
+                html += "<li><b>" + esc(e.source) + "</b> — " + esc(e.titre) + "</li>";
+              });
+              cat.innerHTML = html ||
+                "<li class='empty'>Aucune source indexée.</li>";
+            })
+            .catch(function () { /* silencieux : le catalogue est un bonus */ });
+        })();
+        //]]>
+        </script>
+      </body>
+    </html>
+  </template>
+</odoo>

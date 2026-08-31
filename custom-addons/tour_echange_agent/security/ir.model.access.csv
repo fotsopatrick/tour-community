@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+echange_agent_user,echange.agent user,model_echange_agent,base.group_user,1,1,1,0
+echange_agent_admin,echange.agent admin,model_echange_agent,base.group_system,1,1,1,1

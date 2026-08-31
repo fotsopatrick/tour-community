@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Les gestes d'un utilisateur de la tour, et s'ils se font à la parole.
+        À MAIN METTRE quand un geste devient pilotable : le degré suit.
+    -->
+    <record id="cap_creer_tache" model="tour.capacite">
+        <field name="name">Créer une tâche</field>
+        <field name="categorie">piloter</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">10</field>
+        <field name="description">On le dit à Chloe, elle la crée.</field>
+    </record>
+    <record id="cap_demander_decision" model="tour.capacite">
+        <field name="name">Demander une décision</field>
+        <field name="categorie">piloter</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">20</field>
+        <field name="description">On la demande, la fiche Décisions se crée.</field>
+    </record>
+    <record id="cap_faire_relance" model="tour.capacite">
+        <field name="name">Faire une relance</field>
+        <field name="categorie">piloter</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">30</field>
+        <field name="description">Jonathan prépare le brouillon, on approuve.</field>
+    </record>
+    <record id="cap_construire_app" model="tour.capacite">
+        <field name="name">Construire une app</field>
+        <field name="categorie">construire</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">40</field>
+        <field name="description">On décrit, la tour construit et publie.</field>
+    </record>
+    <record id="cap_deployer_prod" model="tour.capacite">
+        <field name="name">Déployer en production</field>
+        <field name="categorie">construire</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">50</field>
+        <field name="description">Le circuit de mise en production s'en charge.</field>
+    </record>
+    <record id="cap_rappel" model="tour.capacite">
+        <field name="name">Se créer un rappel</field>
+        <field name="categorie">piloter</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">60</field>
+        <field name="description">On le demande, le rappel est posé.</field>
+    </record>
+    <record id="cap_question" model="tour.capacite">
+        <field name="name">Poser une question à l'assistante</field>
+        <field name="categorie">communiquer</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">70</field>
+        <field name="description">On discute, elle répond depuis son contexte.</field>
+    </record>
+    <record id="cap_qui_travaille" model="tour.capacite">
+        <field name="name">Savoir qui travaille</field>
+        <field name="categorie">verifier</field>
+        <field name="pilote_parole">False</field>
+        <field name="sequence">80</field>
+        <field name="description">Il faut ouvrir le cockpit « Qui travaille ? ».</field>
+    </record>
+    <record id="cap_eteindre_agent" model="tour.capacite">
+        <field name="name">Éteindre un agent</field>
+        <field name="categorie">piloter</field>
+        <field name="pilote_parole">False</field>
+        <field name="sequence">90</field>
+        <field name="description">Bouton manuel sur la fiche agent (admin).</field>
+    </record>
+    <record id="cap_basculer_moteur" model="tour.capacite">
+        <field name="name">Basculer de moteur (DeepSeek / opencode)</field>
+        <field name="categorie">piloter</field>
+        <field name="pilote_parole">False</field>
+        <field name="sequence">100</field>
+        <field name="description">Bouton sur l'accueil (admin).</field>
+    </record>
+    <record id="cap_couts" model="tour.capacite">
+        <field name="name">Vérifier les coûts</field>
+        <field name="categorie">verifier</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">110</field>
+        <field name="description">On demande, Tess/Chloe donnent les chiffres.</field>
+    </record>
+    <record id="cap_securite" model="tour.capacite">
+        <field name="name">Vérifier la sécurité</field>
+        <field name="categorie">verifier</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">120</field>
+        <field name="description">Victor contrôle et signale tout seul.</field>
+    </record>
+    <record id="cap_sauvegardes" model="tour.capacite">
+        <field name="name">Vérifier les sauvegardes</field>
+        <field name="categorie">verifier</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">130</field>
+        <field name="description">Sauvegarde quotidienne vérifiée, alerte sinon.</field>
+    </record>
+    <record id="cap_planning" model="tour.capacite">
+        <field name="name">Consulter son planning</field>
+        <field name="categorie">piloter</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">140</field>
+        <field name="description">On demande, Chloe lit les tâches.</field>
+    </record>
+    <record id="cap_compte_rendu" model="tour.capacite">
+        <field name="name">Générer un compte rendu</field>
+        <field name="categorie">communiquer</field>
+        <field name="pilote_parole">True</field>
+        <field name="sequence">150</field>
+        <field name="description">Une mission/discussion le produit.</field>
+    </record>
+    <record id="cap_actus" model="tour.capacite">
+        <field name="name">Lire les actualités</field>
+        <field name="categorie">verifier</field>
+        <field name="pilote_parole">False</field>
+        <field name="sequence">160</field>
+        <field name="description">La page actus se visite.</field>
+    </record>
+</odoo>

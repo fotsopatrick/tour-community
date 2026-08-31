@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_abonnement_offre,abonnement.offre,model_abonnement_offre,base.group_system,1,1,1,1
+access_abonnement_contrat,abonnement.contrat,model_abonnement_contrat,base.group_system,1,1,1,1
+acces_evenement_admin,abonnement.evenement,model_abonnement_evenement,base.group_system,1,1,1,1

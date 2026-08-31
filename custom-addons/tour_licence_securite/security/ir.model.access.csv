@@ -1,0 +1,2 @@
+id,model_id:id,group_id:id,name,perm_read,perm_write,perm_create,perm_unlink
+access_licence_alerte,model_licence_alerte,base.group_system,licence.alerte,1,1,1,1

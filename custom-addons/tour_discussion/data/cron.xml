@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!--
+            Une minute, comme le ramassage des missions côté serveur : aller
+            plus vite ne servirait à rien puisque c'est le cron de l'hôte qui
+            décide du rythme réel. Le bouton « Actualiser » de la fiche existe
+            pour ceux qui n'ont pas envie d'attendre.
+        -->
+        <record id="cron_discussion_relever" model="ir.cron">
+            <field name="name">Discussion : aller chercher les réponses</field>
+            <field name="model_id" ref="model_discussion_fil"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_relever()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

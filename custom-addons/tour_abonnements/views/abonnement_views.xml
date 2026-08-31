@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_offre_liste" model="ir.ui.view">
+        <field name="name">abonnement.offre.liste</field>
+        <field name="model">abonnement.offre</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="not publie">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="prix"/>
+                <field name="periode"/>
+                <field name="publie"/>
+                <field name="nb_contrats"/>
+                <field name="lien_paiement" widget="url" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_offre_form" model="ir.ui.view">
+        <field name="name">abonnement.offre.form</field>
+        <field name="model">abonnement.offre</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_publier_chez_stripe" type="object"
+                            string="Créer le lien de paiement" class="btn-primary"
+                            invisible="lien_paiement != False"
+                            confirm="Cela crée un produit et un tarif RÉELS chez Stripe. On y va ?"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                        <h3><field name="accroche" placeholder="En une phrase"/></h3>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="prix"/>
+                            <field name="periode"/>
+                            <field name="duree_jours"/>
+                            <field name="actif"/>
+                            <field name="publie"/>
+                        </group>
+                        <group string="Chez Stripe">
+                            <field name="stripe_product_id"/>
+                            <field name="stripe_price_id"/>
+                            <field name="lien_paiement" widget="url"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="status">
+                        Tant que « Publié » n'est pas coché, aucun lien n'est créé.
+                        Un prix affiché engage : on ne publie pas un brouillon.
+                    </div>
+                    <notebook>
+                        <page string="Ce qui est compris">
+                            <field name="detail"/>
+                        </page>
+                        <page string="Abonnés">
+                            <field name="contrat_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="etat"/>
+                                    <field name="instance_etat"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_contrat_liste" model="ir.ui.view">
+        <field name="name">abonnement.contrat.liste</field>
+        <field name="model">abonnement.contrat</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="etat == 'impaye'"
+                  decoration-muted="etat == 'resilie'"
+                  decoration-warning="instance_etat == 'a_monter' and etat == 'actif'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="offre_id"/>
+                <field name="montant"/>
+                <field name="etat"/>
+                <field name="instance_etat"/>
+                <field name="instance_url" widget="url" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_contrat_form" model="ir.ui.view">
+        <field name="name">abonnement.contrat.form</field>
+        <field name="model">abonnement.contrat</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_monter_instance" type="object"
+                            string="Monter l'instance" class="btn-primary"
+                            invisible="instance_etat != 'a_monter'"/>
+                    <button name="action_resilier" type="object" string="Résilier"
+                            invisible="etat == 'resilie'"
+                            confirm="Résilie chez Stripe ET dans la tour : le client ne sera plus prélevé et perdra son accès. On y va ?"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="offre_id"/>
+                            <field name="montant"/>
+                        </group>
+                        <group>
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                            <field name="date_expiration"/>
+                            <field name="date_demontage"/>
+                            <field name="instance_etat"/>
+                            <field name="instance_url" widget="url"/>
+                        </group>
+                    </group>
+                    <group string="Chez Stripe">
+                        <field name="stripe_customer_id"/>
+                        <field name="stripe_subscription_id"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_offre" model="ir.actions.act_window">
+        <field name="name">Offres</field>
+        <field name="res_model">abonnement.offre</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="action_contrat" model="ir.actions.act_window">
+        <field name="name">Contrats</field>
+        <field name="res_model">abonnement.contrat</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun abonné pour l'instant</p>
+            <p>
+                Un contrat se crée tout seul quand Stripe confirme un paiement.
+                Rien à saisir à la main.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_racine" name="Abonnements"
+              web_icon="tour_abonnements,static/description/icon.svg"
+              groups="base.group_system" sequence="44"/>
+    <menuitem id="menu_contrat" name="Contrats" parent="menu_racine"
+              action="action_contrat" sequence="10"/>
+    <menuitem id="menu_offre" name="Offres" parent="menu_racine"
+              action="action_offre" sequence="20"/>
+</odoo>

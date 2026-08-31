@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_extension" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.extension</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Extension navigateur" string="Extension navigateur"
+                     name="extension_navigateur" key="tour_extension">
+                    <block title="Accès à /tour/extension">
+                        <setting string="Mot de passe">
+                            <div class="text-muted mb8">
+                                Mot de passe pour télécharger l'extension
+                                navigateur (le pont qui permet à Braignak de
+                                chercher sur le web via ton navigateur).
+                                Défaut : 3173.
+                            </div>
+                            <field name="tour_extension_mdp"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

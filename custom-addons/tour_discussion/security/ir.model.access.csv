@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_discussion_fil_admin,discussion.fil administrateur,model_discussion_fil,base.group_system,1,1,1,1
+access_discussion_echange_admin,discussion.echange administrateur,model_discussion_echange,base.group_system,1,1,1,1

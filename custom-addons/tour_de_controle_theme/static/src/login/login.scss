@@ -1,0 +1,227 @@
+// Page de connexion "Tour de contrôle" — sombre, carte DaisyUI, palette alder.
+// Tout est scopé sous .tdc-login-* : n'affecte aucune autre page frontend.
+
+.tdc-login-html {
+    height: 100%;
+}
+
+.tdc-login-body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(80rem 40rem at 50% -10%, #0f172a 0%, #020817 60%);
+    color: #f8fafc;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+
+    .tdc-login-wrap {
+        width: 100%;
+        max-width: 24rem;
+        padding: 1.5rem;
+    }
+
+    .tdc-login-card {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 1rem;
+        padding: 2rem 1.75rem;
+        box-shadow: 0 20px 60px rgba(2, 8, 23, 0.7);
+    }
+
+    .tdc-login-brand {
+        text-align: center;
+        margin-bottom: 1.5rem;
+
+        .tdc-login-logo {
+            width: 3.5rem;
+            height: 3.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tdc-login-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+        }
+
+        .tdc-login-sub {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+    }
+
+    .tdc-login-foot {
+        text-align: center;
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-top: 1.25rem;
+    }
+
+    // ----- Habillage du formulaire standard (web.login) -----
+
+    // Le layout n'embarque pas le JS frontend : le composant OWL "user_switch"
+    // ne monte jamais, on force donc l'affichage du formulaire (d-none par défaut).
+    form.oe_login_form {
+        display: block !important;
+    }
+
+    owl-component {
+        display: none !important;
+    }
+    label,
+    .col-form-label {
+        color: #cbd5e1;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .form-control,
+    .form-select {
+        background: #020817;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        color: #f8fafc;
+        padding: 0.55rem 0.8rem;
+
+        &:focus {
+            background: #020817;
+            color: #f8fafc;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        &::placeholder {
+            color: #64748b;
+        }
+    }
+
+    .btn-primary {
+        width: 100%;
+        background: #3b82f6;
+        border: 0;
+        border-radius: 0.5rem;
+        padding: 0.6rem 1rem;
+        font-weight: 700;
+
+        &:hover,
+        &:focus {
+            background: #2563eb;
+        }
+    }
+
+    .btn-secondary {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        color: #cbd5e1;
+    }
+
+    .alert-danger,
+    .alert-info,
+    .alert-success {
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    a {
+        color: #60a5fa;
+
+        &:hover {
+            color: #93c5fd;
+        }
+    }
+
+    // Filet de sécurité : aucun lien odoo.com sur la page de connexion
+    a[href*="odoo.com"] {
+        display: none !important;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// v2 — le cockpit (04/08, tâche 1105) : ciel radar, halo du phare, aides sûres.
+// Tout reste scopé : rien ne touche les autres pages.
+// ---------------------------------------------------------------------------
+
+.tdc-login-body {
+    position: relative;
+    overflow: hidden;
+
+    .tdc-login-ciel {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+
+        .tdc-anneau {
+            position: absolute;
+            left: 50%;
+            top: 42%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(59, 130, 246, 0.14);
+            border-radius: 50%;
+
+            &.a1 { width: 46rem; height: 46rem; }
+            &.a2 { width: 68rem; height: 68rem; border-color: rgba(59, 130, 246, 0.08); }
+        }
+
+        .tdc-etoiles {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1.5px 1.5px at 12% 20%, #3d4f6e 50%, transparent 51%),
+                radial-gradient(1.5px 1.5px at 82% 12%, #3d4f6e 50%, transparent 51%),
+                radial-gradient(1px 1px at 28% 68%, #33445f 50%, transparent 51%),
+                radial-gradient(1.5px 1.5px at 68% 78%, #3d4f6e 50%, transparent 51%),
+                radial-gradient(1px 1px at 90% 52%, #33445f 50%, transparent 51%),
+                radial-gradient(1px 1px at 8% 84%, #33445f 50%, transparent 51%),
+                radial-gradient(1.5px 1.5px at 46% 8%, #3d4f6e 50%, transparent 51%);
+        }
+    }
+
+    .tdc-login-wrap {
+        position: relative;
+        z-index: 1;
+    }
+
+    .tdc-login-card {
+        position: relative;
+
+        // le halo du phare, au-dessus de la carte
+        &::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: -3.2rem;
+            transform: translateX(-50%);
+            width: 11rem;
+            height: 6.5rem;
+            background: radial-gradient(closest-side, rgba(251, 191, 36, 0.18), transparent);
+            pointer-events: none;
+        }
+    }
+
+    .tdc-login-base {
+        margin-top: 0.55rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #64748b;
+
+        &.demo {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+    }
+
+    .tdc-avert {
+        margin-top: 0.9rem;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid rgba(245, 158, 11, 0.45);
+        border-radius: 0.55rem;
+        background: rgba(245, 158, 11, 0.08);
+        color: #fbbf24;
+        font-size: 0.8rem;
+    }
+}

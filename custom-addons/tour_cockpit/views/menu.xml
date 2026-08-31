@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="action_cockpit" model="ir.actions.act_url">
+    <field name="name">Cockpit</field>
+    <field name="url">/tour/cockpit</field>
+    <field name="target">self</field>
+  </record>
+
+  <!-- Tuile a part dans la grille des apps : independant de tour_dashboard,
+       pour que Patrick puisse desactiver l'un OU l'autre sans casse. -->
+  <!-- Verrou : la tuile n'apparait que pour les admins Reglages (Patrick). -->
+  <menuitem id="menu_cockpit_root" name="Cockpit"
+            action="action_cockpit" sequence="60"
+            web_icon="tour_cockpit,static/description/icon.svg"
+            groups="base.group_system"/>
+</odoo>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page" name="Atelier Malo">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>Atelier Malo</title>
+        <style>
+          body{margin:0;font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0}
+          .wrap{max-width:760px;margin:0 auto;padding:24px 16px 80px}
+          h1{font-size:1.3rem;border-bottom:1px solid #1e293b;padding-bottom:10px}
+          input,textarea{width:100%;box-sizing:border-box;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:10px;font:inherit;margin-top:8px}
+          textarea{min-height:90px}
+          button{background:#7c3aed;border:0;color:#fff;padding:10px 16px;border-radius:8px;font:inherit;cursor:pointer;margin-top:10px}
+          .demande{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px 14px;margin-top:14px}
+          .demande h3{margin:0 0 6px;font-size:1rem}
+          .etat{font-size:.75rem;border-radius:20px;padding:2px 8px;margin-left:6px}
+          .attente{background:#78350f}.en_cours{background:#1e3a8a}.fait{background:#14532d}.echec{background:#7f1d1d}
+          pre{white-space:pre-wrap;background:#0f172a;border-radius:8px;padding:10px;font-size:.85rem}
+          .note{font-size:.8rem;color:#94a3b8}
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <h1>🧠 Atelier Malo — le cerveau local (Raspberry, Ollama)</h1>
+          <p class="note">Mission exécutée sur le Raspberry de la maison, modèle qwen2.5:1.5b. Aucune clé consommée : utile quand DeepSeek est à sec et pour les tâches simples.</p>
+          <form method="post" action="/tour/atelier-malo/envoyer">
+            <input type="text" name="titre" placeholder="Titre (facultatif)"/>
+            <textarea name="consigne" placeholder="Décris ce que Malo doit faire…" required="required"></textarea>
+            <button type="submit">Envoyer à Malo</button>
+          </form>
+          <h2 style="margin-top:28px;font-size:1.1rem;border-bottom:1px solid #1e293b;padding-bottom:8px">Envoyer une tâche existante</h2>
+          <form method="post" action="/tour/atelier-malo/envoyer-tache">
+            <select name="tache_id" id="select_tache" style="width:100%;box-sizing:border-box;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:10px;font:inherit;margin-top:8px" required="required">
+              <option value="">Choisir une tâche…</option>
+            </select>
+            <button type="submit">Envoyer cette tâche</button>
+          </form>
+          <div id="liste"></div>
+        </div>
+        <script>
+          function rafraichir(){
+            fetch('/tour/atelier-malo/data',{headers:{'Accept':'application/json'}})
+              .then(function(r){return r.json();})
+              .then(function(data){
+                var box=document.getElementById('liste');
+                box.innerHTML='';
+                data.forEach(function(d){
+                  var el=document.createElement('div'); el.className='demande';
+                  var h=document.createElement('h3'); h.textContent=d.name;
+                  var s=document.createElement('span'); s.className='etat '+d.etat; s.textContent=d.etat;
+                  h.appendChild(s);
+                  var note=document.createElement('p'); note.className='note'; note.textContent=d.date;
+                  var cons=document.createElement('p'); cons.textContent=d.consigne;
+                  el.appendChild(h); el.appendChild(note); el.appendChild(cons);
+                  if(d.reponse){
+                    var pre=document.createElement('pre'); pre.textContent=d.reponse; el.appendChild(pre);
+                  } else {
+                    var p=document.createElement('p'); p.className='note'; p.textContent='En attente...';
+                    el.appendChild(p);
+                  }
+                  box.appendChild(el);
+                });
+              });
+          }
+          fetch('/tour/atelier-malo/taches',{headers:{'Accept':'application/json'}})
+            .then(function(r){return r.json();})
+            .then(function(data){
+              var sel=document.getElementById('select_tache');
+              data.forEach(function(t){
+                var o=document.createElement('option');
+                o.value=t.id;
+                o.textContent=t.name+' ('+t.projet+')';
+                sel.appendChild(o);
+              });
+            });
+          rafraichir();
+          setInterval(rafraichir, 20000);
+        </script>
+      </body>
+    </html>
+  </template>
+</odoo>

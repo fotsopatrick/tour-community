@@ -1,0 +1,982 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page" name="Cockpit — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Cockpit — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Tour de Contrôle</h1>
+              <div class="sub" id="soustitre">chargement…</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> En ligne</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <form action="/tour/cockpit/masquer" method="post" style="display:inline">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <button class="themebtn" type="submit" title="Masquer le cockpit pour tout le monde">Masquer</button>
+            </form>
+            <a class="themebtn" href="/tour/cockpit/agents">Agents</a>
+            <a class="themebtn" href="/tour/cockpit/circuits">Circuits</a>
+            <a class="themebtn" href="/tour/cockpit/tests">Tests</a>
+            <a class="themebtn" href="/tour/cockpit/niveaux">🎯 Niveaux</a>
+            <a class="themebtn" href="/tour/cockpit/robots">Robots</a>
+            <a class="themebtn" href="/odoo">← la tour</a>
+          </header>
+
+          <section class="strips" id="strips" aria-label="Indicateurs clés"></section>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Charge par projet</h2>
+              <p class="hint">tâches par projet · survole une barre</p>
+              <svg class="chart-svg" id="bars" role="img" aria-label="Nombre de tâches par projet"></svg>
+            </section>
+            <section class="panel" t-if="visites">
+              <h2>Visites de la vitrine</h2>
+              <p class="hint">matourdecontrole.fr — vues et visiteurs uniques</p>
+              <table class="mini">
+                <tr><th></th><th>Vues</th><th>Visiteurs</th></tr>
+                <tr><td>Aujourd'hui</td><td><t t-esc="visites['aujourdhui']['vues']"/></td><td><t t-esc="visites['aujourdhui']['uniques']"/></td></tr>
+                <tr><td>7 jours</td><td><t t-esc="visites['7j']['vues']"/></td><td><t t-esc="visites['7j']['uniques']"/></td></tr>
+                <tr><td>30 jours</td><td><t t-esc="visites['30j']['vues']"/></td><td><t t-esc="visites['30j']['uniques']"/></td></tr>
+              </table>
+              <!-- QUELLES PAGES (06/08) : les totaux disaient que des gens
+                   venaient, jamais ou ils allaient. La question qui compte
+                   etait « combien voient mes offres ? » et personne ne
+                   pouvait y repondre. -->
+              <t t-if="visites.get('pages7j')">
+                <p class="hint">Pages les plus vues (7 jours)</p>
+                <table class="mini">
+                  <tr><th>Page</th><th>Vues</th></tr>
+                  <tr t-foreach="visites['pages7j']" t-as="p">
+                    <td><t t-esc="p['page']"/></td>
+                    <td><t t-esc="p['vues']"/></td>
+                  </tr>
+                </table>
+              </t>
+            </section>
+            <section class="panel">
+              <h2 id="donut-titre">État des tâches</h2>
+              <p class="hint">répartition en direct</p>
+              <svg class="chart-svg" id="donut" viewBox="0 0 240 200" role="img" aria-label="Répartition des tâches par état"></svg>
+              <div class="tasks" id="tasklist"></div>
+            </section>
+          </div>
+
+          <div class="note" id="note" hidden="hidden"></div>
+        </div>
+        <div class="tt" id="tt"></div>
+        <script src="/tour_cockpit/static/src/cockpit.js"></script>
+      </body>
+    </html>
+  </template>
+
+  <!-- COCKPIT AGENTS (31/07) : « Qui travaille, là, maintenant ? ».
+       Les mêmes données que /tour/agents, rendues dans le langage du cockpit
+       (radar, bandeaux de vol, panneaux). Réservé à l'admin. -->
+  <template id="page_agents" name="Agents — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Agents — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .col { display:flex; flex-direction:column; gap:9px; }
+          .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+          .card .c-h { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+          .card .c-n { font-size:13px; font-weight:600; }
+          .card .c-c { font-size:12.5px; margin-top:6px; white-space:pre-wrap; word-break:break-word; }
+          .card .c-s { color:var(--faint); font-size:11px; margin-top:4px; font-family:var(--mono); }
+          table.mini { width:100%; border-collapse:collapse; font-size:12px; }
+          table.mini td, table.mini th { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+          table.mini th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; }
+          table.mini tr:last-child td { border-bottom:0; }
+          ul.plat { list-style:none; margin:0; padding:0; }
+          ul.plat li { font-size:12.5px; padding:5px 0; border-bottom:1px solid var(--line); word-break:break-word; }
+          ul.plat li:last-child { border-bottom:0; }
+          ul.plat .mono { font-family:var(--mono); font-size:11.5px; }
+          .empty { color:var(--faint); font-style:italic; font-size:12.5px; }
+          .dirty { color:var(--crit); font-size:11.5px; font-family:var(--mono); }
+          .tag { font-family:var(--mono); font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:20px; }
+          .tag.ok { background:var(--good-soft); color:var(--good); }
+          .tag.bad { background:var(--crit-soft); color:var(--crit); }
+          .tag.flat { background:var(--panel); color:var(--muted); border:1px solid var(--line); }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Agents — Tour de Contrôle</h1>
+              <div class="sub" id="soustitre">chargement…</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> En ligne</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/circuits">Circuits</a>
+            <a class="themebtn" href="/tour/cockpit/tests">Tests</a>
+            <a class="themebtn" href="/tour/cockpit/robots">Robots</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips" id="strips" aria-label="Indicateurs agents"></section>
+
+          <div class="grid">
+          <section class="panel">
+              <h2>Salle serveur — qui travaille</h2>
+              <p class="hint">mise à jour automatique · clique sur un agent pour voir ce qu'il fait</p>
+              <div class="salle-flex">
+                  <aside class="carte-agent" id="carte-agent" aria-label="Ce que fait l'agent sélectionné">
+                      <div class="carte-vide">Clique sur un agent de la salle<br/>pour voir ce qu'il fait.</div>
+                  </aside>
+                  <div class="salle-wrap"><canvas id="salle-serveur"></canvas></div>
+              </div>
+              
+<div id="encours" hidden="hidden"></div>
+            </section>
+<section class="panel">
+              <h2>Nos chiffres</h2>
+              <p class="hint">mis à jour en direct</p>
+              <div id="preuve-sociale" class="preuve"></div>
+            </section>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Dernières missions</h2>
+              <p class="hint">les 15 dernières, lues dans le journal</p>
+              <table class="mini"><thead><tr><th>heure</th><th>mission</th><th>moteur</th><th>durée</th><th>code</th></tr></thead><tbody id="recentes"></tbody></table>
+            </section>
+            
+            <section class="panel">
+              <h2>En attente</h2>
+              <p class="hint">déposées, pas encore ramassées — détail ci-dessous</p>
+              <ul class="plat" id="attente" style="max-height:200px;overflow-y:auto"></ul>
+            </section>
+
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Sessions de pilotage</h2>
+              <p class="hint">opencode / claude ouverts sur le serveur</p>
+              <ul class="plat" id="pilotage"></ul>
+            </section>
+            <section class="panel">
+              <h2>Dépôts — dernières activités</h2>
+              <div class="col" id="git"></div>
+            </section>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Santé</h2>
+              <p class="hint">dernier relevé des veilleurs</p>
+              <table class="mini"><tbody id="sante"></tbody></table>
+            </section>
+            <section class="panel">
+              <h2>Conversations</h2>
+              <p class="hint">fils de discussion récemment actifs</p>
+              <ul class="plat" id="fils"></ul>
+            </section>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Processus agents</h2>
+              <p class="hint">RAM &amp; CPU mesurés en direct</p>
+              <ul class="plat" id="processus"></ul>
+            </section>
+          </div>
+
+          <div class="note" id="note" hidden="hidden"></div>
+        </div>
+        <div class="tt" id="tt"></div>
+        <script src="/tour_cockpit/static/src/salle-serveur.js"></script>
+        <script src="/tour_cockpit/static/src/cockpit-agents.js"></script>
+      </body>
+    </html>
+  </template>
+
+
+  <!-- COCKPIT SORTIES (21/08) : « qu'est-ce qui quitte la machine ? ».
+       Ne dit rien qu'il n'ait lu : les adresses viennent du code des moteurs,
+       les volumes du journal des appels. Aucune consigne n'est affichee — le
+       journal n'en garde pas, et cette page n'en fabrique pas. -->
+  <template id="page_sorties" name="Ce qui sort — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Ce qui sort — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .wrap2 { max-width:1100px; margin:0 auto; padding:0 14px 40px; }
+          table.mini { width:100%; border-collapse:collapse; font-size:12.5px; }
+          table.mini td, table.mini th { text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+          table.mini th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; }
+          .dehors { color:var(--crit); font-weight:700; }
+          .maison { color:var(--good); font-weight:700; }
+          .puce { display:inline-block; padding:1px 7px; border:1px solid var(--line); border-radius:9px; font-size:11px; margin:0 4px 3px 0; }
+          .grand { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; }
+          .expl { color:var(--muted); font-size:12.5px; line-height:1.55; }
+          .cartes { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:11px; margin:12px 0 18px; }
+          .carte { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="cockpit">
+          <header class="topbar">
+            <div class="brand">Ce qui sort de la machine</div>
+            <a class="themebtn" href="/tour/cockpit/sorties">Ce qui sort</a>
+            <a class="themebtn" href="/tour/cockpit/securite">Sécurité</a>
+            <a class="themebtn" href="/tour/cockpit/vps">VPS</a>
+            <a class="themebtn" href="/tour/cockpit/robots">Robots</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <div class="wrap2">
+            <p class="expl">
+              Cette page répond à une seule question : <b>qu'est-ce qui quitte cette machine, et pour aller où ?</b>
+              Elle ne devine rien. Les adresses sont lues dans le code des moteurs eux-mêmes.
+              Les quantités sont lues dans le journal des appels, qui compte chaque envoi.
+              <b>Aucun texte de consigne n'est affiché ici</b> : le journal n'en garde aucun.
+            </p>
+
+            <div class="cartes">
+              <div class="carte">
+                <div class="expl">Envois partis aujourd'hui</div>
+                <div class="grand"><t t-esc="volumes['total']['jour']['appels']"/></div>
+                <div class="expl"><t t-esc="volumes['total']['jour']['entree']"/> unités de texte envoyées<t t-if="volumes['total']['jour']['refuses']"> · <t t-esc="volumes['total']['jour']['refuses']"/> refusés par le fournisseur</t></div>
+              </div>
+              <div class="carte">
+                <div class="expl">Sur sept jours</div>
+                <div class="grand"><t t-esc="volumes['total']['semaine']['appels']"/></div>
+                <div class="expl"><t t-esc="volumes['total']['semaine']['entree']"/> unités de texte envoyées</div>
+              </div>
+              <div class="carte">
+                <div class="expl">Sur trente jours</div>
+                <div class="grand"><t t-esc="volumes['total']['mois']['appels']"/></div>
+                <div class="expl"><t t-esc="volumes['total']['mois']['entree']"/> unités de texte envoyées<t t-if="volumes['total']['mois']['refuses']"> · <t t-esc="volumes['total']['mois']['refuses']"/> refusés par le fournisseur</t></div>
+              </div>
+            </div>
+
+            <h3>Les moteurs, et où ils appellent</h3>
+            <p class="expl">Un moteur marqué <span class="dehors">dehors</span> envoie le travail à une entreprise extérieure.
+               Un moteur marqué <span class="maison">à la maison</span> calcule sur cette machine : rien ne sort.</p>
+            <table class="mini">
+              <thead><tr><th>Moteur</th><th>Où il appelle</th><th>Ce que ça veut dire</th></tr></thead>
+              <tbody>
+                <tr t-foreach="moteurs" t-as="m">
+                  <td><b><t t-esc="m['nom']"/></b></td>
+                  <td>
+                    <span t-foreach="m['dehors']" t-as="h" class="puce dehors"><t t-esc="h"/></span>
+                    <span t-if="m['chez_nous']" class="puce maison">sur cette machine</span>
+                  </td>
+                  <td class="expl">
+                    <t t-if="m['dehors']">Le texte de la mission part chez <t t-esc="m['dehors'][0]"/>.</t>
+                    <t t-if="not m['dehors']">Rien ne quitte la machine.</t>
+                  </td>
+                </tr>
+                <tr t-if="not moteurs"><td colspan="3" class="expl">Aucun moteur lisible.</td></tr>
+              </tbody>
+            </table>
+
+            <h3 style="margin-top:22px">Ce qui est réellement parti, par moteur</h3>
+            <table class="mini">
+              <thead><tr><th>Moteur</th><th>Modèle</th><th>Aujourd'hui</th><th>7 jours</th><th>30 jours</th><th>Texte envoyé (30 j)</th></tr></thead>
+              <tbody>
+                <tr t-foreach="volumes['par_moteur']" t-as="v">
+                  <td><b><t t-esc="v['moteur']"/></b></td>
+                  <td class="expl"><t t-esc="v['modele']"/></td>
+                  <td><t t-esc="v['jour']"/></td>
+                  <td><t t-esc="v['semaine']"/></td>
+                  <td><t t-esc="v['mois']"/></td>
+                  <td><t t-esc="v['mots_mois']"/></td>
+                </tr>
+                <tr t-if="not volumes['par_moteur']"><td colspan="6" class="expl">Aucun appel enregistré sur la période.</td></tr>
+              </tbody>
+            </table>
+
+            <p class="expl" style="margin-top:18px">
+              <b>Comment lire ces chiffres.</b> Une « unité de texte » est le morceau que compte le fournisseur ;
+              il faut environ trois unités pour quatre mots. Un envoi contient la consigne de la mission,
+              la fiche de poste de l'agent, et les extraits de documents qu'il consulte.
+              <b>Zéro envoi ne veut pas dire zéro risque</b> : cela veut dire que rien n'est parti sur la période lue.
+            </p>
+          </div>
+        </div>
+      </body>
+    </html>
+  </template>
+
+  <!-- COCKPIT VPS (01/08) : « le serveur respire encore ? ».
+       RAM, charge, disque et conteneurs, lus du service hôte (etat-agents).
+       Réservé au pilote. Aucune valeur en dur : source absente -> vide. -->
+  <template id="page_vps" name="VPS — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>VPS — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .col { display:flex; flex-direction:column; gap:9px; }
+          .jauge { margin:8px 0 2px; }
+          .jauge .j-l { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:4px; }
+          .jauge .j-b { height:9px; border-radius:6px; background:var(--panel); border:1px solid var(--line); overflow:hidden; }
+          .jauge .j-f { height:100%; border-radius:6px; background:var(--good); transition:width .4s; }
+          .jauge .j-f.warn { background:var(--warn); }
+          .jauge .j-f.crit { background:var(--crit); }
+          table.mini { width:100%; border-collapse:collapse; font-size:12px; }
+          table.mini td, table.mini th { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+          table.mini th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; }
+          table.mini tr:last-child td { border-bottom:0; }
+          .mono { font-family:var(--mono); }
+          .empty { color:var(--faint); font-style:italic; font-size:12.5px; }
+          .tag { font-family:var(--mono); font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:20px; }
+          .tag.ok { background:var(--good-soft); color:var(--good); }
+          .tag.bad { background:var(--crit-soft); color:var(--crit); }
+          .periodes { display:flex; gap:6px; margin:6px 0 10px; flex-wrap:wrap; }
+          .periodes-btn { background:var(--panel); border:1px solid var(--line); color:var(--muted); font-family:var(--mono); font-size:11px; padding:4px 12px; border-radius:20px; cursor:pointer; }
+          .periodes-btn.actif { background:var(--good-soft); color:var(--good); border-color:var(--good); }
+          .barchart { display:flex; align-items:flex-end; gap:6px; min-height:130px; padding:4px 0 0; overflow-x:auto; }
+          .bar { flex:1; min-width:18px; display:flex; flex-direction:column; gap:3px; justify-content:flex-end; }
+          .bar .b { border-radius:4px 4px 0 0; }
+          .bar .b.cpu { background:var(--good); }
+          .bar .b.mem { background:var(--warn); }
+          .bar .lb { font-size:9.5px; color:var(--faint); text-align:center; font-family:var(--mono); margin-top:3px; }
+          .legende { display:flex; gap:14px; font-size:11px; color:var(--muted); margin-bottom:4px; }
+          .lg { display:inline-block; width:10px; height:10px; border-radius:2px; vertical-align:middle; margin-right:3px; }
+          .lg.cpu { background:var(--good); }
+          .lg.mem { background:var(--warn); }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>VPS — Suivi du serveur</h1>
+              <div class="sub" id="soustitre">chargement…</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> En ligne</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/agents">Agents</a>
+            <a class="themebtn" href="/tour/cockpit/sorties">Ce qui sort</a>
+            <a class="themebtn" href="/tour/cockpit/securite">Sécurité</a>
+            <a class="themebtn" href="/tour/cockpit/circuits">Circuits</a>
+            <a class="themebtn" href="/tour/cockpit/robots">Robots</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips" id="strips" aria-label="Indicateurs VPS"></section>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Mémoire vive (RAM)</h2>
+              <p class="hint">mesure du serveur, en direct</p>
+              <div class="jauge" id="ram-jauge"></div>
+              <table class="mini"><tbody id="ram-detail"></tbody></table>
+            </section>
+            <section class="panel">
+              <h2>Disque (/)</h2>
+              <p class="hint">espace utilisé sur la racine</p>
+              <div class="jauge" id="disque-jauge"></div>
+              <table class="mini"><tbody id="disque-detail"></tbody></table>
+            </section>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Charge CPU</h2>
+              <p class="hint">moyennes 1 · 5 · 15 minutes (nb cœurs = 1.0 plein)</p>
+              <table class="mini"><tbody id="charge-detail"></tbody></table>
+            </section>
+            <section class="panel">
+              <h2>Uptime</h2>
+              <p class="hint">depuis le dernier démarrage</p>
+              <p class="mono" id="uptime-detail" style="font-size:15px; padding:10px 0"></p>
+            </section>
+          </div>
+
+          <section class="panel">
+            <h2>Conteneurs</h2>
+            <p class="hint">docker stats — CPU et mémoire par conteneur</p>
+            <table class="mini"><thead><tr><th>conteneur</th><th>CPU</th><th>Mémoire</th><th>% RAM</th></tr></thead><tbody id="conteneurs"></tbody></table>
+          </section>
+
+          <section class="panel">
+            <h2>Ports ouverts</h2>
+            <p class="hint">écoutes TCP — les fermés sont regroupés par tranches</p>
+            <table class="mini"><thead><tr><th>port</th><th>service</th><th>adresse</th></tr></thead><tbody id="ports"></tbody></table>
+            <p class="hint" id="ports-fermes" style="margin-top:6px"></p>
+          </section>
+
+          <section class="panel">
+            <h2>Connexions des utilisateurs — VPS1 &amp; VPS2</h2>
+            <p class="hint">comptes des deux machines, avec la dernière connexion SSH relevée (auth.log)</p>
+            <table class="mini">
+              <thead><tr><th>VPS</th><th>user</th><th>dernière connexion</th><th>depuis</th><th>méthode</th></tr></thead>
+              <tbody id="connexions"></tbody>
+            </table>
+            <p class="hint" id="connexions-note"></p>
+          </section>
+
+          <section class="panel">
+            <h2>Processus — fuites détectées</h2>
+            <p class="hint">moteurs ouverts trop longtemps ou `opencode auth login` oubliés — on signale, on ne tue pas</p>
+            <table class="mini"><thead><tr><th>PID</th><th>user</th><th>durée</th><th>RAM</th><th>raison</th></tr></thead><tbody id="fuyards"></tbody></table>
+          </section>
+
+          <section class="panel">
+            <h2>Utilisation serveur</h2>
+            <p class="hint">moyennes par jour relues de sar (sysstat)</p>
+            <div class="periodes">
+              <button type="button" data-per="jour" class="periodes-btn actif">Jour</button>
+              <button type="button" data-per="semaine" class="periodes-btn">Semaine</button>
+              <button type="button" data-per="mois" class="periodes-btn">Mois</button>
+            </div>
+            <div class="legende"><span class="lg cpu"></span> CPU %&#160;&#160;<span class="lg mem"></span> RAM %</div>
+            <div class="barchart" id="usage-barchart"></div>
+          </section>
+
+          <div class="note" id="note" hidden="hidden"></div>
+        </div>
+        <div class="tt" id="tt"></div>
+        <script src="/tour_cockpit/static/src/cockpit-vps.js"></script>
+      </body>
+    </html>
+  </template>
+
+  <template id="page_securite" name="Sécurité — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Sécurité — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          table.mini { width:100%; border-collapse:collapse; font-size:12px; }
+          table.mini td, table.mini th { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+          table.mini th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; }
+          .mono { font-family:var(--mono); }
+          .empty { color:var(--faint); font-style:italic; font-size:12.5px; }
+          .tag { font-family:var(--mono); font-size:10px; font-weight:600; padding:1px 8px; border-radius:20px; }
+          .tag.en_place { background:var(--good-soft); color:var(--good); }
+          .tag.en_cours { background:var(--warn-soft); color:var(--warn); }
+          .tag.a_verifier { background:var(--crit-soft); color:var(--crit); }
+          .porte { display:inline-block; font-size:11px; font-family:var(--mono);
+                   background:var(--panel); border:1px solid var(--line);
+                   border-radius:8px; padding:3px 9px; margin:3px 3px 0 0; }
+          .porte b { color:var(--texte); }
+          details { border-top:1px solid var(--line); padding-top:6px; margin-top:6px; }
+          summary { cursor:pointer; color:var(--accent); font-size:12px; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Sécurité — circuits de la tour</h1>
+              <div class="sub" id="soustitre">chargement…</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> Garde-fous</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/vps">VPS</a>
+            <a class="themebtn" href="/tour/cockpit/agents">Agents</a>
+            <a class="themebtn" href="/tour/cockpit/circuits">Circuits</a>
+            <a class="themebtn" href="/tour/cockpit/robots">Robots</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips" id="strips" aria-label="Indicateurs sécurité"></section>
+
+          <section class="panel">
+            <h2>La porte — le tunnel de test</h2>
+            <p class="hint">aucune livraison ne sort sans passer ces portes</p>
+            <div id="porte" class="empty">(chargement…)</div>
+          </section>
+
+          <section class="panel">
+            <h2>Garde-fous</h2>
+            <p class="hint">registre complet — crainte, fonctionnement, vérification</p>
+            <table class="mini"><thead><tr><th>code</th><th>zone</th><th>état</th><th>actif</th><th>ce que ça protège</th></tr></thead>
+              <tbody id="garde-fous"></tbody></table>
+          </section>
+
+          <section class="panel">
+            <h2>Circuits internes de sécurité</h2>
+            <p class="hint">les circuits actifs et leurs portes</p>
+            <div id="circuits" class="empty">(chargement…)</div>
+          </section>
+
+          <div class="note" id="note" hidden="hidden"></div>
+        </div>
+        <script>
+        //<![CDATA[
+        (function () {
+          "use strict";
+          var esc = function (s) {
+            return String(s == null ? "" : s)
+              .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+          };
+          var DAYS = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+          var MO = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+          function pad(n){ return (n < 10 ? "0" : "") + n; }
+          function tick(){
+            var d = new Date(), c = document.getElementById("clock");
+            if (c) c.textContent = pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+            var dt = document.getElementById("date");
+            if (dt) dt.textContent = DAYS[d.getDay()]+" "+d.getDate()+" "+MO[d.getMonth()]+" "+d.getFullYear();
+          }
+          tick(); setInterval(tick, 1000);
+
+          /* Thème persistant (09/08, Patrick) : même clé que l'accueil. */
+          (function () {
+            var root = document.documentElement, key = "tour-theme";
+            var saved = null; try { saved = localStorage.getItem(key); } catch (e) {}
+            if (saved === "light" || saved === "dark") { root.setAttribute("data-theme", saved); } else { root.setAttribute("data-theme", "light"); }
+            document.getElementById("themebtn").addEventListener("click", function () {
+              var cur = root.getAttribute("data-theme");
+              if (!cur) cur = "light";
+              var next = cur === "dark" ? "light" : "dark";
+              root.setAttribute("data-theme", next);
+              try { localStorage.setItem(key, next); } catch (e) {}
+            });
+          })();
+
+          function render(d) {
+            if (!d || d.error) {
+              var n = document.getElementById("note");
+              if (n) { n.hidden = false; n.textContent = d && d.error || "robine indisponible"; }
+              return;
+            }
+            var st = document.getElementById("soustitre");
+            if (st) st.textContent = d.nb_garde_fous + " garde-fous · " + d.nb_actifs +
+              " actifs · " + d.nb_gabarits + " circuits";
+
+            var strips = document.getElementById("strips");
+            if (strips) {
+              strips.innerHTML =
+                '<div class="strip ok"><div class="lbl">Garde-fous</div><div class="val">' + d.nb_garde_fous + '</div></div>' +
+                '<div class="strip ok"><div class="lbl">Actifs</div><div class="val">' + d.nb_actifs + '</div></div>' +
+                '<div class="strip blue"><div class="lbl">Circuits sécurité</div><div class="val">' + d.nb_gabarits + '</div></div>';
+            }
+
+            var porte = document.getElementById("porte");
+            if (porte) {
+              var tunnel = (d.gabarits || []).filter(function (g) { return /tunnel/i.test(g.name); })[0];
+              if (tunnel) {
+                porte.innerHTML = '<b>' + esc(tunnel.name) + '</b><br>' +
+                  (tunnel.portes || []).map(function (p) {
+                    return '<span class="porte"><b>' + esc(p.nom) + "</b> — " + esc(p.agent) + "</span>";
+                  }).join("");
+              } else {
+                porte.innerHTML = '<span class="empty">gabarit « Tunnel de test » introuvable</span>';
+              }
+            }
+
+            var tb = document.getElementById("garde-fous");
+            if (tb) {
+              tb.innerHTML = (d.garde_fous || []).map(function (g) {
+                return "<tr><td class='mono'>" + esc(g.code) + "</td><td>" + esc(g.zone) +
+                  "</td><td><span class='tag " + esc(g.etat) + "'>" + esc(g.etat) + "</span></td><td>" +
+                  (g.actif ? "✅" : "⛔") + "</td><td>" + esc(g.crainte) + "</td></tr>";
+              }).join("") || '<tr><td colspan="5" class="empty">(aucun garde-fou)</td></tr>';
+            }
+
+            var circ = document.getElementById("circuits");
+            if (circ) {
+              circ.innerHTML = (d.gabarits || []).map(function (g) {
+                return '<div style="margin-bottom:10px"><b>' + esc(g.name) + "</b> " +
+                  '<span class="tag en_place">' + esc(g.type) + "</span><br>" +
+                  (g.portes || []).map(function (p) {
+                    return '<span class="porte"><b>' + esc(p.nom) + "</b> — " + esc(p.agent) + "</span>";
+                  }).join("") + "</div>";
+              }).join("") || '<span class="empty">(aucun circuit)</span>';
+            }
+          }
+
+          fetch("/tour/cockpit/data-securite", { credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(render)
+            .catch(function () {
+              var n = document.getElementById("note");
+              if (n) { n.hidden = false; n.textContent = "Le robinet ne répond pas."; }
+            });
+        })();
+        //]]>
+        </script>
+      </body>
+    </html>
+  </template>
+
+  <!-- Ecran "rideau ferme" : seul un admin arrive ici. -->
+  <template id="masque" name="Cockpit masqué">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Cockpit — masqué</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+      </head>
+      <body>
+        <div class="wrap" style="max-width:520px; padding-top:12vh; text-align:center">
+          <div class="panel">
+            <div class="radar" aria-hidden="true" style="margin:0 auto 14px"></div>
+            <h2 style="font-size:16px">Le cockpit est masqué</h2>
+            <p class="hint" style="margin-bottom:18px">masqué par défaut pour tout le monde — toi seul peux l'afficher</p>
+            <form action="/tour/cockpit/activer" method="post">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <button class="themebtn" type="submit" style="font-size:13px; padding:10px 18px">Afficher le cockpit</button>
+            </form>
+            <p style="margin-top:16px"><a class="themebtn" href="/odoo" style="font-size:12px">← la tour</a></p>
+          </div>
+        </div>
+      </body>
+    </html>
+  </template>
+
+  <!-- LES NIVEAUX DÉTECTÉS : le jeu de la tour + l'équipe, avec un bouton
+       « Rejouer la détection de niveau ». Chaque niveau se lit dans le
+       travail réel — rien n'est inventé. -->
+  <template id="page_niveaux" name="Niveaux détectés — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Niveaux détectés — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .nv-wrap { max-width:980px; margin:0 auto; padding:28px 16px 64px; }
+          .nv-tete { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+          .nv-tete h1 { margin:0; font-size:1.5rem; }
+          .nv-tete form { margin-left:auto; }
+          .nv-bandeau { background:#0f2b1d; border:1px solid #22c55e; color:#86efac;
+                         border-radius:10px; padding:10px 14px; margin:14px 0; font-size:.9rem; }
+          .nv-sous { color:#94a3b8; margin:6px 0 18px; }
+          h2 { font-size:1.1rem; margin:26px 0 10px; }
+          .nv-grille { display:grid; gap:10px; grid-template-columns:1fr; }
+          @media (min-width:720px) { .nv-grille { grid-template-columns:repeat(2,1fr); } }
+          .nv-carte { background:#0f172a; border:1px solid #1e293b; border-radius:12px; padding:14px 16px; }
+          .nv-carte .nom { font-weight:800; }
+          .nv-carte .etage { color:#f59e0b; font-weight:700; }
+          .nv-carte .chiffres { display:flex; gap:16px; margin-top:8px; color:#94a3b8; font-size:.88rem; }
+          .nv-carte .chiffres b { color:#e2e8f0; }
+          .nv-carte .voc { color:#64748b; font-size:.82rem; margin-top:6px; }
+          table.nv-tab { width:100%; border-collapse:collapse; font-size:.9rem; }
+          table.nv-tab th, table.nv-tab td { text-align:left; padding:8px 10px; border-bottom:1px solid #1e293b; }
+          table.nv-tab th { color:#64748b; font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; }
+          .vide { color:#64748b; font-style:italic; padding:14px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap nv-wrap">
+          <div class="nv-tete">
+            <a class="themebtn" href="/tour/cockpit">← Cockpit</a>
+            <h1>🎯 Niveaux détectés</h1>
+            <form action="/tour/cockpit/rejouer-niveau" method="post">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <button class="themebtn" type="submit" title="Relire la base et recalculer les niveaux">Rejouer la détection</button>
+            </form>
+          </div>
+          <p class="nv-sous">Chaque niveau se lit dans le travail <b>réellement fait</b> — rien n'est
+            inventé. « Rejouer » relit la base et recalcule.</p>
+          <div t-if="rejoue" class="nv-bandeau">✓ Détection de niveau rejouée — résultats à jour.</div>
+
+          <h2>🏰 Le jeu de la tour</h2>
+          <p t-if="not tours" class="vide">Aucune tour détectée pour l'instant.</p>
+          <div class="nv-grille">
+            <t t-foreach="tours" t-as="t">
+              <div class="nv-carte">
+                <div class="nom">🏰 <t t-esc="t['nom']"/></div>
+                <div class="etage"><t t-esc="t['etage']"/> · niveau <t t-esc="t['niveau']"/></div>
+                <div class="chiffres">
+                  <span><b><t t-esc="t['xp']"/></b> XP</span>
+                  <span><b><t t-esc="t['nb_badges']"/></b> palier(s)</span>
+                </div>
+                <div class="voc" t-if="t['domaine']">vocation : <t t-esc="t['domaine_nom']"/></div>
+              </div>
+            </t>
+          </div>
+
+          <h2>👥 L'équipe</h2>
+          <p t-if="not membres" class="vide">Aucun membre.</p>
+          <table class="nv-tab" t-if="membres">
+            <tr><th>Membre</th><th>Niveau</th><th>Titre</th><th>Avancement</th><th>XP</th></tr>
+            <t t-foreach="membres" t-as="m">
+              <tr>
+                <td><t t-esc="m['nom']"/></td>
+                <td><b><t t-esc="m['niveau']"/></b></td>
+                <td><t t-esc="m['titre']"/></td>
+                <td><t t-esc="m['avancement']"/>%</td>
+                <td><t t-esc="m['xp']"/></td>
+              </tr>
+            </t>
+          </table>
+        </div>
+      </body>
+    </html>
+  </template>
+
+  <template id="page_defense" name="Défense réseau — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Défense réseau — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .mono { font-family:var(--mono); }
+          .empty { color:var(--faint); font-style:italic; font-size:12.5px; }
+          .sortie { white-space:pre-wrap; font-family:var(--mono); font-size:11.5px;
+                    color:var(--muted); background:var(--panel); border:1px solid var(--line);
+                    border-radius:10px; padding:12px 14px; max-height:420px; overflow:auto; line-height:1.5; }
+          .sortie b { color:var(--ink); }
+          .tag { font-family:var(--mono); font-size:11px; font-weight:600; padding:2px 10px; border-radius:20px; }
+          .tag.normal, .tag.relie { background:var(--good-soft); color:var(--good); }
+          .tag.verrouille, .tag.isole { background:var(--crit-soft); color:var(--crit); }
+          .barre-actions { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px; }
+          .barre-actions button { font-family:var(--sans); font-size:12.5px; font-weight:600;
+                    border:1px solid var(--line); background:var(--panel); color:var(--ink);
+                    border-radius:10px; padding:8px 14px; cursor:pointer; transition:background .12s; }
+          .barre-actions button:hover { background:var(--accent-soft); border-color:var(--accent); }
+          .barre-actions button.danger { border-color:var(--crit); color:var(--crit); }
+          .barre-actions button.danger:hover { background:var(--crit-soft); }
+          .barre-actions button.ok { border-color:var(--good); color:var(--good); }
+          .barre-actions button.ok:hover { background:var(--good-soft); }
+          .barre-actions button:disabled { opacity:.45; cursor:wait; }
+          .barre-nav { display:flex; gap:6px; flex-wrap:wrap; }
+          .barre-nav .b { display:inline-block; font-size:11px; font-family:var(--mono);
+                    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+                    padding:3px 9px; margin:2px 2px 0 0; color:var(--muted); }
+          .barre-nav .b b { color:var(--accent); }
+          .note { margin-top:14px; padding:10px 14px; border-radius:10px; font-size:12px;
+                    background:var(--crit-soft); color:var(--crit); }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Défense réseau</h1>
+              <div class="sub" id="soustitre">chargement…</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> <span id="etiquette">…</span></div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/sorties">Ce qui sort</a>
+            <a class="themebtn" href="/tour/cockpit/securite">Sécurité</a>
+            <a class="themebtn" href="/tour/cockpit/vps">VPS</a>
+            <a class="themebtn" href="/tour/cockpit/robots">Robots</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips" id="strips" aria-label="État de la défense"></section>
+
+          <section class="panel">
+            <h2>Verrou d'urgence</h2>
+            <p class="hint">bloque tout sauf le SSH de Patrick — la session qui verrouille ne tombe jamais</p>
+            <div class="barre-actions" id="actions">
+              <button type="button" class="b-danger" id="b-verrouiller">🔒 Verrouiller</button>
+              <button type="button" class="b-ok" id="b-deverrouiller">🔓 Déverrouiller</button>
+              <button type="button" class="b-danger" id="b-isoler">🛑 Isoler le Pi</button>
+              <button type="button" class="b-ok" id="b-relier">🔗 Relier le Pi</button>
+              <button type="button" id="b-simuler">🧪 Simuler (ne coupe rien)</button>
+            </div>
+            <p class="hint">Verrouiller coupe le site (80/443) — à utiliser en cas d'intrusion réelle.</p>
+          </section>
+
+          <section class="panel">
+            <h2>État</h2>
+            <div class="barre-nav" id="nav-etat"></div>
+            <pre class="sortie" id="etat">(chargement…)</pre>
+          </section>
+
+          <section class="panel">
+            <h2>Simulation</h2>
+            <p class="hint">prouve que ta session survivrait, sans rien couper</p>
+            <pre class="sortie" id="simuler" style="max-height:300px">(clique sur « Simuler »)</pre>
+          </section>
+
+          <section class="panel">
+            <h2>Carte du réseau &amp; connexions</h2>
+            <div class="barre-actions">
+              <button type="button" id="b-scan">🖧 Scanner</button>
+              <button type="button" id="b-connexions">⇄ Connexions</button>
+            </div>
+            <pre class="sortie" id="carte">(clique sur « Scanner » ou « Connexions »)</pre>
+          </section>
+
+          <div class="note" id="note" hidden="hidden"></div>
+        </div>
+        <script>
+        //<![CDATA[
+        (function () {
+          "use strict";
+          var esc = function (s) {
+            return String(s == null ? "" : s)
+              .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+          };
+          var DAYS = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+          var MO = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+          function pad(n){ return (n < 10 ? "0" : "") + n; }
+          function tick(){
+            var d = new Date(), c = document.getElementById("clock");
+            if (c) c.textContent = pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+            var dt = document.getElementById("date");
+            if (dt) dt.textContent = DAYS[d.getDay()]+" "+d.getDate()+" "+MO[d.getMonth()]+" "+d.getFullYear();
+          }
+          tick(); setInterval(tick, 1000);
+
+          /* Thème persistant (09/08, Patrick) : même clé que l'accueil. */
+          (function () {
+            var root = document.documentElement, key = "tour-theme";
+            var saved = null; try { saved = localStorage.getItem(key); } catch (e) {}
+            if (saved === "light" || saved === "dark") { root.setAttribute("data-theme", saved); } else { root.setAttribute("data-theme", "light"); }
+            document.getElementById("themebtn").addEventListener("click", function () {
+              var cur = root.getAttribute("data-theme");
+              if (!cur) cur = "light";
+              var next = cur === "dark" ? "light" : "dark";
+              root.setAttribute("data-theme", next);
+              try { localStorage.setItem(key, next); } catch (e) {}
+            });
+          })();
+
+          var note = document.getElementById("note");
+          function defaut(s) {
+            if (note) { note.hidden = false; note.textContent = s || "action terminée"; }
+            setTimeout(function(){ if (note) note.hidden = true; }, 6000);
+          }
+
+          function get(route, cible) {
+            fetch(route).then(function (r) { return r.json(); }).then(function (d) {
+              if (d && d.error) { defaut(d.error); return; }
+              var el = document.getElementById(cible);
+              if (el) el.textContent = d.sortie || "(vide)";
+            }).catch(function () { defaut("service de défense indisponible"); });
+          }
+
+          function post(route, lib) {
+            if (!window.confirm(lib + " ? Confirmer l'action.")) return;
+            var boutons = document.querySelectorAll("#actions button");
+            for (var i = 0; i < boutons.length; i++) boutons[i].disabled = true;
+            var corps = { jeton: window.DEFENSE_JETON || "" };
+            fetch(route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) })
+              .then(function (r) { return r.json(); })
+              .then(function (d) {
+                if (!d.ok) { defaut(d.error || "action refusée"); return; }
+                defaut(lib + " : terminé");
+                var el = document.getElementById("etat");
+                if (el && d.sortie) el.textContent = d.sortie;
+                get("/tour/cockpit/data-defense", "etat");
+              })
+              .catch(function () { defaut("service de défense indisponible"); })
+              .then(function () {
+                for (var j = 0; j < boutons.length; j++) boutons[j].disabled = false;
+              });
+          }
+
+          document.getElementById("b-simuler").addEventListener("click", function () {
+            get("/tour/cockpit/data-defense?action=simuler", "simuler");
+          });
+          document.getElementById("b-scan").addEventListener("click", function () {
+            get("/tour/cockpit/data-defense?action=scan", "carte");
+          });
+          document.getElementById("b-connexions").addEventListener("click", function () {
+            get("/tour/cockpit/data-defense?action=connexions", "carte");
+          });
+          document.getElementById("b-verrouiller").addEventListener("click", function () {
+            post("/tour/cockpit/defense-action", "🔒 Verrouiller");
+          });
+          document.getElementById("b-deverrouiller").addEventListener("click", function () {
+            post("/tour/cockpit/defense-action?action=deverrouiller", "🔓 Déverrouiller");
+          });
+          document.getElementById("b-isoler").addEventListener("click", function () {
+            post("/tour/cockpit/defense-action?action=isoler-pi", "🛑 Isoler le Pi");
+          });
+          document.getElementById("b-relier").addEventListener("click", function () {
+            post("/tour/cockpit/defense-action?action=relier-pi", "🔗 Relier le Pi");
+          });
+
+          function renderEtat(d) {
+            if (!d || d.error) { defaut(d.error || "service indisponible"); return; }
+            var st = document.getElementById("soustitre");
+            if (st) st.textContent = "verrou : " + (d.verrou || "?") + " · Pi : " + (d.pi || "?");
+            var lab = document.getElementById("etiquette");
+            if (lab) {
+              var v = (d.verrou || "").toLowerCase().indexOf("verrou") === 0;
+              lab.textContent = v ? "VERROUILLÉ" : "NORMAL";
+              lab.className = "tag " + (v ? "verrouille" : "normal");
+            }
+            var strips = document.getElementById("strips");
+            if (strips) {
+              strips.innerHTML =
+                '<div class="strip ' + (d.verrou && d.verrou.indexOf("VERROU") === 0 ? "crit" : "ok") + '"><div class="lbl">Verrou</div><div class="val">' + esc(d.verrou || "?") + '</div></div>' +
+                '<div class="strip ' + (d.pi && d.pi.indexOf("ISOLÉ") === 0 ? "crit" : "ok") + '"><div class="lbl">Raspberry Pi</div><div class="val">' + esc(d.pi || "?") + '</div></div>';
+            }
+            var nav = document.getElementById("nav-etat");
+            if (nav) {
+              nav.innerHTML = (d.connexions || []).map(function (c) {
+                return '<span class="b"><b>' + esc(c[0]) + '</b> ' + esc(c[1]) + '</span>';
+              }).join("");
+            }
+            var el = document.getElementById("etat");
+            if (el) el.textContent = d.texte || "";
+          }
+
+          function refreshEtat() {
+            fetch("/tour/cockpit/data-defense").then(function (r) { return r.json(); })
+              .then(renderEtat).catch(function () { defaut("service de défense indisponible"); });
+          }
+          refreshEtat();
+          setInterval(refreshEtat, 15000);
+        })();
+        //]]>
+        </script>
+      </body>
+    </html>
+  </template>
+</odoo>

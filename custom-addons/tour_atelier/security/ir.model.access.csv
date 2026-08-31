@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_atelier_mission_admin,atelier.mission.admin,model_atelier_mission,base.group_system,1,1,1,1
+access_atelier_mission_user,atelier.mission.user,model_atelier_mission,base.group_user,1,1,1,0
+access_atelier_mission_etape_admin,atelier.mission.etape.admin,model_atelier_mission_etape,base.group_system,1,1,1,1
+access_atelier_mission_etape_user,atelier.mission.etape.user,model_atelier_mission_etape,base.group_user,1,1,1,0

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_version_liste" model="ir.ui.view">
+        <field name="name">roadmap.version.liste</field>
+        <field name="model">roadmap.version</field>
+        <field name="arch" type="xml">
+            <!-- La ligne en GRAS est celle où on travaille — calculée, jamais
+                 cochée. Le vert dit « fini » : fait == total. -->
+            <list string="Versions" default_order="projet_id, sequence"
+                  decoration-bf="courante"
+                  decoration-success="nb_taches > 0 and nb_restantes == 0"
+                  decoration-muted="etat == 'figee' and nb_restantes > 0">
+                <field name="projet_id"/>
+                <field name="name"/>
+                <field name="courante" string="On est ici" widget="boolean"/>
+                <field name="etat" widget="badge"
+                       decoration-success="etat == 'figee'"
+                       decoration-warning="etat == 'ouverte'"/>
+                <field name="nb_faites" string="Fait"/>
+                <field name="nb_restantes" string="Reste"/>
+                <field name="avancement" widget="progressbar"/>
+                <field name="nb_taches" optional="hide"/>
+                <field name="figee_le" optional="hide"/>
+                <field name="figee_par_id" optional="hide"/>
+                <button name="action_voir_restantes" type="object"
+                        string="Voir le reste" invisible="nb_restantes == 0"
+                        title="Les tâches de cette version qui ne sont pas encore faites"/>
+                <button name="action_voir_faites" type="object"
+                        string="Voir le fait" invisible="nb_faites == 0"
+                        title="Les tâches de cette version déjà faites"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_version_form" model="ir.ui.view">
+        <field name="name">roadmap.version.form</field>
+        <field name="model">roadmap.version</field>
+        <field name="arch" type="xml">
+            <form string="Version">
+                <header>
+                    <button name="action_figer" type="object" class="btn-primary"
+                            string="Valider cette version"
+                            invisible="etat == 'figee'"
+                            confirm="Valider fige la liste : les tâches ne pourront plus entrer ni sortir de cette version, pour ce projet. Rouvrir restera possible, mais il faudra écrire pourquoi. On y va ?"/>
+                    <button name="action_rouvrir" type="object"
+                            string="Rouvrir" invisible="etat == 'ouverte'"/>
+                    <button name="action_voir_faites" type="object"
+                            string="Ce qui est fait" invisible="nb_faites == 0"/>
+                    <button name="action_voir_restantes" type="object"
+                            string="Ce qui reste" invisible="nb_restantes == 0"/>
+                    <button name="action_voir_taches" type="object"
+                            string="Tout voir" invisible="nb_taches == 0"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1>
+                        <div class="text-muted" invisible="not courante">
+                            <b>C'est ici qu'on travaille en ce moment.</b>
+                        </div>
+                    </div>
+                    <group col="4">
+                        <field name="nb_faites" string="Fait"/>
+                        <field name="nb_restantes" string="Reste à faire"/>
+                        <field name="avancement" widget="progressbar"/>
+                        <field name="courante" invisible="1"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="projet_id" readonly="etat == 'figee'"/>
+                            <field name="code" readonly="etat == 'figee'"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="nb_taches"/>
+                            <field name="figee_le"/>
+                            <field name="figee_par_id"/>
+                        </group>
+                    </group>
+                    <div invisible="not motif_reouverture">
+                        <separator string="Cette version a été rouverte"/>
+                        <field name="motif_reouverture"/>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="etat == 'figee'">
+                        Tant qu'une version n'est pas validée, on ne peut pas
+                        commencer : la liste n'est plus la même d'un matin à l'autre.
+                        Valider, c'est décider que la liste est le contrat — pour CE projet.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_reouverture_form" model="ir.ui.view">
+        <field name="name">roadmap.reouverture.form</field>
+        <field name="model">roadmap.reouverture</field>
+        <field name="arch" type="xml">
+            <form string="Rouvrir">
+                <group>
+                    <field name="version_id" invisible="1"/>
+                    <field name="motif"
+                           placeholder="Ce que le monde a changé depuis la validation. « On a changé d'avis » est une réponse acceptable — encore faut-il l'écrire."/>
+                </group>
+                <footer>
+                    <button name="action_confirmer" type="object" string="Rouvrir" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_version" model="ir.actions.act_window">
+        <field name="name">Valider une version</field>
+        <field name="res_model">roadmap.version</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_version" name="Valider une version"
+              parent="menu_racine" sequence="20" action="action_version"/>
+
+</odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="cron_abonnements" model="ir.cron">
+            <field name="name">Abonnements — envoi des rappels</field>
+            <field name="model_id" ref="model_abonnement_actif"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_rappels()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="abonnement_manning" model="abonnement.actif">
+            <field name="name">Manning — AI Agents in Action</field>
+            <field name="site">https://www.manning.com</field>
+            <field name="cout">24.99</field>
+            <field name="periode">mois</field>
+            <field name="date_debut">2026-08-05</field>
+            <field name="date_fin">2026-09-05</field>
+            <field name="actif">1</field>
+            <field name="rappel_le">2026-08-09</field>
+            <field name="email_rappel">frsecretservice@gmail.com</field>
+            <field name="notes">Abonnement Manning Online 1 mois, commande
+                #3655966, acheté par erreur (voulait l'eBook PDF), email
+                envoyé au support, profiter du liveBook tant que ça court.</field>
+        </record>
+    </data>
+</odoo>

@@ -6,3 +6,9 @@ __pycache__/
 *.bak*
 *.avant-*
 docker-compose.yml
+
+# Jamais de cle privee dans un module (incident 31/08/2026)
+cle-ssh*
+id_rsa*
+id_ed25519*
+*.pem

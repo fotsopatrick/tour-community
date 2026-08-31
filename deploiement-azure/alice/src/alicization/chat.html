@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ALICE — Chat + Ingest</title>
+<style>
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:system-ui,sans-serif;background:#0d1116;color:#e8eef4;display:flex;flex-direction:column}
+header{padding:12px 16px;background:#151b22;border-bottom:1px solid #27313b;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header h1{margin:0;font-size:16px}header span{font-size:11px;color:#7d8b99;font-family:monospace}
+a{color:#4fb3c0}
+.row{flex:1;display:flex;min-height:0;flex-wrap:wrap}
+.col{min-width:0;overflow-y:auto}
+.gauche{flex:1 1 50%;display:flex;flex-direction:column;border-right:1px solid #27313b}
+.droite{flex:1 1 50%;background:#10151b;padding:16px}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.bubble{max-width:78%;padding:10px 14px;border-radius:12px;line-height:1.5;font-size:14px;word-break:break-word}
+.user{align-self:flex-end;background:#4fb3c0;color:#0d1116;border-bottom-right-radius:4px}
+.bot{align-self:flex-start;background:#1b232b;border:1px solid #27313b;border-bottom-left-radius:4px}
+.meta{font-size:11px;color:#7d8b99;margin-top:4px;font-family:monospace}
+form{display:flex;gap:8px;padding:12px;background:#151b22;border-top:1px solid #27313b}
+input,textarea,select{background:#0d1116;border:1px solid #27313b;color:#e8eef4;border-radius:8px;padding:10px;font-size:13px}
+input:focus,textarea:focus{outline:none;border-color:#4fb3c0}
+#inp{flex:1}
+button{background:#4fb3c0;color:#0d1116;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:600}
+button:disabled{opacity:0.5}
+button.suppr{background:#b3545a;padding:4px 10px;font-size:12px}
+.tabs{margin-bottom:14px;display:flex;gap:8px}
+.tab{padding:8px 16px;border-radius:8px;border:1px solid #27313b;cursor:pointer;font-size:13px;background:#151b22;color:#b3c0cc}
+.tab.actif{background:#4fb3c0;color:#0d1116;font-weight:600}
+.panel{display:none}
+.panel.actif{display:block}
+.panel label.bloc{display:block;margin:12px 0 6px;font-size:12px;color:#b3c0cc}
+textarea{width:100%;resize:vertical;font-family:ui-monospace,monospace}
+input[type=file]{width:100%}
+pre#log{background:#0d1116;border:1px solid #27313b;border-radius:8px;padding:10px;font-size:12px;line-height:1.5;color:#b3c0cc;white-space:pre-wrap;min-height:60px;overflow:auto;margin:12px 0}
+.astuce{font-size:11px;color:#7d8b99;line-height:1.6}
+.k-item{margin:8px 0;padding:10px;border:1px solid #27313b;border-radius:8px}
+.k-item .t{font-weight:600;font-size:13px}
+.k-item .s{font-size:11px;color:#7d8b99;font-family:monospace}
+#connaissances button{margin-left:8px}
+.status{font-size:11px;color:#7d8b99}
+</style>
+</head>
+<body>
+<header>
+  <h1>💬 ALICE</h1>
+  <span id="status">cerveau par env (Qwen / Gemini / Azure) • mémoire longue knowledge</span>
+</header>
+<div class="row">
+  <section class="col gauche">
+    <div id="msgs"><div class="bubble bot">Bonjour ! Je suis Alice. Pose-moi une question, ou essaie <b>712</b> (circuit), <b>ocr</b> ou <b>bonjour</b>.<div class="meta">source: demo</div></div></div>
+    <form id="f"><input id="inp" placeholder="Écris un message..." autocomplete="off"><button>Envoyer</button></form>
+  </section>
+
+  <aside class="col droite">
+    <h2>📥 Donner de la connaissance à ALICE</h2>
+    <div class="tabs">
+      <div class="tab actif" data-p="ingest">Ingérer</div>
+      <div class="tab" data-p="liste">Connaissances</div>
+      <div class="tab" data-p="physio">Santé</div>
+    </div>
+
+    <div class="panel actif" id="p-ingest">
+      <label class="bloc">Texte brut (un paragraphe suffit, découpe automatique en chunks)</label>
+      <textarea id="texte" rows="6" placeholder="Collez un article, une doc, des notes…"></textarea>
+
+      <label class="bloc">Ou une URL à ingérer (page web)</label>
+      <input type="url" id="url" placeholder="https://…">
+
+      <label class="bloc">Ou un fichier (.txt / .md / .pdf, max 25 Mo)</label>
+      <input type="file" id="fichier" accept=".txt,.md,.markdown,.pdf,text/plain,text/markdown,application/pdf">
+
+      <button id="ing" style="margin-top:14px">Ingérer</button>
+      <pre id="log">Rien ingéré pour l'instant.</pre>
+      <p class="astuce">Chunks + index stockés dans la table <b>knowledge</b>
+        (SQLite locale, ou PostgreSQL persistant en cloud via ALICE_DB_URL).</p>
+    </div>
+
+    <div class="panel" id="p-liste">
+      <button id="rafraichir" style="margin-bottom:10px">Rafraîchir la liste</button>
+      <div id="connaissances"><p class="status">Chargement…</p></div>
+    </div>
+
+    <div class="panel" id="p-physio">
+      <button id="sante" style="margin-bottom:10px">Vérifier /health</button>
+      <pre id="sante-log" class="status">…</pre>
+    </div>
+  </aside>
+</div>
+
+<script>
+const msgs=document.getElementById('msgs'), inp=document.getElementById('inp'), form=document.getElementById('f');
+function add(text, who, meta){
+  const d=document.createElement('div');d.className='bubble '+(who==='user'?'user':'bot');
+  d.innerHTML=String(text).replace(/</g,'&lt;').replace(/\n/g,'<br>');
+  if(meta){const m=document.createElement('div');m.className='meta';m.textContent=meta;d.appendChild(m);}
+  msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+}
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const text=inp.value.trim(); if(!text) return;
+  add(text,'user'); inp.value='';
+  try{
+    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});
+    const j=await r.json();
+    const resp=j.reponse||JSON.stringify(j);
+    const meta=(j.source?`source: ${j.source}`:'')+(j.decision?` • ${j.decision}`:'');
+    add(resp,'bot',meta);
+  }catch(err){ add('Erreur: '+err,'bot'); }
+});
+
+// ---- onglets
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('actif'));
+  t.classList.add('actif');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('actif'));
+  document.getElementById('p-'+t.dataset.p).classList.add('actif');
+  if(t.dataset.p==='liste') chargerListe();
+}));
+
+// ---- ingest
+const bouton=document.getElementById('ing'), log=document.getElementById('log');
+async function ingester(){
+  const fi=document.getElementById('fichier').files[0];
+  const txt=document.getElementById('texte').value.trim();
+  const url=document.getElementById('url').value.trim();
+  if(!fi && !txt && !url){ log.textContent='Remplis au moins un champ (texte, URL ou fichier).'; return; }
+  bouton.disabled=true;
+  try{
+    if(fi){
+      if(fi.size>25*1024*1024){ log.textContent='Fichier refusé : trop gros (max 25 Mo).'; return; }
+      log.textContent='Ingestion de « '+fi.name+' »…';
+      const fd=new FormData(); fd.append('file', fi);
+      const r=await fetch('/api/v1/ingest',{method:'POST',body:fd});
+      const j=await r.json();
+      log.textContent=(j.error?'Erreur : '+j.error:'✅ '+j.titre+' — '+j.chunks+' chunk(s), source '+j.source);
+    } else if(url){
+      log.textContent='Ingestion de l’URL '+url+'…';
+      const r=await fetch('/api/v1/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+      const j=await r.json();
+      log.textContent=(j.error?'Erreur : '+j.error:'✅ '+j.titre+' — '+j.chunks+' chunk(s)');
+    } else {
+      log.textContent='Découpage + indexation du texte…';
+      const r=await fetch('/api/v1/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt})});
+      const j=await r.json();
+      log.textContent=(j.error?'Erreur : '+j.error:'✅ '+j.chunks+' chunk(s) indexés (source "'+j.source+'").\nVa dans l’onglet Connaissances puis demande à Alice quelque chose lié.');
+    }
+  }catch(e){ log.textContent='Erreur: '+e; }
+  bouton.disabled=false;
+}
+bouton.addEventListener('click', ingester);
+document.getElementById('texte').addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); ingester(); }
+});
+
+// ---- liste des connaissances
+async function chargerListe(){
+  const box=document.getElementById('connaissances');
+  try{
+    const r=await fetch('/connaissances');
+    const j=await r.json();
+    const docs=j.documents||[];
+    if(!docs.length){ box.innerHTML='<p class="status">Aucune connaissance ingérée.</p>'; return; }
+    box.innerHTML=docs.map(d=>`
+      <div class="k-item">
+        <div class="t">${String(d.titre||'').replace(/</g,'&lt;')}
+          <button class="suppr" data-key="${d.doc_key}">supprimer</button></div>
+        <div class="s">source: ${d.source||'?'} • ${d.nb_chunks} chunk(s) • ${d.date||''}</div>
+      </div>`).join('');
+    box.querySelectorAll('button.suppr').forEach(b=>b.addEventListener('click', async ()=>{
+      await fetch('/connaissances/'+b.dataset.key,{method:'DELETE'});
+      chargerListe();
+    }));
+  }catch(e){ box.innerHTML='<p class="status">Erreur: '+e+'</p>'; }
+}
+document.getElementById('rafraichir').addEventListener('click', chargerListe);
+
+// ---- santé
+document.getElementById('sante').addEventListener('click', async ()=>{
+  try{
+    const r=await fetch('/health'); const j=await r.json();
+    document.getElementById('sante-log').textContent=JSON.stringify(j,null,2);
+  }catch(e){ document.getElementById('sante-log').textContent='Erreur: '+e; }
+});
+</script>
+</body>
+</html>

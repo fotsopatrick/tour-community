@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_debat_user,debat.sujet,model_debat_sujet,base.group_user,1,0,0,0
+acces_debat_admin,debat.sujet admin,model_debat_sujet,base.group_system,1,1,1,1
+acces_avis_user,debat.avis,model_debat_avis,base.group_user,1,0,0,0
+acces_avis_admin,debat.avis admin,model_debat_avis,base.group_system,1,1,1,1

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="140" height="140" rx="31" fill="url(#fond)"/>
+  <!-- le cadenas : corps, anse, trou -->
+  <rect x="38" y="62" width="64" height="48" rx="9" fill="#f87171"/>
+  <path d="M52 62 V46 a18 18 0 0 1 36 0 V62" fill="none" stroke="#cbd5e1" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="70" cy="83" r="8" fill="#0f172a"/>
+  <rect x="66" y="83" width="8" height="15" rx="4" fill="#0f172a"/>
+</svg>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <!-- Etiquettes: priorites -->
+    <record id="tag_prio_p0" model="project.tags"><field name="name">Prio P0</field><field name="color">1</field></record>
+    <record id="tag_prio_p1" model="project.tags"><field name="name">Prio P1</field><field name="color">4</field></record>
+    <record id="tag_prio_p2" model="project.tags"><field name="name">Prio P2</field><field name="color">5</field></record>
+    <record id="tag_prio_p3" model="project.tags"><field name="name">Prio P3</field><field name="color">10</field></record>
+    <record id="tag_prio_p4" model="project.tags"><field name="name">Prio P4</field><field name="color">3</field></record>
+    <record id="tag_prio_p5" model="project.tags"><field name="name">Prio P5</field><field name="color">8</field></record>
+    <record id="tag_prio_pro" model="project.tags"><field name="name">Prio PRO</field><field name="color">2</field></record>
+
+    <!-- Etiquettes: domaines -->
+    <record id="tag_dom_finance_infra" model="project.tags"><field name="name">Finance/Infra</field></record>
+    <record id="tag_dom_sante_sobriete" model="project.tags"><field name="name">Sante/Sobriete</field></record>
+    <record id="tag_dom_apprentissage" model="project.tags"><field name="name">Apprentissage</field></record>
+    <record id="tag_dom_productivite" model="project.tags"><field name="name">Productivite</field></record>
+    <record id="tag_dom_business" model="project.tags"><field name="name">Business</field></record>
+    <record id="tag_dom_ia_outils" model="project.tags"><field name="name">IA/Outils</field></record>
+    <record id="tag_dom_infra" model="project.tags"><field name="name">Infra</field></record>
+    <record id="tag_dom_ia_pro" model="project.tags"><field name="name">IA/Pro</field></record>
+    <record id="tag_dom_pro" model="project.tags"><field name="name">Pro</field></record>
+    <record id="tag_dom_carriere_pro" model="project.tags"><field name="name">Carriere/Pro</field></record>
+    <record id="tag_dom_outils" model="project.tags"><field name="name">Outils</field></record>
+    <record id="tag_dom_sante_sport" model="project.tags"><field name="name">Sante/Sport</field></record>
+    <record id="tag_dom_ia_archive" model="project.tags"><field name="name">IA/Archive</field></record>
+    <record id="tag_dom_autre" model="project.tags"><field name="name">Autre</field></record>
+    <record id="tag_dom_carriere" model="project.tags"><field name="name">Carriere</field></record>
+    <record id="tag_dom_loisirs" model="project.tags"><field name="name">Loisirs</field></record>
+    <record id="tag_dom_administratif" model="project.tags"><field name="name">Administratif</field></record>
+
+    <!-- Projets -->
+    <!-- Projets de DEMONSTRATION (generiques, aucune donnee personnelle) -->
+    <record id="proj_demo_site" model="project.project">
+      <field name="name">Site vitrine client</field>
+      <field name="description">[P1 - Business] Exemple de projet : refonte du site d'un client.</field>
+      <field name="tag_ids" eval="[(6, 0, [ref('tag_prio_p1'), ref('tag_dom_business')])]"/>
+    </record>
+    <record id="proj_demo_app" model="project.project">
+      <field name="name">Application mobile</field>
+      <field name="description">[P2 - Productivite] Exemple : une petite app d'equipe.</field>
+      <field name="tag_ids" eval="[(6, 0, [ref('tag_prio_p2'), ref('tag_dom_productivite')])]"/>
+    </record>
+    <record id="proj_demo_compta" model="project.project">
+      <field name="name">Comptabilite 2026</field>
+      <field name="description">[P1 - Finance/Infra] Exemple : suivi comptable de l'annee.</field>
+      <field name="tag_ids" eval="[(6, 0, [ref('tag_prio_p1'), ref('tag_dom_finance_infra')])]"/>
+    </record>
+    <record id="proj_demo_social" model="project.project">
+      <field name="name">Campagne reseaux sociaux</field>
+      <field name="description">[P2 - Social] Exemple : plan de contenu sur un trimestre.</field>
+      <field name="tag_ids" eval="[(6, 0, [ref('tag_prio_p2'), ref('project.project_tags_12')])]"/>
+    </record>
+    <record id="proj_demo_formation" model="project.project">
+      <field name="name">Programme de formation</field>
+      <field name="description">[P3 - Apprentissage] Exemple : parcours d'onboarding.</field>
+      <field name="tag_ids" eval="[(6, 0, [ref('tag_prio_p3'), ref('tag_dom_apprentissage')])]"/>
+    </record>
+
+  </data>
+</odoo>

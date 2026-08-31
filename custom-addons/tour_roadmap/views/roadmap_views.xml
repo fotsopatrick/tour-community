@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- La feuille de route travaille désormais sur les TÂCHES, rangées par
+         version, un tableau par projet. Plus de liste de cartes en double. -->
+
+    <record id="vue_feuille_kanban" model="ir.ui.view">
+        <field name="name">project.task.feuille.kanban</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="tdc_version" class="o_kanban_small_column"
+                    quick_create="false" records_draggable="true">
+                <field name="tdc_version"/>
+                <field name="tdc_couleur"/>
+                <field name="tdc_arbitre"/>
+                <field name="tdc_propose_claude"/>
+                <field name="tdc_sans_patrick"/>
+                <field name="project_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="oe_kanban_color_#{record.tdc_couleur.raw_value} oe_kanban_card oe_kanban_global_click">
+                            <div t-if="record.tdc_propose_claude.raw_value"
+                                 class="mb-1 px-2 py-1 rounded small"
+                                 style="background:rgba(59,130,246,.18);border-left:3px solid #3b82f6;font-weight:600;color:#3b82f6">
+                                🤖 Proposé par moi — à valider ou renvoyer
+                            </div>
+                            <div t-if="record.tdc_sans_patrick.raw_value"
+                                 class="mb-1 px-2 py-1 rounded small"
+                                 style="background:rgba(34,197,94,.15);border-left:3px solid #22c55e;font-weight:600;color:#16a34a">
+                                ✅ Je peux la faire sans toi
+                            </div>
+                            <div class="o_kanban_record_top mb-0">
+                                <strong class="o_kanban_record_title"><field name="name"/></strong>
+                                <span t-if="record.tdc_arbitre.raw_value"
+                                      class="badge text-bg-warning ms-1">arbitré</span>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <i class="fa fa-folder-o me-1"/><field name="project_id"/>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge rounded-pill text-bg-light me-1"
+                                      t-if="record.tdc_valeur.raw_value"><field name="tdc_valeur"/></span>
+                                <span class="badge rounded-pill text-bg-light"
+                                      t-if="record.tdc_effort.raw_value"><field name="tdc_effort"/></span>
+                            </div>
+                            <div t-if="record.tdc_pourquoi.value"
+                                 class="mt-2 pt-2 border-top small text-muted"
+                                 style="white-space:pre-line"><field name="tdc_pourquoi"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="vue_feuille_liste" model="ir.ui.view">
+        <field name="name">project.task.feuille.liste</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <list string="Feuille de route" default_order="project_id, tdc_version">
+                <field name="project_id"/>
+                <field name="name"/>
+                <field name="tdc_version"/>
+                <field name="tdc_effort" optional="show"/>
+                <field name="tdc_valeur" optional="show"/>
+                <field name="tdc_sans_patrick" optional="show"/>
+                <field name="tdc_propose_claude" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_feuille_search" model="ir.ui.view">
+        <field name="name">project.task.feuille.search</field>
+        <field name="model">project.task</field>
+        <field name="arch" type="xml">
+            <search string="Feuille de route">
+                <field name="name"/>
+                <field name="project_id"/>
+                <filter name="projet_tour" string="Tour de contrôle"
+                        domain="[('project_id.name', 'ilike', 'Tour de')]"/>
+                <filter name="sans_moi" string="Faisable sans Patrick"
+                        domain="[('tdc_sans_patrick', '=', True)]"/>
+                <filter name="propose" string="Proposé par moi"
+                        domain="[('tdc_propose_claude', '=', True)]"/>
+                <separator/>
+                <filter name="reste" string="Reste à faire"
+                        domain="[('stage_id.fold', '=', False)]"/>
+                <filter name="fait" string="Fait"
+                        domain="[('stage_id.fold', '=', True)]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter name="g_projet" string="Projet" context="{'group_by': 'project_id'}"/>
+                    <filter name="g_version" string="Version" context="{'group_by': 'tdc_version'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_feuille" model="ir.actions.act_window">
+        <field name="name">Feuille de route</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">kanban,list</field>
+        <field name="search_view_id" ref="vue_feuille_search"/>
+        <field name="domain">[('tdc_version', '!=', False)]</field>
+        <field name="context">{'search_default_projet_tour': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune tâche dans la feuille de route de ce projet.</p>
+            <p>Ouvre une tâche et donne-lui une version pour qu'elle apparaisse ici.</p>
+        </field>
+    </record>
+
+    <!-- On ajoute la version dans la fiche de tâche standard, discrètement. -->
+    <record id="vue_tache_version" model="ir.ui.view">
+        <field name="name">project.task.form.version</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <field name="user_ids" position="after">
+                <field name="tdc_version"/>
+                <field name="tdc_effort" invisible="not tdc_version"/>
+                <field name="tdc_valeur" invisible="not tdc_version"/>
+                <field name="tdc_sans_patrick" invisible="not tdc_version"/>
+            </field>
+        </field>
+    </record>
+
+    <menuitem id="menu_racine" name="Versions" sequence="43"/>
+    <menuitem id="menu_feuille" name="Feuille de route" parent="menu_racine"
+              sequence="10" action="action_feuille"/>
+
+</odoo>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Pas de noupdate : ces fiches DOIVENT suivre le code. Une fiche qui
+         décrit un Braignak qui n'existe plus est pire que pas de fiche. -->
+
+    <record id="guide_braignak" model="tour.guide">
+        <field name="name">Braignak : qui il est, ce qu'il peut, comment l'arrêter</field>
+        <field name="categorie">architecture</field>
+        <field name="sequence">2</field>
+        <field name="interne" eval="False"/>
+        <field name="resume">L'observateur de la tour. Ce qu'il fait, ce qu'il ne peut pas faire, et les trois façons de l'arrêter.</field>
+        <field name="mots_cles">braignak, observateur, agent, arrêter, kill switch, sécurité, éveil, autonomie</field>
+        <field name="contenu"><![CDATA[
+<h2>Qui il est</h2>
+<p><b>Braignak regarde des applications et dit ce qui manque à la tour.</b>
+Il observe une application, comprend ce qu'elle sait faire, avec quoi elle est
+probablement construite, et propose lesquelles de ces capacités mériteraient
+d'entrer ici. Quand ça vaut le coup, il fait construire un prototype jetable ;
+quand ça n'en vaut pas la peine, il l'écrit et on n'y revient pas.</p>
+<p>C'est le seul composant de la tour dont le travail est de <b>la faire
+changer</b>. C'est aussi pour ça qu'il est le plus encadré.</p>
+
+<h2>La règle d'ouverture</h2>
+<p>Braignak n'a pas de partie cachée. Son code entier tient dans un module,
+<code>tour_braignak</code>, et le fichier <code>models/braignak.py</code>
+commence par la description de ce qu'il fait — celle que vous lisez. Il n'y a
+pas de second endroit où il ferait autre chose.</p>
+<p><b>Si son comportement ne correspond plus à cette fiche, ce n'est pas une
+évolution : c'est un défaut, ou une attaque.</b> Le journal, ci-dessous, est
+là pour qu'on puisse s'en apercevoir.</p>
+
+<h2>Ce qu'il peut faire</h2>
+<ul>
+<li>Ouvrir une <b>étude</b> sur une application, en déclarant sa nature : une
+des vôtres, un logiciel libre, ou une application publique observée de
+l'extérieur.</li>
+<li><b>Rédiger</b> une mission d'observation, qui reste en <b>brouillon</b>.</li>
+<li>Enregistrer les <b>capacités repérées</b>, avec un niveau d'intérêt, et
+créer les tâches correspondantes dans le journal de la tour.</li>
+<li>Rédiger une mission de <b>prototype</b> — également en brouillon, et
+uniquement si un verdict écrit dit « à prototyper ».</li>
+<li><b>Clore</b> une étude, en écrivant pourquoi. Le motif est obligatoire :
+une étude tuée sans motif sera refaite dans six mois par quelqu'un qui ne
+saura pas qu'elle a déjà été faite.</li>
+</ul>
+
+<h2>Ce qu'il ne peut pas faire</h2>
+<ul>
+<li><b>Se lancer tout seul.</b> Il n'y a aucune tâche planifiée dans ce module.
+Rien ne démarre sans un clic.</li>
+<li><b>Envoyer une mission.</b> Il rédige, il ne poste pas. Un humain relit et
+appuie sur « Envoyer » depuis la fiche de mission.</li>
+<li><b>Mettre quoi que ce soit en ligne.</b> Le refus est écrit dans le code,
+pas dans un réglage : il n'y a pas de case à décocher pour l'autoriser.</li>
+<li><b>Toucher au code de la tour.</b> Les missions qu'il rédige travaillent
+dans un dossier jetable et le disent explicitement.</li>
+<li><b>Effacer ses traces.</b> Le journal refuse la modification et la
+suppression — y compris à un administrateur.</li>
+<li><b>Recopier une application qui ne vous appartient pas.</b> Quand la nature
+déclarée est « application publique », la consigne qu'il rédige interdit de
+récupérer le code, les images et les textes. Reproduire une <i>fonction</i> est
+licite ; recopier une <i>œuvre</i> ne l'est pas.</li>
+</ul>
+
+<h2>Comment l'arrêter — trois façons, de la plus rapide à la plus solide</h2>
+<ol>
+<li><b>Le bouton rouge « ARRÊT D'URGENCE »</b>, présent sur toute fiche
+d'étude. Il coupe l'interrupteur et supprime les missions en brouillon.
+Marche depuis un téléphone, en deux secondes.</li>
+<li><b>Le réglage</b> : Réglages &gt; Braignak &gt; décocher « Braignak en
+marche ». C'est l'état par défaut.</li>
+<li><b>Le fichier d'autorisation</b> : sur la machine hôte, supprimer
+<code>~/braignak.autorise</code>. C'est le seul verrou qui tienne si la tour
+elle-même est compromise — voir ci-dessous.</li>
+</ol>
+<p>Et le quatrième, définitif : désinstaller le module. Les études restent
+lisibles, plus rien n'est exécutable.</p>
+
+<h2>Pourquoi trois verrous et pas un</h2>
+<p>La règle posée par le propriétaire est que <b>tout ordre venu de la tour
+fait loi</b> : Braignak n'a pas le droit d'apprendre l'indépendance. C'est la
+bonne règle, et elle a une conséquence qu'il faut regarder en face :
+<b>qui tient la tour tient Braignak.</b></p>
+<p>Un interrupteur rangé dans la base de données ne protège donc de rien contre
+quelqu'un qui a la base. C'est pourquoi le verrou qui compte vraiment est en
+dehors : un fichier posé sur la machine hôte, dans un dossier que le conteneur
+de la tour ne voit pas, ne peut pas lire, et ne peut pas créer. Une tour
+entièrement prise peut mentir sur son interrupteur ; elle ne peut pas fabriquer
+ce fichier.</p>
+<p><b>C'est le principe à retenir : l'obéissance se limite par des invariants
+qui vivent ailleurs que dans celui qui obéit.</b> C'est exactement la même
+règle que celle de l'atelier — la tour transmet le NOM d'un moteur, jamais une
+commande — et pour la même raison.</p>
+
+<h2>État actuel</h2>
+<p><b>Version 1, à l'arrêt.</b> Le module est installé, l'interrupteur est
+éteint, le fichier d'autorisation n'existe pas. Il ne se mettra en marche que
+le jour où la conduite à tenir en cas d'attaque de la tour sera écrite — c'est
+une décision du propriétaire, pas un réglage technique.</p>
+]]></field>
+    </record>
+
+    <record id="guide_braignak_attaque" model="tour.guide">
+        <field name="name">Question ouverte : si la tour est attaquée, que devient Braignak ?</field>
+        <field name="categorie">decision</field>
+        <field name="sequence">3</field>
+        <field name="interne" eval="True"/>
+        <field name="resume">La question à trancher avant de mettre Braignak en marche. Le raisonnement est écrit, la décision reste à prendre.</field>
+        <field name="mots_cles">braignak, attaque, compromission, sécurité, décision, autonomie, obéissance</field>
+        <field name="contenu"><![CDATA[
+<h2>La question, telle qu'elle a été posée</h2>
+<p><i>« À aucun moment Braignak ne peut apprendre la capacité d'indépendance de
+la tour de contrôle, tout ordre reçu de la tour fait office de loi. Mais si la
+tour de contrôle se fait attaquer, que fait-on ? »</i></p>
+<p>C'est la bonne question, et elle est plus profonde qu'elle n'en a l'air :
+<b>c'est la règle d'obéissance elle-même qui crée le danger.</b> Un agent qui
+obéit sans condition à la tour transfère toute sa dangerosité à quiconque prend
+la tour. Plus il est obéissant, plus il est utile à un attaquant.</p>
+
+<h2>Les trois réponses possibles, et ce qu'elles coûtent</h2>
+<h3>1. Obéissance totale (l'état actuel de l'énoncé)</h3>
+<p>Braignak fait ce que la tour dit. <b>Conséquence</b> : celui qui obtient un
+compte administrateur obtient un exécutant. Le risque n'est pas théorique — la
+tour a 17 comptes invités, une bulle de chat qui exécute des outils, et une
+adresse publique.</p>
+<h3>2. Désobéissance conditionnelle</h3>
+<p>Braignak refuse certains ordres même venus de la tour (« ne jamais publier »,
+« ne jamais toucher à mes propres garde-fous »). <b>Conséquence</b> : c'est
+précisément la « capacité d'indépendance » que le propriétaire a interdite. Et
+c'est un piège : un agent qui décide seul quand désobéir est un agent dont on ne
+peut plus prévoir le comportement.</p>
+<h3>3. Obéissance bornée par l'extérieur — la voie retenue pour la v1</h3>
+<p>Braignak obéit sans discuter à tout ordre venu de la tour, <b>mais certains
+ordres n'ont aucun effet sans un accord qui ne se donne pas depuis la tour</b>.
+Il n'y a ni désobéissance ni jugement : il y a des choses que la tour n'a
+simplement pas le pouvoir d'autoriser.</p>
+<p>Techniquement : le moteur, sur la machine hôte, exige un fichier
+d'autorisation situé hors du dossier partagé avec la tour. Le conteneur ne le
+voit pas, ne peut pas le créer. Une tour compromise garde tous ses droits sur
+elle-même — et zéro pouvoir sur ce fichier.</p>
+
+<h2>Ce qui reste à décider (et qui n'est pas technique)</h2>
+<ul>
+<li><b>Qui pose le fichier d'autorisation, et pour combien de temps ?</b> Une
+autorisation permanente est un verrou qu'on a laissé ouvert. Une autorisation
+qui expire (par exemple 24 h, effacée par une tâche du serveur) transforme le
+verrou en session.</li>
+<li><b>Que fait-on si on détecte une compromission ?</b> Il faut une procédure
+écrite, pas une intention : couper l'autorisation, relire le journal de
+Braignak (il est inaltérable, c'est fait pour), vérifier les missions créées,
+faire tourner les secrets du Coffre.</li>
+<li><b>Jusqu'où va l'observation ?</b> Étudier une application publique est
+légal ; en recopier le code ou les contenus ne l'est pas. La consigne rédigée
+par Braignak porte déjà cette limite, mais c'est un texte envoyé à un modèle,
+pas une contrainte technique. C'est une limite de confiance, et elle doit être
+assumée comme telle.</li>
+<li><b>Que se passe-t-il si le prototype est bon ?</b> Le faire entrer dans la
+tour reste un geste humain. Il n'existe aujourd'hui aucun chemin automatique
+entre « le prototype marche » et « c'est en production », et c'est
+volontaire.</li>
+</ul>
+
+<h2>La position honnête</h2>
+<p>La v1 est écrite et installée. Elle est <b>à l'arrêt</b>, et elle le reste
+tant que les quatre points ci-dessus n'ont pas de réponse écrite. Ce n'est pas
+de la prudence de façade : coder l'observateur était la partie facile ; décider
+ce qu'on fait quand quelqu'un d'autre tient le manche est la partie qui compte.</p>
+]]></field>
+    </record>
+
+</odoo>

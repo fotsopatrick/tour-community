@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="mon_ia_page" name="Mon IA — Tour de Contrôle">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Mon IA — Tour de Contrôle</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .wrap { max-width:560px; margin:0 auto; padding:28px 16px 56px; }
+                    h1 { font-size:1.6rem; margin:0 0 6px; }
+                    .sub { color:#94a3b8; margin:0 0 22px; line-height:1.6; }
+                    .carte { background:#0f172a; border:1px solid #1e293b; border-radius:.8rem;
+                             padding:20px; }
+                    label { display:block; font-weight:650; margin:0 0 8px; color:#cbd5e1; }
+                    select, input[type=password] { width:100%; background:var(--fond); color:var(--texte);
+                             border:1px solid #1e293b; border-radius:8px; padding:11px 14px;
+                             font-size:1rem; margin-bottom:16px; box-sizing:border-box; }
+                    select:focus, input[type=password]:focus { outline:none; border-color:#3b82f6; }
+                    .aide { color:#64748b; font-size:.82rem; line-height:1.55; margin:-8px 0 16px; }
+                    .etat { display:inline-block; background:#1e293b; border-radius:999px;
+                            padding:5px 13px; font-size:.85rem; color:#7dd3fc; margin-bottom:16px; }
+                    .actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+                    button { background:#3b82f6; color:#fff; border:none; border-radius:8px;
+                             padding:11px 20px; cursor:pointer; font-size:1rem; font-weight:650; }
+                    button:hover { background:#2563eb; }
+                    .effacer { background:transparent; color:#f87171; border:1px solid #7f1d1d;
+                               border-radius:8px; padding:11px 16px; cursor:pointer; font-size:.9rem; }
+                    .effacer:hover { background:#450a0a; }
+                    .note { margin-top:22px; padding-top:18px; border-top:1px solid #1e293b;
+                            color:#64748b; font-size:.85rem; line-height:1.65; }
+                    .message { border-radius:.6rem; padding:12px 16px; margin-bottom:18px;
+                               font-size:.92rem; }
+                    .message.fait { background:#052e16; border:1px solid #166534; color:#86efac; }
+                    .message.attention { background:#450a0a; border:1px solid #7f1d1d; color:#fca5a5; }
+                    .retour { display:inline-block; margin-top:22px; color:#3b82f6;
+                              text-decoration:none; font-size:.92rem; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </head>
+            <body>
+                <div class="wrap">
+                    <h1>Mon IA</h1>
+                    <p class="sub">
+                        Le chat peut tourner avec <b>ta</b> clé au lieu de celle
+                        de la tour. Choisis ton moteur, colle ta clé — c'est tout.
+                    </p>
+
+                    <t t-if="message">
+                        <div class="message" t-att-class="'message ' + (ton or 'fait')">
+                            <t t-esc="message"/>
+                        </div>
+                    </t>
+
+                    <form class="carte" method="post" action="/tour/mon-ia">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                        <label for="ia_moteur">Moteur</label>
+                        <select name="ia_moteur" id="ia_moteur">
+                            <option value="" t-att-selected="moteur == ''">
+                                Suivre la configuration de la tour
+                            </option>
+                            <option value="deepseek" t-att-selected="moteur == 'deepseek'">
+                                DeepSeek (ma clé)
+                            </option>
+                            <option value="opencode" t-att-selected="moteur == 'opencode'">
+                                opencode (ma clé)
+                            </option>
+                        </select>
+                        <div class="aide">
+                            « Suivre la configuration de la tour » : le chat
+                            utilise le moteur et la clé choisis par le
+                            propriétaire. Choisis un moteur ci-dessus pour
+                            utiliser les tiens.
+                        </div>
+
+                        <label for="ia_cle">Ma clé API</label>
+                        <t t-if="cle_definie">
+                            <span class="etat">Clé <t t-esc="cle_definie"/></span>
+                        </t>
+                        <input type="password" name="ia_cle" id="ia_cle"
+                               placeholder="Laisser vide pour garder la clé actuelle"
+                               autocomplete="new-password"/>
+                        <div class="aide">
+                            La clé reste sur le serveur et ne t'est jamais
+                            réaffichée. Remplis ce champ pour la remplacer.
+                        </div>
+
+                        <div class="actions">
+                            <button type="submit">Enregistrer</button>
+                            <button type="submit" name="effacer_cle" value="1"
+                                    class="effacer">Effacer ma clé</button>
+                        </div>
+                    </form>
+
+                    <div class="note">
+                        <b>Où trouver ta clé ?</b><br/>
+                        DeepSeek : plateforme DeepSeek → « API keys » (commence
+                        par <code>sk-</code>).<br/>
+                        opencode : <code>opencode.ai/auth</code> → « Create API key ».
+                    </div>
+
+                    <a class="retour" href="/tour/dashboard">← Retour à la tour</a>
+                </div>
+            </body>
+        </html>
+    </template>
+</odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Passe les utilisateurs existants en sombre à l'installation (les
+         nouveaux utilisateurs héritent du default=True du champ). -->
+    <function model="res.users" name="write">
+        <value model="res.users" eval="obj().search([('dark_mode', '=', False)]).ids"/>
+        <value eval="{'dark_mode': True}"/>
+    </function>
+
+    <!-- Débranding : le bot système ne s'appelle plus OdooBot -->
+    <record id="base.partner_root" model="res.partner">
+        <field name="name">Copilote</field>
+    </record>
+</odoo>

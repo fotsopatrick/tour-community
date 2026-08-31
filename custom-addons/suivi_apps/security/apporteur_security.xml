@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Le groupe des apporteurs.
+             On NE met PAS de règle sur les autres groupes : en Odoo, une règle
+             ne s'applique qu'aux membres du groupe qu'elle vise. Les personnes
+             hors de ce groupe gardent donc exactement l'accès qu'elles avaient.
+             C'est ce qui rend ce changement sans risque pour l'existant. -->
+        <record id="group_apporteur" model="res.groups">
+            <field name="name">Apporteur d'affaires</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+            <field name="comment">Voit sa propre fiche d'apporteur et les ventes
+                qu'il a apportées. Rien d'autre du module Suivi apps.</field>
+        </record>
+
+        <!-- Sa fiche, et uniquement la sienne. Sans cette règle il verrait la
+             rémunération négociée avec les autres apporteurs — c'est
+             exactement le genre de fuite qui coûte une relation. -->
+        <record id="rule_apporteur_sa_fiche" model="ir.rule">
+            <field name="name">Apporteur : sa fiche uniquement</field>
+            <field name="model_id" ref="model_app_apporteur"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_apporteur'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Les ventes qu'il a apportées, et uniquement celles-là. -->
+        <record id="rule_apporteur_ses_ventes" model="ir.rule">
+            <field name="name">Apporteur : ses ventes apportées uniquement</field>
+            <field name="model_id" ref="model_app_offre"/>
+            <field name="domain_force">[('apporteur_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_apporteur'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- LECTURE SEULE, et ce n'est pas un détail.
+             Les droits d'accès du module donnent l'écriture à tout utilisateur
+             interne. Une règle ne s'applique qu'aux opérations qu'elle coche :
+             les deux règles ci-dessus ne cochant que la lecture, l'écriture
+             restait libre — un apporteur pouvait passer SA PROPRE commission
+             à 99 %. Constaté en testant avec son compte, pas en relisant le
+             code. Le domaine impossible ferme l'écriture, la création et la
+             suppression. -->
+        <record id="rule_apporteur_lecture_seule" model="ir.rule">
+            <field name="name">Apporteur : ne modifie jamais sa fiche</field>
+            <field name="model_id" ref="model_app_apporteur"/>
+            <field name="domain_force">[(0, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_apporteur'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_apporteur_offres_lecture_seule" model="ir.rule">
+            <field name="name">Apporteur : ne modifie jamais une offre</field>
+            <field name="model_id" ref="model_app_offre"/>
+            <field name="domain_force">[(0, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_apporteur'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- L'écran qu'il ouvre : sa fiche, directement.
+             Pas une liste où il faut chercher la sienne. -->
+        <record id="action_mes_apports" model="ir.actions.act_window">
+            <field name="name">Mes apports</field>
+            <field name="res_model">app.apporteur</field>
+            <field name="view_mode">form,list</field>
+            <field name="domain">[('user_id', '=', uid)]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Aucune fiche d'apporteur</p>
+                <p>Votre compte n'est rattaché à aucune fiche d'apporteur.
+                   Demandez-le au responsable de la tour.</p>
+            </field>
+        </record>
+
+        <menuitem id="menu_mes_apports_racine" name="Mes apports" sequence="35"
+                  groups="group_apporteur"
+                  web_icon="suivi_apps,static/description/icon-apports.svg"/>
+        <menuitem id="menu_mes_apports" name="Ce que j'ai apporté"
+                  parent="menu_mes_apports_racine"
+                  action="action_mes_apports" sequence="10"/>
+
+    </data>
+</odoo>

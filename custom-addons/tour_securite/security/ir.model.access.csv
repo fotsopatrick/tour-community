@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_securite_constat,securite.constat,model_securite_constat,base.group_system,1,1,1,1
+access_securite_interrupteur,securite.interrupteur,model_securite_interrupteur,base.group_system,1,1,1,1

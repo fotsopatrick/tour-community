@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_ecart_liste" model="ir.ui.view">
+        <field name="name">coherence.ecart.liste</field>
+        <field name="model">coherence.ecart</field>
+        <field name="arch" type="xml">
+            <list string="Écarts" decoration-danger="gravite == 'grave' and etat == 'ouvert'"
+                  decoration-muted="etat in ('assume', 'corrige')">
+                <field name="name"/>
+                <field name="affiche"/>
+                <field name="reel"/>
+                <field name="ou"/>
+                <field name="gravite" widget="badge"/>
+                <field name="etat" widget="badge"/>
+                <field name="vu_le"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_ecart_form" model="ir.ui.view">
+        <field name="name">coherence.ecart.form</field>
+        <field name="model">coherence.ecart</field>
+        <field name="arch" type="xml">
+            <form string="Écart">
+                <header>
+                    <button name="action_assumer" type="object"
+                            string="C'est voulu, ne plus le signaler"
+                            invisible="etat != 'ouvert'"/>
+                    <button name="action_rouvrir" type="object" string="Rouvrir"
+                            invisible="etat == 'ouvert'"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group string="Ce qu'on affiche">
+                            <field name="affiche" nolabel="1" readonly="1"/>
+                        </group>
+                        <group string="Ce qui est vrai">
+                            <field name="reel" nolabel="1" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="ou" readonly="1"/>
+                        <field name="gravite" readonly="1"/>
+                        <field name="vu_le" readonly="1"/>
+                        <field name="code" readonly="1"/>
+                    </group>
+                    <separator string="Le détail"/>
+                    <field name="constat" readonly="1"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ecart" model="ir.actions.act_window">
+        <field name="name">Cohérence (Emil)</field>
+        <field name="res_model">coherence.ecart</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun écart.</p>
+            <p>Ce qu'on affiche correspond à ce qu'on a.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_coherence" name="Cohérence (Emil)"
+              parent="tour_dashboard.menu_pilotage_equipe" sequence="22"
+              action="action_ecart"/>
+
+    <record id="cron_coherence" model="ir.cron">
+        <field name="name">Emil : vérifier la cohérence</field>
+        <field name="model_id" ref="model_coherence_agent"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_verifier()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Le contrôle des promesses (Patrick, 29/07) : chaque semaine une
+         tâche pour relire ce que les sites promettent, et tous les 21
+         jours un témoin qui vérifie que le circuit hebdomadaire tourne
+         encore — le rappel qu'on se fait à soi-même dans le futur. -->
+    <record id="cron_promesses_hebdo" model="ir.cron">
+        <field name="name">Emil : relire les promesses des sites</field>
+        <field name="model_id" ref="model_coherence_agent"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_promesses_hebdo()</field>
+        <field name="interval_number">7</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+    <record id="cron_promesses_temoin" model="ir.cron">
+        <field name="name">Emil : le témoin des promesses (21 jours)</field>
+        <field name="model_id" ref="model_coherence_agent"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_promesses_temoin()</field>
+        <field name="interval_number">21</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=21)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

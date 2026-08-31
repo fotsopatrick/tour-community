@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_releve_liste" model="ir.ui.view">
+        <field name="name">tess.releve.liste</field>
+        <field name="model">tess.releve</field>
+        <field name="arch" type="xml">
+            <list string="Les chiffres" decoration-danger="marge &lt; 0"
+                  decoration-warning="alerte != False">
+                <field name="date"/>
+                <field name="nb_instances"/>
+                <field name="nb_contrats"/>
+                <field name="recette"/>
+                <field name="cout_total"/>
+                <field name="marge"/>
+                <field name="instances_semaine"/>
+                <field name="semaines_avant_plafond"/>
+                <field name="alerte"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_releve_form" model="ir.ui.view">
+        <field name="name">tess.releve.form</field>
+        <field name="model">tess.releve</field>
+        <field name="arch" type="xml">
+            <form string="Relevé">
+                <sheet>
+                    <div class="oe_title"><h1><field name="date" readonly="1"/></h1></div>
+                    <div class="alert alert-warning" role="alert" invisible="not alerte">
+                        <field name="alerte" readonly="1"/>
+                    </div>
+                    <group>
+                        <group string="Ce qui sort">
+                            <field name="cout_serveur"/>
+                            <field name="cout_ia"/>
+                            <field name="cout_paiement"/>
+                            <field name="cout_total"/>
+                        </group>
+                        <group string="Ce qui rentre">
+                            <field name="recette"/>
+                            <field name="marge"/>
+                        </group>
+                        <group string="Ce qui est utilisé">
+                            <field name="nb_instances"/>
+                            <field name="nb_contrats"/>
+                            <field name="nb_utilisateurs"/>
+                            <field name="disque_mo"/>
+                        </group>
+                        <group string="La pente">
+                            <field name="instances_semaine"/>
+                            <field name="semaines_avant_plafond"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_releve" model="ir.actions.act_window">
+        <field name="name">Les chiffres (Tess)</field>
+        <field name="res_model">tess.releve</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_tess" name="Les chiffres (Tess)"
+              parent="tour_dashboard.menu_pilotage_chiffres" sequence="19" action="action_releve"/>
+</odoo>

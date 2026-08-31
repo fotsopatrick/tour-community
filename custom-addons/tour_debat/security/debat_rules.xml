@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- LE VERROU DES DEBATS (30/07).
+         Le fichier d'acces dit QUI peut toucher au modele ; la regle dit
+         QUELLES LIGNES il voit. Sans elle, « lecture seule » voulait dire
+         « lit tout ». Les deux ensemble : un interne ne voit que ce que
+         Patrick a explicitement ouvert.
+
+         CORRECTION 01/08 : la règle ciblait base.group_user, mais l'admin
+         (Patrick) a AUSSI group_user (il est utilisateur interne ET
+         administrateur). Odoo combine les règles par ET : la règle bloquait
+         donc Patrick sur les débats non publiés (« pas de droits »).
+         La règle est désormais une expression Python : elle rend [] pour
+         l'admin (tout voir) et la restriction pour les internes non admins.
+         `user` est fourni par le contexte d'évaluation d'Odoo. -->
+    <record id="rule_debat_publie" model="ir.rule">
+        <field name="name">Debats : seulement ceux ouverts par l'administrateur</field>
+        <field name="model_id" ref="model_debat_sujet"/>
+        <field name="domain_force">[('publie', '=', True)] if not user.has_group('base.group_system') else []</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Les avis suivent leur debat : ouvrir un debat ouvre ses avis,
+         le fermer les referme. Une regle qui oublierait les avis laisserait
+         le contenu lisible alors que le sujet ne l'est plus. -->
+    <record id="rule_avis_publie" model="ir.rule">
+        <field name="name">Avis : ceux des debats ouverts</field>
+        <field name="model_id" ref="model_debat_avis"/>
+        <field name="domain_force">[('sujet_id.publie', '=', True)] if not user.has_group('base.group_system') else []</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+</odoo>

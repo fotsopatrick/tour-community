@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+      Rejoué à CHAQUE mise à jour du thème, et pas une fois pour toutes.
+
+      `to_buy` est repositionné par Odoo dès qu'on rafraîchit la liste des
+      applications. Un nettoyage fait une seule fois se défait tout seul, sans
+      que personne le remarque — et les publicités reviennent le jour où on
+      installe un module de plus.
+
+      Pas de `noupdate` ici, exprès : c'est précisément la répétition qu'on
+      cherche.
+    -->
+    <function model="tour.masquer.entreprise" name="appliquer"/>
+
+</odoo>

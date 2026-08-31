@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_roadmap_user,roadmap.item utilisateur,model_roadmap_item,base.group_user,1,1,1,0
+access_roadmap_admin,roadmap.item admin,model_roadmap_item,base.group_system,1,1,1,1
+acces_version_tous,roadmap.version lecture,model_roadmap_version,base.group_user,1,0,0,0
+acces_version_admin,roadmap.version admin,model_roadmap_version,base.group_system,1,1,1,1
+acces_reouverture_admin,roadmap.reouverture,model_roadmap_reouverture,base.group_system,1,1,1,1

@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_membre_tous,equipe.membre lecture,model_equipe_membre,base.group_user,1,0,0,0
+acces_membre_admin,equipe.membre admin,model_equipe_membre,base.group_system,1,1,1,1
+acces_competence_tous,equipe.competence lecture,model_equipe_competence,base.group_user,1,0,0,0
+acces_competence_admin,equipe.competence admin,model_equipe_competence,base.group_system,1,1,1,1
+acces_exploit_tous,equipe.exploit lecture,model_equipe_exploit,base.group_user,1,0,0,0
+acces_exploit_admin,equipe.exploit admin,model_equipe_exploit,base.group_system,1,1,1,1
+acces_consigne_perso,equipe.consigne.perso,model_equipe_consigne_perso,base.group_user,1,1,1,1
+acces_livraison_tous,equipe.livraison lecture,model_equipe_livraison,base.group_user,1,0,0,0
+acces_livraison_admin,equipe.livraison admin,model_equipe_livraison,base.group_system,1,1,1,1
+acces_recrutement_admin,equipe.recrutement admin,model_equipe_recrutement,base.group_system,1,1,1,1
+acces_recompense_admin,equipe.recompense admin,model_equipe_recompense,base.group_system,1,1,1,1

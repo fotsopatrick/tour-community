@@ -1,0 +1,174 @@
+// Copilote : bulle + panneau flottants, palette tour de contrôle
+// (fond #020817, surfaces #0f172a/#1e293b, primaire #d4af37).
+
+.o_tour_copilote {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1090;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+
+    &_bubble {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: none;
+        background: #d4af37;
+        color: #fff;
+        font-size: 22px;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(2, 8, 23, 0.45);
+        transition: transform 0.12s ease;
+
+        &:hover {
+            transform: scale(1.06);
+        }
+    }
+
+    &_panel {
+        width: 340px;
+        height: 460px;
+        display: flex;
+        flex-direction: column;
+        background: #0f172a;
+        color: #e7edf6;
+        border: 1px solid #24324a;
+        border-radius: 14px;
+        box-shadow: 0 14px 40px rgba(2, 8, 23, 0.55);
+        overflow: hidden;
+    }
+
+    &_header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 12px;
+        background: #020817;
+        border-bottom: 1px solid #24324a;
+    }
+
+    &_title {
+        flex: 1;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    &_iconbtn {
+        border: none;
+        background: transparent;
+        color: #8294ad;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 2px 6px;
+        border-radius: 6px;
+
+        &:hover {
+            background: #1e293b;
+            color: #e7edf6;
+        }
+    }
+
+    &_body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &_empty {
+        margin: auto;
+        text-align: center;
+        color: #8294ad;
+        font-size: 12.5px;
+        line-height: 1.7;
+    }
+
+    &_msg {
+        max-width: 85%;
+        padding: 8px 11px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        word-break: break-word;
+
+        &.is-user {
+            align-self: flex-end;
+            background: #d4af37;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        &.is-bot {
+            align-self: flex-start;
+            background: #1e293b;
+            border-bottom-left-radius: 4px;
+        }
+
+        &.is-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        &.is-busy {
+            color: #8294ad;
+            letter-spacing: 2px;
+        }
+    }
+
+    &_actions {
+        margin-top: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &_action {
+        font-size: 11.5px;
+        color: #22c55e;
+    }
+
+    &_input {
+        display: flex;
+        gap: 8px;
+        padding: 10px;
+        background: #020817;
+        border-top: 1px solid #24324a;
+
+        textarea {
+            flex: 1;
+            resize: none;
+            border: 1px solid #24324a;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #e7edf6;
+            font-size: 13px;
+            padding: 8px 10px;
+            outline: none;
+
+            &:focus {
+                border-color: #d4af37;
+            }
+        }
+    }
+
+    &_send {
+        border: none;
+        border-radius: 10px;
+        background: #d4af37;
+        color: #fff;
+        width: 38px;
+        cursor: pointer;
+        font-size: 14px;
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+    }
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
+  <defs>
+    <linearGradient id="f" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="140" height="140" rx="32" fill="url(#f)"/>
+  <!-- Boite a outils : le couvercle, la poignee, le corps, le fermoir -->
+  <g fill="#ffffff">
+    <path d="M55 44 v-8 a6 6 0 0 1 6-6 h18 a6 6 0 0 1 6 6 v8 h-8 v-6 h-14 v6 Z"/>
+    <rect x="28" y="44" width="84" height="18" rx="6"/>
+    <path d="M32 66 h76 v30 a8 8 0 0 1-8 8 H40 a8 8 0 0 1-8-8 Z"/>
+    <rect x="62" y="58" width="16" height="16" rx="3" fill="#2563eb"/>
+    <rect x="65" y="61" width="10" height="10" rx="2" fill="#ffffff"/>
+  </g>
+</svg>

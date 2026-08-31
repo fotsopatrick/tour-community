@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_domaine_user,quete.domaine,model_quete_domaine,base.group_user,1,0,0,0
+acces_domaine_admin,quete.domaine admin,model_quete_domaine,base.group_system,1,1,1,1
+acces_guilde_user,quete.guilde,model_quete_guilde,base.group_user,1,0,0,0
+acces_guilde_admin,quete.guilde admin,model_quete_guilde,base.group_system,1,1,1,1
+acces_offre_user,quete.offre,model_quete_offre,base.group_user,1,0,0,0
+acces_offre_admin,quete.offre admin,model_quete_offre,base.group_system,1,1,1,1
+acces_fiche_user,quete.fiche,model_quete_fiche,base.group_user,1,0,0,0
+acces_fiche_admin,quete.fiche admin,model_quete_fiche,base.group_system,1,1,1,1

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_env_liste" model="ir.ui.view">
+        <field name="name">tour.environnement.liste</field>
+        <field name="model">tour.environnement</field>
+        <field name="arch" type="xml">
+            <list string="Environnements">
+                <field name="projet_id"/>
+                <field name="name"/>
+                <field name="role"/>
+                <field name="base"/>
+                <field name="url"/>
+                <field name="nb_modules"/>
+                <field name="releve_le"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_env_form" model="ir.ui.view">
+        <field name="name">tour.environnement.form</field>
+        <field name="model">tour.environnement</field>
+        <field name="arch" type="xml">
+            <form string="Environnement">
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" placeholder="Production"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="projet_id"/>
+                            <field name="role"/>
+                            <field name="actif"/>
+                        </group>
+                        <group>
+                            <field name="base" placeholder="tour"/>
+                            <field name="url" placeholder="https://…"/>
+                            <field name="nb_modules"/>
+                            <field name="releve_le"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_env" model="ir.actions.act_window">
+        <field name="name">Environnements</field>
+        <field name="res_model">tour.environnement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_env_page" model="ir.actions.act_url">
+        <field name="name">Comparer les environnements</field>
+        <field name="url">/tour/environnements</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_env_racine" name="Environnements"
+              parent="tour_dashboard.menu_pilotage_systeme" sequence="21"/>
+    <menuitem id="menu_env_comparer" name="Comparer (prod / démo / test)"
+              parent="menu_env_racine" sequence="10" action="action_env_page"/>
+    <menuitem id="menu_env_liste" name="Gérer les environnements"
+              parent="menu_env_racine" sequence="20" action="action_env"/>
+</odoo>

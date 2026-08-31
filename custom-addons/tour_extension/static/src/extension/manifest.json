@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Tour — Pont navigateur (recherche pour les agents)",
+  "version": "0.2.0",
+  "description": "L'agent Braignak cherche sur le web via le navigateur de Patrick. La Tour dépose une requête, cette extension la joue dans une session humaine réelle et renvoie titre + lien + extrait. Aucune lecture de la session privée : elle n'ouvre que la recherche demandée.",
+  "permissions": ["tabs"],
+  "host_permissions": [
+    "https://www.bing.com/*",
+    "https://html.duckduckgo.com/*",
+    "https://lite.duckduckgo.com/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.bing.com/search*",
+        "https://html.duckduckgo.com/html/*",
+        "https://lite.duckduckgo.com/lite/*"
+      ],
+      "js": ["search-extract.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

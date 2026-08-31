@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_perso" name="Mes pages — Tour de contrôle">
+    <html lang="fr">
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Mes pages — Tour de contrôle</title>
+        <style>
+          :root{
+            --fond:#020817; --surface:#0f172a; --surface2:#1e293b;
+            --primaire:#3b82f6; --violet:#8b5cf6; --texte:#e2e8f0; --doux:#94a3b8;
+            --ligne:#1e293b; --ok:#22c55e; --r:.75rem;
+          }
+          *{box-sizing:border-box;margin:0;padding:0}
+          html,body{height:100%}
+          body{
+            background:
+              radial-gradient(60rem 40rem at 15% -10%,rgba(59,130,246,.14),transparent 60%),
+              radial-gradient(50rem 35rem at 100% 110%,rgba(139,92,246,.10),transparent 60%),
+              var(--fond);
+            color:var(--texte);
+            font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+            line-height:1.6;display:flex;height:100vh;overflow:hidden;
+          }
+          aside{
+            width:250px;flex:0 0 250px;background:rgba(15,23,42,.8);
+            border-right:1px solid var(--ligne);padding:1.2rem 1rem;
+            display:flex;flex-direction:column;gap:.4rem;overflow-y:auto;
+          }
+          .titre{
+            font-size:1.05rem;font-weight:700;letter-spacing:.02em;
+            padding:.4rem .8rem 1rem;border-bottom:1px solid var(--ligne);margin-bottom:.6rem;
+          }
+          .titre b{background:linear-gradient(135deg,var(--primaire),var(--violet));
+            -webkit-background-clip:text;background-clip:text;color:transparent}
+          .onglet{
+            display:flex;align-items:center;gap:.6rem;padding:.7rem .8rem;border-radius:var(--r);
+            color:var(--doux);background:transparent;border:1px solid transparent;
+            font-size:.92rem;cursor:pointer;text-align:left;width:100%;transition:.15s;
+          }
+          .onglet:hover{background:var(--surface);color:var(--texte)}
+          .onglet.actif{
+            background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(139,92,246,.14));
+            border-color:rgba(59,130,246,.35);color:var(--texte);font-weight:600;
+          }
+          main{flex:1;display:flex;flex-direction:column;min-width:0}
+          main iframe{flex:1;width:100%;border:0;background:transparent}
+          .retour{
+            display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;
+            border-radius:999px;background:var(--surface);border:1px solid var(--ligne);
+            color:var(--doux);font-size:.82rem;text-decoration:none;margin:.8rem 1rem 0;align-self:flex-start;
+          }
+          .retour:hover{color:var(--texte);border-color:var(--primaire)}
+        </style>
+      </head>
+      <body>
+        <div id="perso-root"></div>
+        <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+        <script>
+          var PAGES = <t t-raw="json.dumps(pages)"/>;
+          var React = window.React, ReactDOM = window.ReactDOM;
+          function App(){
+            var actif = React.useState(Object.keys(PAGES)[0]);
+            var cle = actif[0], setCle = actif[1];
+            return React.createElement(React.Fragment, null,
+              React.createElement("aside", null,
+                React.createElement("div", {className:"titre"},
+                  React.createElement("b", null, "Mes pages")),
+                Object.keys(PAGES).map(function(k){
+                  return React.createElement("button", {
+                    key:k, className:"onglet"+(k===cle?" actif":""),
+                    onClick:function(){ setCle(k); }
+                  }, PAGES[k]);
+                }),
+                React.createElement("a", {className:"retour", href:"/tour/dashboard"},
+                  "↩ Revenir à l'accueil")
+              ),
+              React.createElement("main", null,
+                React.createElement("iframe", {
+                  key:cle,
+                  src:"/tour/perso/contenu/"+cle,
+                  title:PAGES[cle]
+                })
+              )
+            );
+          }
+          ReactDOM.createRoot(document.getElementById("perso-root")).render(
+            React.createElement(App)
+          );
+        </script>
+      </body>
+    </html>
+  </template>
+</odoo>

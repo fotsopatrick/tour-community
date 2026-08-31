@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- La table vivante : une ligne par app, progression en barre,
+         "En ce moment" bien visible. Pas de kanban ici, par choix. -->
+    <record id="app_suivi_view_list" model="ir.ui.view">
+        <field name="name">app.suivi.list</field>
+        <field name="model">app.suivi</field>
+        <field name="arch" type="xml">
+            <list default_order="sequence" create="true" edit="true">
+                <field name="sequence" widget="handle"/>
+                <field name="emoji" string="" width="40px"/>
+                <field name="name" string="App"/>
+                <field name="en_cours" string="En ce moment"/>
+                <field name="finalite"/>
+                            <field name="statut" widget="badge"
+                       decoration-info="statut == 'dev'"
+                       decoration-success="statut in ('beta', 'v1')"
+                       decoration-warning="statut == 'organe'"
+                       decoration-muted="statut == 'pause'"/>
+                <field name="progression" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="app_suivi_view_form" model="ir.ui.view">
+        <field name="name">app.suivi.form</field>
+        <field name="model">app.suivi</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="statut" widget="statusbar"
+                           statusbar_visible="concept,dev,beta,v1"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="emoji" class="oe_inline" style="width: 3rem;"/>
+                            <field name="name" class="oe_inline" placeholder="Nom de l'app"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="en_cours"/>
+                            <field name="progression" widget="progressbar"/>
+                        </group>
+                        <group>
+                            <field name="repo"/>
+                            <field name="sequence" groups="base.group_no_one"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="✅ Fait" name="fait">
+                            <field name="fait"/>
+                        </page>
+                        <page string="🎯 Reste pour v0.1" name="reste_v01">
+                            <field name="reste_v01"/>
+                        </page>
+                        <page string="🚀 Reste pour v1" name="reste_v1">
+                            <field name="reste_v1"/>
+                        </page>
+                        <page string="🌐 Site" name="site">
+                            <group>
+                                <field name="site_url" widget="url"/>
+                            </group>
+                            <field name="screenshot_html" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="app_suivi_action" model="ir.actions.act_window">
+        <field name="name">État des apps</field>
+        <field name="res_model">app.suivi</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune app suivie</p>
+            <p>Chaque ligne est une app : ce qu'on fait en ce moment,
+               ce qui est fait, ce qui reste pour la v0.1 et la v1.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_suivi_apps_root" name="Suivi apps" sequence="25"
+              web_icon="suivi_apps,static/description/icon.svg"/>
+
+    <menuitem id="menu_suivi_apps_etat" name="État des apps"
+              parent="menu_suivi_apps_root"
+              action="app_suivi_action" sequence="10"/>
+
+</odoo>

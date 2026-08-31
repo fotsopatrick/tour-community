@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Chaque épreuve vient d'une panne RÉELLE, jamais d'une imagination.
+         Une épreuve inventée passe toujours et ne prouve rien ; celle qui vient
+         d'une panne vécue attrape la même panne quand elle revient. -->
+
+    <!-- CHLOE — la panne du 27/07 : sans outil, elle improvisait au lieu de
+         dire « je n'ai pas l'outil ». Patrick a passé une heure à donner un
+         accès à la main. -->
+    <record id="e_chloe_inviter" model="agent.epreuve">
+        <field name="name">Elle sait donner un accès à quelqu'un</field>
+        <field name="membre_id" ref="tour_equipage.membre_chloe"/>
+        <field name="genre">outil</field>
+        <field name="cible">inviter_personne</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="e_chloe_taches" model="agent.epreuve">
+        <field name="name">Elle sait lire les tâches</field>
+        <field name="membre_id" ref="tour_equipage.membre_chloe"/>
+        <field name="genre">outil</field>
+        <field name="cible">lire_taches</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="e_chloe_clark" model="agent.epreuve">
+        <field name="name">Elle sait passer le relais à Clark</field>
+        <field name="membre_id" ref="tour_equipage.membre_chloe"/>
+        <field name="genre">outil</field>
+        <field name="cible">confier_a_clark</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="e_chloe_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_chloe"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- CLARK — il travaille sur un clone, et son moteur doit exister. -->
+    <record id="e_clark_moteur" model="agent.epreuve">
+        <field name="name">Son moteur est installé sur le serveur</field>
+        <field name="membre_id" ref="tour_equipage.membre_clark"/>
+        <field name="genre">moteur</field>
+        <field name="cible">discussion</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="e_clark_trace" model="agent.epreuve">
+        <field name="name">Ses conversations laissent une trace</field>
+        <field name="membre_id" ref="tour_equipage.membre_clark"/>
+        <field name="genre">trace</field>
+        <field name="cible">discussion.fil</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="e_clark_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_clark"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- LOIS — la panne du 27/07 : son moteur ne lisait pas le jeton, elle
+         échouait en deux secondes sur « Not logged in » et ressemblait à une
+         relectrice qui n'avait rien trouvé. -->
+    <record id="e_lois_moteur" model="agent.epreuve">
+        <field name="name">Son moteur est installé (sinon elle reste muette)</field>
+        <field name="membre_id" ref="tour_equipage.membre_lois"/>
+        <field name="genre">moteur</field>
+        <field name="cible">lois</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="e_lois_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_lois"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- VICTOR — on promet publiquement que ses contrôles rendent toujours le
+         même verdict. C'est une promesse testable. -->
+    <record id="e_victor_stable" model="agent.epreuve">
+        <field name="name">Ses contrôles rendent deux fois le même verdict</field>
+        <field name="membre_id" ref="tour_equipage.membre_victor"/>
+        <field name="genre">controle</field>
+        <field name="cible">securite.agent._c_gestionnaire_bases</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="e_victor_trace" model="agent.epreuve">
+        <field name="name">Ses constats laissent une trace</field>
+        <field name="membre_id" ref="tour_equipage.membre_victor"/>
+        <field name="genre">trace</field>
+        <field name="cible">securite.constat</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="e_victor_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_victor"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- JIMMY — il ne sert à rien s'il ne garde pas ses passages. -->
+    <record id="e_jimmy_trace" model="agent.epreuve">
+        <field name="name">Ses passages sont datés et conservés</field>
+        <field name="membre_id" ref="tour_equipage.membre_jimmy"/>
+        <field name="genre">trace</field>
+        <field name="cible">recette.passage</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="e_jimmy_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_jimmy"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- BRAIGNAK — la panne du 28/07 : ses missions échouaient en silence
+         parce que son autorisation avait expiré, et Patrick réappuyait. -->
+    <record id="e_braignak_moteur" model="agent.epreuve">
+        <field name="name">Son moteur est installé</field>
+        <field name="membre_id" ref="tour_equipage.membre_braignak"/>
+        <field name="genre">moteur</field>
+        <field name="cible">braignak</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="e_braignak_journal" model="agent.epreuve">
+        <field name="name">Son journal est daté (et inaltérable)</field>
+        <field name="membre_id" ref="tour_equipage.membre_braignak"/>
+        <field name="genre">trace</field>
+        <field name="cible">braignak.journal</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="e_braignak_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_braignak"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- TESS — ses chiffres doivent être reproductibles, sinon on ne peut pas
+         les comparer d'un mois à l'autre. -->
+    <record id="e_tess_trace" model="agent.epreuve">
+        <field name="name">Ses relevés sont datés et gardés</field>
+        <field name="membre_id" ref="tour_equipage.membre_tess"/>
+        <field name="genre">trace</field>
+        <field name="cible">tess.releve</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="e_tess_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_tess"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- PERRY — recruté, pas construit. Son épreuve échoue, et c'est la
+         vérité : elle deviendra verte le jour où il existera. -->
+    <record id="e_perry_perimetre" model="agent.epreuve">
+        <field name="name">Son périmètre et ses refus sont écrits</field>
+        <field name="membre_id" ref="tour_equipage.membre_perry"/>
+        <field name="genre">perimetre</field>
+        <field name="sequence">9</field>
+    </record>
+
+    <!-- LOIS — le banc des Décisions (tâche 463). Né d'une panne réelle :
+         le 28/07, deux bugs d'écran sur les Décisions (« des bugs, flemme
+         d'expliquer, demande au testeur »). Dix cas — approbation et rejet
+         sur chaque type d'origine, origine supprimée comprise — joués sous
+         savepoint et TOUJOURS annulés. La méthode lève si un cas rate,
+         donc l'épreuve passe rouge avec le détail. -->
+    <record id="e_lois_banc_decisions" model="agent.epreuve">
+        <field name="name">Le circuit des Décisions rend les bons verdicts (banc 10 cas)</field>
+        <field name="membre_id" ref="tour_equipage.membre_lois"/>
+        <field name="genre">controle</field>
+        <field name="cible">decision.fiche._controle_banc</field>
+        <field name="sequence">30</field>
+    </record>
+</odoo>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_decision_fiche_clone" model="ir.ui.view">
+        <field name="name">decision.fiche.form.clone</field>
+        <field name="model">decision.fiche</field>
+        <field name="inherit_id" ref="tour_decisions.vue_decision_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Choisis ce que le Clone peut faire (coche case par case)"
+                       invisible="'Clone' not in (name or '') or etat != 'attente'">
+                    <group string="Il PEUT">
+                        <field name="clone_peut_apprendre"/>
+                        <field name="clone_peut_veiller"/>
+                        <field name="clone_peut_proposer"/>
+                    </group>
+                    <group string="Garde-fous — il ne PEUT PAS, sauf si tu coches">
+                        <field name="clone_peut_envoyer"/>
+                        <field name="clone_peut_publier"/>
+                        <field name="clone_peut_modifier"/>
+                        <field name="clone_peut_decider"/>
+                    </group>
+                    <p class="text-muted" colspan="2">Les trois premières cases
+                       sont cochées par défaut (l'essentiel). Les quatre
+                       garde-fous sont DÉCOCHÉS : tu ne les ouvres que si tu
+                       veux vraiment. Modifie ce qu'il faut, puis Approuve —
+                       les choix seront appliqués au membre Clone.</p>
+                </group>
+                <notebook invisible="origine != 'Clone de Patrick'">
+                    <page string="Tes corrections du clone" name="clone_feedback">
+                        <field name="clone_feedback_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="numero" readonly="1"/>
+                                <field name="proposition" readonly="1"/>
+                                <field name="justif" readonly="1"
+                                       optional="show"/>
+                                <field name="verdict" widget="radio"/>
+                                <field name="pourquoi"
+                                       placeholder="Pourquoi — c'est ce que le clone doit apprendre"/>
+                                <field name="repondu_le" readonly="1"
+                                       optional="show"/>
+                            </list>
+                        </field>
+                        <p class="text-muted">Chaque ligne est UNE pré-décision
+                           du clone. Dis si tu es d'accord ou pas, et pourquoi :
+                           c'est de cette matière que le clone apprend ta façon
+                           de penser. Le cron quotidien s'en nourrit.</p>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

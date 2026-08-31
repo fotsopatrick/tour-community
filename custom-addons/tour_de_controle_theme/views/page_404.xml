@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LA PAGE 404 DE LA TOUR — design maison au lieu du template Odoo.
+         Patrick (06/08) : « la page de ODOO, change la page 404 par une
+         page stylé ». Fond cockpit, trois portes utiles, un mot de bas de
+         page pour la vitrine (le CV et les articles y vivent). -->
+    
+    <!-- 404 desactive sur la demo full : tour_404 remplace deja http_routing.404 entierement (conflit d'ordre'). Keep tour_404 b.yaml -->
+
+
+</odoo>

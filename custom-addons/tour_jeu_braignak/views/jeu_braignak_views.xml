@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="vue_edition_liste" model="ir.ui.view">
+    <field name="name">braignak.jeu.edition.liste</field>
+    <field name="model">braignak.jeu.edition</field>
+    <field name="arch" type="xml">
+      <list>
+        <field name="name"/>
+        <field name="etat"/>
+        <field name="nb_participations"/>
+        <field name="seuil"/>
+        <field name="gagnant_id"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="vue_edition_form" model="ir.ui.view">
+    <field name="name">braignak.jeu.edition.form</field>
+    <field name="model">braignak.jeu.edition</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_fermer" string="Fermer les inscriptions"
+                  type="object" invisible="etat != 'inscriptions'"/>
+          <field name="etat" widget="statusbar"/>
+        </header>
+        <sheet>
+          <group>
+            <field name="name"/>
+            <field name="seuil"/>
+            <field name="gagnant_id"/>
+          </group>
+          <field name="participation_ids">
+            <list>
+              <field name="name"/>
+              <field name="prompt"/>
+              <field name="gagnant"/>
+              <field name="recompense"/>
+            </list>
+          </field>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_editions" model="ir.actions.act_window">
+    <field name="name">Jeu de Braignak</field>
+    <field name="res_model">braignak.jeu.edition</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <menuitem id="menu_jeu_braignak" web_icon="tour_jeu_braignak,static/description/icon.png" name="Jeu de Braignak"
+            action="action_editions" sequence="86"/>
+</odoo>

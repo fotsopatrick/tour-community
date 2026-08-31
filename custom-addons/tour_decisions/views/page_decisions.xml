@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="page_decisions" name="Décisions — la webapp">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': 'fr-FR'}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Décisions</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .d-wrap { max-width:760px; margin:0 auto; padding:24px 16px 64px; }
+                    a.d-retour { color:var(--primaire); text-decoration:none; font-size:.88rem; }
+                    h1 { font-size:1.7rem; margin:14px 0 4px; }
+                    .d-sous { color:var(--doux); margin:0 0 20px; line-height:1.5; font-size:.92rem; }
+                    .d-cat { color:var(--doux); font-size:.78rem; text-transform:uppercase;
+                             letter-spacing:.08em; margin:26px 0 10px; font-weight:600; }
+                    .d-carte { background:var(--surface); border:1px solid var(--surface2);
+                               border-radius:.6rem; padding:16px; margin-bottom:12px; }
+                    .d-haut { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+                    .d-badge { font-size:.72rem; font-weight:700; padding:2px 10px; border-radius:20px;
+                               background:var(--surface2); color:var(--alerte); }
+                    .d-bloque { background:#3b1d1d; color:#f87171; }
+                    .d-doux { background:var(--surface2); color:var(--doux); }
+                    .d-origine { color:var(--primaire); font-size:.8rem; font-weight:600; }
+                    .d-depuis { color:var(--doux); font-size:.78rem; margin-left:auto; }
+                    .d-titre { font-weight:600; font-size:1.02rem; margin-bottom:8px; }
+                    .d-resume { color:var(--texte); font-size:.9rem; line-height:1.55;
+                                background:var(--surface); border:1px solid var(--surface2);
+                                border-radius:.45rem; padding:10px 12px; margin:0 0 12px; }
+                    .d-resume p { margin:0 0 8px; }
+                    .d-resume p:last-child { margin:0; }
+                    .d-attention { background:#14321e; border:1px solid #166534; color:#4ade80;
+                                   border-radius:.45rem; padding:8px 12px; font-size:.84rem;
+                                   margin:0 0 10px; font-weight:600; }
+                    .d-form textarea { width:100%; box-sizing:border-box; background:var(--fond);
+                             border:1px solid var(--surface2); border-radius:.45rem; color:var(--texte);
+                             padding:10px 12px; font-size:.88rem; min-height:58px;
+                             font-family:inherit; margin-bottom:10px; resize:vertical; }
+                    .d-form textarea:focus { outline:none; border-color:var(--primaire); }
+                    .d-boutons { display:flex; gap:8px; flex-wrap:wrap; }
+                    .d-boutons button { border:0; border-radius:.45rem; padding:9px 16px;
+                             font-size:.85rem; font-weight:600; cursor:pointer; }
+                    .d-ok { background:#16a34a; color:#fff; }
+                    .d-ok:hover { background:#15803d; }
+                    .d-ko { background:#3b1d1d; color:#f87171; }
+                    .d-ko:hover { background:#7f1d1d; }
+                    .d-archiver { background:var(--surface2); color:var(--doux); }
+                    .d-archiver:hover { color:var(--texte); }
+                    .d-vide { color:var(--doux); text-align:center; padding:40px 0; line-height:1.6; }
+                    .d-erreur { background:#3b1d1d; border:1px solid #7f1d1d; color:#f87171;
+                                border-radius:.45rem; padding:12px 14px; font-size:.9rem;
+                                margin:0 0 18px; font-weight:600; }
+                    .d-fait { background:#14321e; border:1px solid #166534; color:#4ade80;
+                             border-radius:.45rem; padding:12px 14px; font-size:.9rem;
+                             margin:0 0 18px; font-weight:600; }
+                    .d-decidee { display:flex; align-items:center; gap:10px; background:var(--surface);
+                                border:1px solid var(--surface2); border-radius:.45rem;
+                                padding:10px 14px; margin-bottom:8px; font-size:.88rem; }
+                    .d-decidee .nom { flex:1 1 auto; min-width:0; color:var(--texte); }
+                    .d-decidee .etat { font-size:.72rem; font-weight:700; padding:2px 9px;
+                                border-radius:20px; background:var(--surface2); color:var(--doux); }
+                    .d-decidee .quand { color:var(--doux); font-size:.78rem; }
+                </style>
+                <style>
+                    :root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#fbbf24;--ok:#22c55e;--r:.5rem;}
+                    :root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+                </style>
+                <script>
+                (function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+                </script>
+            </t>
+            <div class="d-wrap">
+                <a class="d-retour" href="/tour/dashboard">← Accueil</a>
+                <h1>Décisions</h1>
+                <p class="d-sous">
+                    Tout ce qui attend ton feu vert. Approuver agit : la mission part,
+                    l'étude devient une tâche, le constat se ferme. Rejeter avec un mot
+                    renvoie à l'agent qui reprendra. Archiver range sans relancer.
+                    Tu ne vois que tes décisions.
+                </p>
+
+                <div t-if="erreur" class="d-erreur"><t t-esc="erreur"/></div>
+                <div t-if="fait" class="d-fait"><t t-esc="fait"/></div>
+
+                <div class="d-cat">À décider</div>
+                <t t-if="en_attente">
+                    <t t-foreach="en_attente" t-as="d">
+                        <div class="d-carte">
+                            <div class="d-haut">
+                                <span t-if="d['priorite'] == '1'" class="d-badge d-bloque">Ça bloque</span>
+                                <span t-elif="d['priorite'] == '2'" class="d-badge">Important</span>
+                                <span t-else="" class="d-badge d-doux">Quand tu peux</span>
+                                <span class="d-origine"><t t-esc="d['origine']"/></span>
+                                <span class="d-depuis">depuis le <t t-esc="d['depuis']"/></span>
+                            </div>
+                            <div class="d-titre"><t t-esc="d['name']"/></div>
+                            <div t-if="d['resume']" class="d-resume" t-out="d['resume']"/>
+                            <div t-if="d['attend_reponses']" class="d-attention">
+                                L'agent attend tes réponses — écris-les dans le cadre, puis
+                                Approuver : il repartira sur le même chantier.
+                            </div>
+                            <form class="d-form" method="post" action="/tour/decisions/decider">
+                                <input type="hidden" name="id" t-att-value="d['id']"/>
+                                <input type="hidden" name="csrf_token"
+                                       t-att-value="request.csrf_token()"/>
+                                <textarea name="commentaire"
+                                    t-att-placeholder="d['placeholder']"></textarea>
+                                <div class="d-boutons">
+                                    <button type="submit" name="action" value="approuver" class="d-ok">Approuver</button>
+                                    <button type="submit" name="action" value="rejeter" class="d-ko">Rejeter</button>
+                                    <button type="submit" name="action" value="archiver" class="d-archiver">Archiver (sans suite)</button>
+                                </div>
+                            </form>
+                        </div>
+                    </t>
+                </t>
+                <t t-else="">
+                    <div class="d-vide">
+                        Aucune décision en attente.<br/>
+                        Le rabatteur dépose ici ce qui attend ton feu vert — rien à faire pour
+                        l'instant.
+                    </div>
+                </t>
+
+                <t t-if="decidees">
+                    <div class="d-cat">Décidées récemment</div>
+                    <t t-foreach="decidees" t-as="x">
+                        <div class="d-decidee">
+                            <span class="nom"><t t-esc="x['name']"/></span>
+                            <span class="etat"><t t-esc="x['etat']"/></span>
+                            <span class="quand"><t t-esc="x['decide_le']"/></span>
+                        </div>
+                    </t>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>

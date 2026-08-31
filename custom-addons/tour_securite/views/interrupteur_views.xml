@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_securite_interrupteur_form" model="ir.ui.view">
+        <field name="name">securite.interrupteur.form</field>
+        <field name="model">securite.interrupteur</field>
+        <field name="arch" type="xml">
+            <form string="Interrupteurs d'urgence">
+                <group>
+                    <field name="fournisseur"/>
+                    <field name="invites_actifs"/>
+                    <field name="invites_coupes"/>
+                </group>
+                <group string="L'accès des invités">
+                    <div colspan="2">
+                        <button name="action_couper_invites" type="object"
+                                string="Couper tous les invités"
+                                class="btn btn-danger"
+                                confirm="Couper l'accès de TOUS les invités maintenant ? Ils seront déconnectés et ne pourront plus entrer jusqu'à la réouverture."/>
+                        <button name="action_rouvrir_invites" type="object"
+                                string="Rouvrir" class="btn btn-secondary ms-2"/>
+                    </div>
+                    <field name="invite_ids" colspan="2"
+                           widget="many2many_tags" readonly="1"/>
+                </group>
+                <group string="Le moteur du copilote">
+                    <div colspan="2">
+                        <button name="action_moteur_deepseek" type="object"
+                                string="Passer sur DeepSeek"
+                                class="btn btn-primary"/>
+                        <button name="action_moteur_claude" type="object"
+                                string="Revenir sur Claude"
+                                class="btn btn-secondary ms-2"/>
+                    </div>
+                </group>
+                <group string="Procédure de compromission">
+                    <div colspan="2">
+                        <button name="action_compromission" type="object"
+                                string="🚨 TOUT COUPER (compromission)"
+                                class="btn btn-danger"
+                                confirm="ATTENTION : vous allez couper l'accès de TOUS les invités, arrêter Braignak, supprimer son autorisation, et basculer le copilote sur DeepSeek. Seul vous restez actif. Confirmer ?"/>
+                        <p class="text-muted mt-2 mb-0">
+                            En cas d'attaque ou de comportement suspect. 
+                            Coupe les invités + Braignak + bascule le copilote en mode dégradé.
+                            Chaque geste est réversible individuellement.
+                        </p>
+                    </div>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_securite_interrupteur" model="ir.actions.act_window">
+        <field name="name">Interrupteurs</field>
+        <field name="res_model">securite.interrupteur</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Une tuile à soi sur l'accueil : en urgence on ne cherche pas un
+         sous-menu, on cherche un gros bouton. Admins seulement. -->
+    <menuitem id="menu_interrupteurs_root" name="Interrupteurs" sequence="2"
+              web_icon="tour_securite,static/description/icon.png"
+              action="action_securite_interrupteur"
+              groups="base.group_system"/>
+
+</odoo>

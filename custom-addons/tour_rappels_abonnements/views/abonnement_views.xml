@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_abonnement_liste" model="ir.ui.view">
+        <field name="name">abonnement.actif.liste</field>
+        <field name="model">abonnement.actif</field>
+        <field name="arch" type="xml">
+            <list string="Abonnements" decoration-info="etat == 'bientot'"
+                  decoration-muted="etat in ('expire','inactif')">
+                <field name="name"/>
+                <field name="site"/>
+                <field name="cout" string="Coût"/>
+                <field name="periode"/>
+                <field name="date_debut"/>
+                <field name="date_fin"/>
+                <field name="rappel_le" string="Prochain rappel"/>
+                <field name="etat" widget="badge"
+                       decoration-success="etat == 'en_cours'"
+                       decoration-warning="etat == 'bientot'"
+                       decoration-danger="etat == 'expire'"
+                       decoration-muted="etat == 'inactif'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_abonnement_form" model="ir.ui.view">
+        <field name="name">abonnement.actif.form</field>
+        <field name="model">abonnement.actif</field>
+        <field name="arch" type="xml">
+            <form string="Abonnement">
+                <header>
+                    <button name="action_envoyer_rappel" type="object"
+                            class="btn-primary" string="Envoyer le rappel maintenant"
+                            invisible="not email_rappel or not actif"/>
+                    <button name="action_resilier" type="object" string="Résilié — couper les rappels"
+                            invisible="not actif"/>
+                    <field name="etat" widget="statusbar" options="{'clickable': false}"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="etat != 'bientot'">
+                        Finit dans 4 jours ou moins. Le rappel est (ou va
+                        être) envoyé.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Ex : Manning — AI Agents in Action"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="site" placeholder="https://www.manning.com"/>
+                            <field name="cout"/>
+                            <field name="periode"/>
+                        </group>
+                        <group>
+                            <field name="date_debut"/>
+                            <field name="date_fin"/>
+                            <field name="actif"/>
+                        </group>
+                    </group>
+                    <group string="Rappel par courriel">
+                        <field name="email_rappel" placeholder="laisser vide = jamais de rappel"/>
+                        <field name="rappel_le"/>
+                        <field name="dernier_rappel"/>
+                        <field name="nb_rappels"/>
+                    </group>
+                    <field name="notes" placeholder="Ce qu'on sait : commande, adresse du support, ce qu'on attend…"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_abonnement" model="ir.actions.act_window">
+        <field name="name">Mes abonnements</field>
+        <field name="res_model">abonnement.actif</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun abonnement suivi</p>
+            <p>Ajoute ici chaque abonnement (Manning, etc.) : la tour te
+            rappellera par courriel avant la fin de la période.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_abonnements_root" name="Mes abonnements" sequence="31"
+              web_icon="tour_rappels_abonnements,static/description/icon.svg"/>
+    <menuitem id="menu_abonnements" name="Abonnements" sequence="10"
+              parent="menu_abonnements_root" action="action_abonnement"/>
+</odoo>

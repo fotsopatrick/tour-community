@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="page_actions_config" name="Tour — Configurer Actions">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+                <meta name="theme-color" content="#020817"/>
+                <title>Cocher Actions</title>
+                <style>
+                    :root {
+                        --fond: #020817; --surface: #0f172a; --surface2: #1e293b;
+                        --primaire: #3b82f6; --texte: #e2e8f0; --doux: #94a3b8;
+                        --alerte: #f59e0b; --ok: #22c55e; --r: .5rem;
+                    }
+                    * { box-sizing: border-box; }
+                    body { margin: 0; background: var(--fond); color: var(--texte);
+                           font-family: system-ui, -apple-system, sans-serif; line-height: 1.5; }
+                    .wrap { max-width: 900px; margin: 0 auto; padding: 24px 12px 80px; }
+                    h1 { font-size: 1.3rem; margin: 0 0 4px; }
+                    .sous { color: var(--doux); font-size: .9rem; margin-bottom: 18px; }
+                    .env-badge { display:inline-block; background: var(--surface2);
+                                 color: var(--texte); border-radius: 999px;
+                                 padding: 2px 12px; font-size: .78rem; margin-left: 8px; }
+                    .carte { background: var(--surface); border: 1px solid var(--surface2);
+                             border-radius: var(--r); padding: 10px 14px; margin-bottom: 12px; }
+                    .groupe-titre { font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+                                   color: var(--doux); text-transform: uppercase; margin-bottom: 6px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--surface2);
+                             font-size: .9rem; }
+                    td.nom { width: 50%; }
+                    td.encoche { width: 25%; text-align: center; }
+                    input[type=checkbox] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primaire); }
+                    .colenr { color: var(--doux); font-size: .8rem; }
+                    .barre { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface);
+                             border-top: 1px solid var(--surface2); padding: 12px 16px;
+                             display: flex; justify-content: space-between; align-items: center; }
+                    button { background: var(--primaire); color: #fff; border: none;
+                             padding: 10px 22px; border-radius: var(--r); font-size: .95rem; cursor: pointer; }
+                    button:disabled { opacity: .5; cursor: not-allowed; }
+                    #retour { color: var(--ok); font-size: .95rem; }
+                    .retour-link { color: var(--doux); text-decoration: none; font-size: .85rem; margin-right: 10px; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </head>
+            <body>
+                <div class="wrap">
+                    <h1>Cocher Actions — PROD / DEMO
+                        <span class="env-badge">Environnement : <t t-out="environnement"/></span></h1>
+                    <p class="sous">
+                        Coche pour chaque item du menu Actions s'il est visible en PROD et/ou en DEMO.
+                        L'affichage réel dépend aussi des droits du compte (admin / propriétaire).
+                    </p>
+                    <p class="sous">
+                        <b>INVITÉS</b> : un compte sans droits d'administration voit l'item
+                        seulement si cette case <b>et</b> celle de l'environnement sont cochées
+                        toutes les deux. Décochée, l'item lui reste fermé — y compris s'il tape
+                        l'adresse à la main : la page elle-même refuse, pas seulement le menu.
+                    </p>
+                    <t t-raw="blocs_html"/>
+                </div>
+
+                <div class="barre">
+                    <div>
+                        <a class="retour-link" href="/tour/dashboard">← Retour à l'accueil</a>
+                        <span id="retour"></span>
+                    </div>
+                    <button id="enregistrer">Enregistrer</button>
+                </div>
+
+                <script type="text/javascript">
+                <![CDATA[
+                    function collecter() {
+                        var out = [];
+                        document.querySelectorAll('tr[data-id]').forEach(function (tr) {
+                            out.push({
+                                id: tr.getAttribute('data-id'),
+                                prod: tr.querySelector('.cb-prod').checked,
+                                demo: tr.querySelector('.cb-demo').checked,
+                                ouvrable_invite: tr.querySelector('.cb-invite').checked
+                            });
+                        });
+                        return out;
+                    }
+                    document.getElementById('enregistrer').addEventListener('click', function () {
+                        var btn = this; btn.disabled = true;
+                        var retour = document.getElementById('retour');
+                        fetch('/tour/actions-config/enregistrer', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ items: collecter() })
+                        }).then(function (r) { return r.json(); })
+                          .then(function (resp) {
+                            if (resp && resp.ok) { retour.textContent = '✔ Enregistré.'; }
+                            else { retour.textContent = 'Refus.'; }
+                          }).catch(function () {
+                            retour.textContent = 'Erreur réseau.';
+                          }).finally(function () { btn.disabled = false; });
+                    });
+                ]]>
+                </script>
+            </body>
+        </html>
+    </template>
+</odoo>

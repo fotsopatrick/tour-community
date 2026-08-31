@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_epreuve_liste" model="ir.ui.view">
+        <field name="name">agent.epreuve.liste</field>
+        <field name="model">agent.epreuve</field>
+        <field name="arch" type="xml">
+            <list string="Épreuves" default_order="membre_id, sequence"
+                  decoration-danger="dernier_etat == 'ko'"
+                  decoration-success="dernier_etat == 'ok'">
+                <field name="membre_id"/>
+                <field name="name"/>
+                <field name="genre"/>
+                <field name="cible"/>
+                <field name="dernier_etat" widget="badge"/>
+                <field name="dernier_detail"/>
+                <field name="passe_le"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_passage_liste" model="ir.ui.view">
+        <field name="name">agent.passage.liste</field>
+        <field name="model">agent.passage</field>
+        <field name="arch" type="xml">
+            <list string="Passages" decoration-danger="regressions">
+                <field name="date"/>
+                <field name="total"/>
+                <field name="reussies"/>
+                <field name="echouees"/>
+                <field name="regressions"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_epreuve" model="ir.actions.act_window">
+        <field name="name">Épreuves des agents</field>
+        <field name="res_model">agent.epreuve</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="action_passage" model="ir.actions.act_window">
+        <field name="name">Passages</field>
+        <field name="res_model">agent.passage</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="action_eprouver" model="ir.actions.server">
+        <field name="name">Passer les épreuves maintenant</field>
+        <field name="model_id" ref="model_agent_passage"/>
+        <field name="state">code</field>
+        <field name="code">action = model._cron_eprouver()</field>
+    </record>
+
+    <menuitem id="menu_epreuves" name="Épreuves des agents"
+              parent="tour_dashboard.menu_pilotage_equipe" sequence="24"
+              action="action_epreuve"/>
+    <menuitem id="menu_passages" name="Passages d'épreuves"
+              parent="menu_epreuves" sequence="10" action="action_passage"/>
+
+    <record id="cron_epreuves" model="ir.cron">
+        <field name="name">Épreuves : vérifier que rien n'a régressé</field>
+        <field name="model_id" ref="model_agent_passage"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_eprouver()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

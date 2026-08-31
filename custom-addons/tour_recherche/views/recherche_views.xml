@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============ Les endroits ============ -->
+
+    <record id="view_recherche_source_list" model="ir.ui.view">
+        <field name="name">recherche.source.list</field>
+        <field name="model">recherche.source</field>
+        <field name="arch" type="xml">
+            <list string="Où chercher" decoration-muted="not actif">
+                <field name="name"/>
+                <field name="resume"/>
+                <field name="genre"/>
+                <field name="pour_quoi"/>
+                <field name="cercle"/>
+                <field name="actif" widget="boolean_toggle"/>
+                <field name="passages_count" string="Passages" optional="show"/>
+                <field name="dernier_passage" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_recherche_source_form" model="ir.ui.view">
+        <field name="name">recherche.source.form</field>
+        <field name="model">recherche.source</field>
+        <field name="arch" type="xml">
+            <form string="Un endroit où chercher">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Ma boîte mail"/></h1>
+                        <field name="resume" placeholder="En une phrase : ce qu'on y trouve."/>
+                    </div>
+                    <group>
+                        <group string="L'endroit">
+                            <field name="genre"/>
+                            <field name="adresse" placeholder="fotsoorel95@gmail.com"/>
+                            <field name="pour_quoi" placeholder="mes candidatures"/>
+                        </group>
+                        <group string="Qui a le droit">
+                            <field name="cercle"/>
+                            <field name="actif"/>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                    <group string="Comment y aller">
+                        <field name="comment_y_aller" nolabel="1"
+                               placeholder="L'outil à utiliser, la connexion à faire. Jamais de mot de passe ici."/>
+                    </group>
+                    <notebook>
+                        <page string="Qui est passé" name="passages">
+                            <field name="passage_ids" readonly="1">
+                                <list decoration-danger="refuse">
+                                    <field name="create_date" string="Quand"/>
+                                    <field name="qui"/>
+                                    <field name="cercle"/>
+                                    <field name="cherche"/>
+                                    <field name="trouve"/>
+                                    <field name="refuse"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_recherche_source_search" model="ir.ui.view">
+        <field name="name">recherche.source.search</field>
+        <field name="model">recherche.source</field>
+        <field name="arch" type="xml">
+            <search string="Chercher un endroit">
+                <field name="name" string="Chercher"
+                       filter_domain="['|','|',
+                                       ('name','ilike',self),
+                                       ('resume','ilike',self),
+                                       ('pour_quoi','ilike',self)]"/>
+                <filter name="f_actif" string="On y cherche" domain="[('actif','=',True)]"/>
+                <filter name="f_eteint" string="Éteints" domain="[('actif','=',False)]"/>
+                <separator/>
+                <filter name="f_c1" string="Cercle 1 — fermé" domain="[('cercle','=','1')]"/>
+                <filter name="f_c2" string="Cercle 2 — agents" domain="[('cercle','=','2')]"/>
+                <filter name="f_c4" string="Cercle 4 — invités" domain="[('cercle','=','4')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="g_cercle" string="Cercle" context="{'group_by':'cercle'}"/>
+                    <filter name="g_genre" string="Genre" context="{'group_by':'genre'}"/>
+                    <filter name="g_pour" string="On y cherche quoi" context="{'group_by':'pour_quoi'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_recherche_source" model="ir.actions.act_window">
+        <field name="name">Où chercher</field>
+        <field name="res_model">recherche.source</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_f_actif': 1, 'search_default_g_cercle': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun endroit pour l'instant.</p>
+            <p>Un endroit, c'est une boîte mail, un dossier, un site, un service.
+               Coché, la recherche y va. Décoché, elle n'y va pas.</p>
+        </field>
+    </record>
+
+    <!-- ============ Le journal ============ -->
+
+    <record id="view_recherche_passage_list" model="ir.ui.view">
+        <field name="name">recherche.passage.list</field>
+        <field name="model">recherche.passage</field>
+        <field name="arch" type="xml">
+            <list string="Qui est passé" decoration-danger="refuse" create="0">
+                <field name="create_date" string="Quand"/>
+                <field name="qui"/>
+                <field name="cercle"/>
+                <field name="source_id"/>
+                <field name="cherche"/>
+                <field name="trouve"/>
+                <field name="refuse"/>
+                <field name="note" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_recherche_passage_search" model="ir.ui.view">
+        <field name="name">recherche.passage.search</field>
+        <field name="model">recherche.passage</field>
+        <field name="arch" type="xml">
+            <search string="Chercher un passage">
+                <field name="qui"/>
+                <field name="cherche"/>
+                <field name="source_id"/>
+                <filter name="f_refus" string="Refusés" domain="[('refuse','=',True)]"/>
+                <filter name="f_ok" string="Acceptés" domain="[('refuse','=',False)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="g_qui" string="Qui" context="{'group_by':'qui'}"/>
+                    <filter name="g_source" string="L'endroit" context="{'group_by':'source_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_recherche_passage" model="ir.actions.act_window">
+        <field name="name">Qui est passé</field>
+        <field name="res_model">recherche.passage</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Personne n'est encore passé.</p>
+            <p>Chaque fouille écrit une ligne ici — celles qu'on a acceptées
+               et celles qu'on a refusées. Les refus sont en rouge.</p>
+        </field>
+    </record>
+
+    <!-- ============ Le menu ============ -->
+
+    <!-- La page à nous. Odoo garde le rangement ; l'écran, on le reprend. -->
+    <record id="action_recherche_page" model="ir.actions.act_url">
+        <field name="name">La page</field>
+        <field name="url">/ou-chercher</field>
+        <field name="target">self</field>
+    </record>
+
+    <menuitem id="menu_recherche_racine" name="Où chercher"
+              web_icon="tour_recherche,static/description/icon.png"
+              sequence="46"/>
+    <menuitem id="menu_recherche_page" name="La page"
+              parent="menu_recherche_racine"
+              action="action_recherche_page" sequence="5"/>
+    <menuitem id="menu_recherche_sources" name="Les endroits"
+              parent="menu_recherche_racine"
+              action="action_recherche_source" sequence="10"/>
+    <menuitem id="menu_recherche_passages" name="Qui est passé"
+              parent="menu_recherche_racine"
+              action="action_recherche_passage" sequence="20"/>
+
+</odoo>

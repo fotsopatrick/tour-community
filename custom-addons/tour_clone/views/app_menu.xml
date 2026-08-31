@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Le Clone dans la grille des applications (Odoo Apps). La route existait
+         (/tour/clone), il manquait le menu. Même patron que les autres apps. -->
+    <record id="action_clone" model="ir.actions.act_url">
+        <field name="name">Le Clone de Patrick</field>
+        <field name="url">/tour/clone</field>
+        <field name="target">self</field>
+    </record>
+    <menuitem id="menu_clone_racine" name="Le Clone" sequence="5"
+              action="action_clone"
+              web_icon="tour_clone,static/description/icon.svg"/>
+
+</odoo>

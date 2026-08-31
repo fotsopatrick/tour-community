@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!--
+            Une conversation qui peut écrire des fichiers sur le serveur est un
+            pouvoir réel. Deux barrières, et non une : les droits d'accès la
+            réservent déjà aux administrateurs, cette règle garantit en plus
+            qu'un administrateur ne lit pas la conversation d'un autre.
+            Une tour vendue à plusieurs mains en aura besoin.
+        -->
+        <record id="rule_discussion_fil_proprietaire" model="ir.rule">
+            <field name="name">Chacun ne voit que ses propres conversations</field>
+            <field name="model_id" ref="model_discussion_fil"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+        <record id="rule_discussion_echange_proprietaire" model="ir.rule">
+            <field name="name">Échanges : ceux des fils qui m'appartiennent</field>
+            <field name="model_id" ref="model_discussion_echange"/>
+            <field name="domain_force">[('fil_id.user_id', '=', user.id)]</field>
+            <field name="global" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

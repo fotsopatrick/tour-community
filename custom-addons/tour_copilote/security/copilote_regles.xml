@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Chacun ne voit que SES échanges. Sans cette règle, l'accès lecture
+         de base.group_user ouvrait la consommation de tout le monde à
+         n'importe quel compte interne passant par l'URL d'une action.
+         On compte, on ne relit pas — et on ne compte pas chez le voisin. -->
+    <record id="regle_usage_soi" model="ir.rule">
+        <field name="name">Copilote : chacun ses échanges</field>
+        <field name="model_id" ref="model_copilote_usage"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="regle_usage_admin" model="ir.rule">
+        <field name="name">Copilote : le propriétaire voit tout</field>
+        <field name="model_id" ref="model_copilote_usage"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+</odoo>

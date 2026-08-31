@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Les jalons sont écrits ici, pas devinés. Chacun dit CE QUE ÇA APPORTE
+         et OÙ ça se passe : un jalon qui annonce « Créez une tâche » sans dire
+         à quoi ça sert ni où cliquer est un devoir, pas une découverte. -->
+
+    <record id="j_note" model="tour.jalon">
+        <field name="name">Écrire une première chose</field>
+        <field name="description">Un outil vide reste un outil qu'on oublie</field>
+        <field name="code">note</field><field name="famille">demarrer</field>
+        <field name="ou">Projets</field><field name="sequence">1</field>
+    </record>
+    <record id="j_rappel" model="tour.jalon">
+        <field name="name">Poser un rappel</field>
+        <field name="description">La tour te prévient au lieu que tu y penses</field>
+        <field name="code">rappel</field><field name="famille">demarrer</field>
+        <field name="ou">Rappels</field><field name="sequence">2</field>
+    </record>
+    <record id="j_guide" model="tour.jalon">
+        <field name="name">Garder une astuce</field>
+        <field name="description">Ce que tu apprends ne se reperd plus</field>
+        <field name="code">guide</field><field name="famille">demarrer</field>
+        <field name="ou">Guides</field><field name="sequence">3</field>
+    </record>
+    <record id="j_actus" model="tour.jalon">
+        <field name="name">Suivre l'actualité qui t'intéresse</field>
+        <field name="description">Tes sujets arrivent chez toi, sans réseau social</field>
+        <field name="code">actus</field><field name="famille">demarrer</field>
+        <field name="ou">Actus</field><field name="sequence">4</field>
+    </record>
+
+    <record id="j_taches" model="tour.jalon">
+        <field name="name">Dix choses notées</field>
+        <field name="description">Le moment où la tour devient ta mémoire</field>
+        <field name="code">taches_10</field><field name="famille">organiser</field>
+        <field name="ou">Projets</field><field name="sequence">10</field>
+    </record>
+    <record id="j_projet2" model="tour.jalon">
+        <field name="name">Un deuxième projet</field>
+        <field name="description">Chaque chantier a sa place, plus de mélange</field>
+        <field name="code">projet_2</field><field name="famille">organiser</field>
+        <field name="ou">Projets</field><field name="sequence">11</field>
+    </record>
+    <record id="j_invite" model="tour.jalon">
+        <field name="name">Inviter quelqu'un</field>
+        <field name="description">On ne travaille plus seul dessus</field>
+        <field name="code">invite</field><field name="famille">organiser</field>
+        <field name="ou">Réglages &gt; Utilisateurs</field><field name="sequence">12</field>
+    </record>
+    <record id="j_version" model="tour.jalon">
+        <field name="name">Valider une version</field>
+        <field name="description">La liste devient un contrat, le travail peut commencer</field>
+        <field name="code">version</field><field name="famille">organiser</field>
+        <field name="ou">Versions</field><field name="sequence">13</field>
+    </record>
+    <record id="j_cv" model="tour.jalon">
+        <field name="name">Publier ton CV</field>
+        <field name="description">Une page à jour, sans jamais refaire un PDF</field>
+        <field name="code">cv</field><field name="famille">organiser</field>
+        <field name="ou">Mon CV</field><field name="sequence">14</field>
+    </record>
+
+    <record id="j_conversation" model="tour.jalon">
+        <field name="name">Parler à un agent</field>
+        <field name="description">Quelqu'un pour t'aider, à toute heure</field>
+        <field name="code">conversation</field><field name="famille">automatiser</field>
+        <field name="ou">Clark</field><field name="sequence">20</field>
+    </record>
+    <record id="j_mission" model="tour.jalon">
+        <field name="name">Confier une mission</field>
+        <field name="description">Du travail qui avance pendant que tu fais autre chose</field>
+        <field name="code">mission</field><field name="famille">automatiser</field>
+        <field name="ou">Atelier</field><field name="sequence">21</field>
+    </record>
+    <record id="j_recette" model="tour.jalon">
+        <field name="name">Faire tester tes sites chaque nuit</field>
+        <field name="description">Tu sais avant tes visiteurs que quelque chose est cassé</field>
+        <field name="code">recette</field><field name="famille">automatiser</field>
+        <field name="ou">Recette</field><field name="sequence">22</field>
+    </record>
+    <record id="j_securite" model="tour.jalon">
+        <field name="name">Trancher un point de sécurité</field>
+        <field name="description">Les portes ouvertes se referment</field>
+        <field name="code">securite</field><field name="famille">automatiser</field>
+        <field name="ou">Sécurité</field><field name="sequence">23</field>
+    </record>
+    <record id="j_sauvegarde" model="tour.jalon">
+        <field name="name">Avoir une sauvegarde</field>
+        <field name="description">Une fausse manœuvre cesse d'être une catastrophe</field>
+        <field name="code">sauvegarde</field><field name="famille">automatiser</field>
+        <field name="ou">Sauvegardes</field><field name="sequence">24</field>
+    </record>
+    <record id="j_etude" model="tour.jalon">
+        <field name="name">Faire étudier un concurrent</field>
+        <field name="description">Savoir ce qui te manque avant qu'un client te le dise</field>
+        <field name="code">etude</field><field name="famille">automatiser</field>
+        <field name="ou">Braignak</field><field name="sequence">25</field>
+    </record>
+    <record id="j_chiffres" model="tour.jalon">
+        <field name="name">Connaître tes chiffres</field>
+        <field name="description">Ce que ça coûte, ce que ça rapporte, sans tableur</field>
+        <field name="code">chiffres</field><field name="famille">automatiser</field>
+        <field name="ou">Pilotage &gt; Les chiffres</field><field name="sequence">26</field>
+    </record>
+
+    <record id="j_site" model="tour.jalon">
+        <field name="name">Mettre un site en ligne</field>
+        <field name="description">D'une idée à une adresse qui répond, sans console</field>
+        <field name="code">site</field><field name="famille">vendre</field>
+        <field name="ou">Déploiement</field><field name="sequence">30</field>
+    </record>
+    <record id="j_offre" model="tour.jalon">
+        <field name="name">Publier une offre</field>
+        <field name="description">Un prix affiché, un lien de paiement qui marche</field>
+        <field name="code">offre</field><field name="famille">vendre</field>
+        <field name="ou">Abonnements</field><field name="sequence">31</field>
+    </record>
+    <record id="j_paiement" model="tour.jalon">
+        <field name="name">Recevoir un paiement</field>
+        <field name="description">Le premier euro, celui qui prouve que la chaîne tient</field>
+        <field name="code">paiement</field><field name="famille">vendre</field>
+        <field name="ou">Abonnements</field><field name="sequence">32</field>
+    </record>
+    <record id="j_instance" model="tour.jalon">
+        <field name="name">Livrer la tour d'un client</field>
+        <field name="description">Il paie, il reçoit ses accès, tu n'as rien fait</field>
+        <field name="code">instance</field><field name="famille">vendre</field>
+        <field name="ou">Abonnements</field><field name="sequence">33</field>
+    </record>
+</odoo>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Les lignes de départ. Celles dont le montant est certain portent un
+       chiffre ; les autres portent ZERO et le drapeau « à confirmer ».
+       Inventer un montant plausible serait le pire choix : on déciderait
+       dessus en croyant savoir. -->
+  <data noupdate="1">
+
+    <record id="poste_vps" model="cout.poste">
+      <field name="name">Le serveur (VPS)</field>
+      <field name="categorie">serveur</field>
+      <field name="fournisseur">OVH</field>
+      <field name="montant">9.0</field>
+      <field name="periodicite">mensuel</field>
+      <field name="a_confirmer" eval="True"/>
+      <field name="note">VPS-2 à Gravelines, sans engagement. Le chiffre vient
+        du carnet du dépôt (« ~9 EUR/mois ») : à remplacer par le montant exact
+        de la facture. Il porte TOUT : la tour, la démo, les sites publiés,
+        les sauvegardes, les agents.</field>
+    </record>
+
+    <record id="poste_modeles" model="cout.poste">
+      <field name="name">Les modèles appelés à la clé d'API (Chloe)</field>
+      <field name="categorie">modele</field>
+      <field name="fournisseur">Anthropic</field>
+      <field name="montant">0.0</field>
+      <field name="periodicite">mensuel</field>
+      <field name="mesure" eval="True"/>
+      <field name="note">Mesuré par la tour à partir de ses propres traces.
+        Appuyer sur « Mesurer maintenant » ou attendre le passage de nuit.</field>
+    </record>
+
+    <record id="poste_abonnement_claude" model="cout.poste">
+      <field name="name">L'abonnement qui fait tourner les agents</field>
+      <field name="categorie">abonnement</field>
+      <field name="fournisseur">Anthropic</field>
+      <field name="montant">0.0</field>
+      <field name="periodicite">mensuel</field>
+      <field name="a_confirmer" eval="True"/>
+      <field name="note">C'est lui qui paie l'atelier, Clark, Lois, Braignak et
+        Jonathan — pas la clé d'API. Montant à saisir par Patrick : lui seul
+        connaît la formule qu'il a prise.</field>
+    </record>
+
+    <record id="poste_domaines" model="cout.poste">
+      <field name="name">Les domaines et la boîte mail</field>
+      <field name="categorie">domaine</field>
+      <field name="fournisseur">OVH</field>
+      <field name="montant">0.0</field>
+      <field name="periodicite">annuel</field>
+      <field name="a_confirmer" eval="True"/>
+      <field name="note">matourdecontrole.fr + .com, renouvellement automatique
+        au 25/07/2027, plus une boîte de 15 Go. Montant à relever sur la
+        facture OVH.</field>
+    </record>
+
+    <record id="poste_cle_demo" model="cout.poste">
+      <field name="name">La clé d'API de la démo</field>
+      <field name="categorie">modele</field>
+      <field name="fournisseur">DeepSeek</field>
+      <field name="montant">0.0</field>
+      <field name="periodicite">usage</field>
+      <field name="a_confirmer" eval="True"/>
+      <field name="note">Facturée à l'usage. Les visiteurs de la démo sont
+        invités à poser leur propre clé ; celle-ci n'est là que pour que la
+        démonstration réponde quand même.</field>
+    </record>
+
+    <record id="poste_sauvegardes" model="cout.poste">
+      <field name="name">Les sauvegardes</field>
+      <field name="categorie">stockage</field>
+      <field name="montant">0.0</field>
+      <field name="periodicite">mensuel</field>
+      <field name="note">Zéro, et ce n'est pas une bonne nouvelle : elles
+        vivent sur le MÊME serveur. Elles couvrent la fausse manœuvre et la
+        base abîmée, pas la perte de la machine. Un stockage hors-site chez
+        OVH ferait apparaître ici une vraie ligne.</field>
+    </record>
+
+    <record id="poste_courriels" model="cout.poste">
+      <field name="name">L'envoi des courriels et la veille des agents</field>
+      <field name="categorie">service</field>
+      <field name="montant">0.0</field>
+      <field name="periodicite">mensuel</field>
+      <field name="note">Zéro mesuré, et la question méritait d'être posée
+        (Patrick, 29/07 : « que nous coûte l'automatisation ? »). Prévenir le
+        demandeur, la tournée de Jonathan, le balai des doublons, les contrôles
+        de Victor : tout cela est du code déterministe et du SQL. Aucun jeton,
+        aucun appel payant — seulement du temps de calcul sur un serveur déjà
+        payé. Ce qui coûte, ce sont les modèles, pas l'automatisation.</field>
+    </record>
+
+  </data>
+</odoo>

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_besoin_admin,echange.besoin admin,model_echange_besoin,base.group_system,1,1,1,1

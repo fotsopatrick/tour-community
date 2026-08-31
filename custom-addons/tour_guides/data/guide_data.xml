@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="guide_vocabulaire" model="tour.guide">
+            <field name="name">Le vocabulaire commun de la tour — quatre mots, quatre mondes</field>
+            <field name="categorie">education</field>
+            <field name="sequence">1</field>
+            <field name="interne">True</field>
+            <field name="resume">Qualifier sans se tromper : Apps Odoo, Modules tour, Webapps, Sites publics. On parle de la même chose ou on ne parle pas.</field>
+            <field name="mots_cles">vocabulaire, glossaire, lexique, app, odoo, module, tour, webapp, site public, application, brique, jargon, uniformiser, langage</field>
+            <field name="contenu"><![CDATA[
+<h3>Pourquoi un glossaire</h3>
+<p>Deux personnes qui disent « app » pensent parfois à deux choses différentes :
+l'un au menu de modules, l'autre à une application publiée pour un client. Un
+guide s'écrit mal si les mots qui le décrivent ne désignent pas la même chose.
+Voici l'accord, une fois pour toutes.</p>
+
+<h3>Les quatre mots</h3>
+
+<h4>1. Les Apps Odoo</h4>
+<p>Les modules <b>standard du logiciel Odoo</b>, installés parce qu'ils donnent
+des briques de base : la gestion de projet, la comptabilité, les ventes, la
+messagerie, les tâches, les documents. On ne les a pas écrits, on les a
+installés. On ne les présente pas comme « notre création ».</p>
+<ul>
+<li><b>Exemples</b> : Projet, Facturation, Ventes, Discussion, To-Do, Documents.</li>
+<li><b>À retenir</b> : ce sont des outils de fond Odoo, par noms génériques.</li>
+</ul>
+
+<h4>2. Les Modules tour (les briques)</h4>
+<p>Nos <b>modules maison</b> — ceux dont le nom commence par <code>tour_</code>.
+Ils font tourner la machine : le pilotage, les agents, la sécurité. Ils ne sont
+pas faits pour être vendus tels quels, ils sont le moteur qui fabrique les
+webapps.</p>
+<ul>
+<li><b>Exemples</b> : tour_dashboard (Accueil), tour_atelier, tour_braignak,
+tour_cockpit, tour_garde_fous, tour_securite (Victor), tour_vault (Coffre).</li>
+<li><b>À retenir</b> : ce sont nos briques de gouvernance, privées.</li>
+</ul>
+
+<h4>3. Les Webapps (le menu Actions)</h4>
+<p>Les <b>produits publiés</b> que la tour a construits pour les gens — ce
+qu'on propose et ce qu'on vend. Elles apparaissent dans le menu <b>Actions</b>
+de l'Accueil, et ce sont elles que le pack démo montre.</p>
+<ul>
+<li><b>Exemples</b> : Duelle, PointVirgule, bluu, la Tour mobile, Ad Lounge.</li>
+<li><b>À retenir</b> : ce qu'on montre au client, dans le menu Actions.</li>
+</ul>
+
+<h4>4. Les Sites publics</h4>
+<p>Les <b>pages statiques exposées sur la vitrine</b>, accessibles à tous sans
+identifiant. Elles donnent à voir avant de se connecter.</p>
+<ul>
+<li><b>Exemples</b> : <code>matourdecontrole.fr</code>, /donjon, /jeu-eveil,
+<code>duelle.matourdecontrole.fr</code>.</li>
+<li><b>À retenir</b> : le front public de la vitrine.</li>
+</ul>
+
+<h3>En une phrase</h3>
+<p>Les <b>Apps Odoo</b> sont l'outillage installé, les <b>Modules tour</b> sont
+le moteur maison, les <b>Webapps</b> sont ce qu'on vend (menu Actions), et les
+<b>Sites publics</b> sont la vitrine ouverte à tous. Si on précise ces quatre
+mots, on parle toujours de la même chose.</p>
+
+<h3>Et les « tags » ?</h3>
+<p>Un <b>tag</b>, c'est une étiquette de classement qu'on pose sur un élément
+pour le retrouver et le trier — par exemple une priorité (Prio P0), une
+catégorie (Business, Social) ou un statut. On ne parle de tag que lorsqu'il y a
+une vraie étiquette stockée quelque part (sur un projet, une app, une tâche) :
+pas d'étiquette, pas de tag.</p>
+]]></field>
+        </record>
+
+        <record id="guide_rappels" model="tour.guide">
+            <field name="name">Se créer un rappel qui revient tout seul</field>
+            <field name="categorie">astuce</field>
+            <field name="sequence">1</field>
+            <field name="resume">Menu Rappels : on décrit quoi, à quel rythme, et ça arrive tout seul dans les choses à faire.</field>
+            <field name="mots_cles">rappel, récurrent, mensuel, activité, horloge, à faire, échéance, relance, notification</field>
+            <field name="contenu"><![CDATA[
+<h3>En deux phrases</h3>
+<p>Un rappel, c'est une chose que vous voulez qu'on vous redemande régulièrement.
+Vous la décrivez une fois, vous choisissez le rythme, et elle réapparaît toute
+seule dans votre liste de choses à faire à chaque échéance.</p>
+
+<h3>Le créer</h3>
+<ol>
+<li>Menu <b>Rappels → Mes rappels</b>, puis <b>Nouveau</b>.</li>
+<li><b>Titre</b> : ce que vous devrez faire. Écrivez-le comme une action —
+« Relancer les impayés » plutôt que « Impayés ».</li>
+<li><b>Tous les</b> : quotidien, hebdomadaire, mensuel, trimestriel, semestriel
+ou annuel.</li>
+<li><b>Prochaine fois</b> : la date du premier déclenchement. Ensuite le rythme
+prend le relais tout seul.</li>
+<li><b>Urgent</b> : coché, le rappel arrive préfixé « URGENT » et ressort en
+rouge dans la liste.</li>
+<li><b>Détail</b> : le mode d'emploi. C'est ce que vous relirez dans trois mois
+quand vous aurez oublié comment faire — soyez précis, mettez les commandes ou
+les liens.</li>
+</ol>
+
+<h3>Où il arrive</h3>
+<p>Dans vos <b>activités</b> : l'icône d'horloge en haut à droite de l'écran.
+C'est le même endroit que le reste de vos tâches à faire — il n'y a pas de
+seconde liste à surveiller. Le compteur passe en rouge quand quelque chose est
+en retard.</p>
+<p>Quand c'est fait, vous marquez l'activité comme terminée. Le rappel, lui,
+s'est déjà reprogrammé pour la fois suivante.</p>
+
+<h3>Bon à savoir</h3>
+<ul>
+<li><b>Ça ne s'empile pas.</b> Si vous n'avez pas traité le rappel du mois
+dernier, celui de ce mois ne s'ajoute pas par-dessus : vous n'aurez jamais
+douze fois la même ligne.</li>
+<li><b>Le bouton « Me le rappeler tout de suite »</b>, en haut de la fiche,
+pose l'activité immédiatement — pratique pour vérifier que ça marche sans
+attendre l'échéance.</li>
+<li><b>Chacun ne voit que les siens.</b> Un rappel appartient à la personne
+indiquée dans « Pour qui ».</li>
+<li><b>Désactiver plutôt que supprimer</b> : décochez « Actif » si vous voulez
+le suspendre en gardant le mode d'emploi.</li>
+</ul>
+]]></field>
+        </record>
+
+        <record id="guide_ce_qui_mattend" model="tour.guide">
+            <field name="name">Voir ce qui m'attend sans chercher</field>
+            <field name="categorie">astuce</field>
+            <field name="sequence">2</field>
+            <field name="resume">Le menu Accueil affiche d'abord ce qui est bloqué chez vous, puis vos rappels du jour.</field>
+            <field name="mots_cles">accueil, dashboard, tableau de bord, en cours, bloqué, avancement, actualités</field>
+            <field name="contenu"><![CDATA[
+<p>Le menu <b>Accueil</b> ouvre une page unique qui répond à « où on en est »
+sans avoir à fouiller.</p>
+<ul>
+<li><b>Ce qui t'attend</b> — en premier, parce que c'est ce qui bloque le
+reste. Chaque ligne dit si c'est à vous seul ou à deux.</li>
+<li><b>À faire aujourd'hui</b> — vos rappels et activités arrivés à échéance.</li>
+<li><b>L'état du chantier</b> — les compteurs : ce qui reste, ce qui est bloqué
+chez vous, ce qui est en cours ailleurs.</li>
+<li><b>Fait récemment</b> — pour voir ce qui a avancé sans demander.</li>
+<li><b>Actualités</b> — en dernier, volontairement.</li>
+</ul>
+<p>Chaque ligne est cliquable et ouvre la fiche complète.</p>
+]]></field>
+        </record>
+
+        <record id="guide_coffre" model="tour.guide">
+            <field name="name">Ranger un mot de passe dans le Coffre</field>
+            <field name="categorie">astuce</field>
+            <field name="sequence">3</field>
+            <field name="resume">On dépose une fois, on ne relit qu'avec le bouton Révéler — et chaque lecture laisse une trace.</field>
+            <field name="mots_cles">coffre, vault, mot de passe, secret, clé, api, révéler, chiffré, sécurité</field>
+            <field name="contenu"><![CDATA[
+<h3>Pourquoi passer par là</h3>
+<p>Un mot de passe collé dans une conversation, un courriel ou un fichier sur le
+bureau y reste pour toujours, en clair, et se retrouve dans les sauvegardes.
+Le Coffre est fait pour que ça n'arrive plus.</p>
+
+<h3>Déposer</h3>
+<p>Menu <b>Coffre → Mes secrets → Nouveau</b>. Remplissez le libellé (à quoi ça
+sert), la catégorie, l'identifiant associé, et collez la valeur dans le champ
+<b>Secret</b>. Enregistrez.</p>
+<p>À partir de cet instant la valeur est chiffrée. Le champ n'affiche plus que
+des points, et elle n'apparaît nulle part dans les listes.</p>
+
+<h3>Relire</h3>
+<p>Bouton <b>Révéler</b>, en haut de la fiche. Le secret s'affiche dans une
+notification — et <b>chaque lecture laisse une trace datée et nominative dans
+le fil de discussion en bas de la fiche</b>. C'est volontaire : si un secret
+fuite un jour, vous saurez qui l'a consulté et quand.</p>
+
+<h3>Ce qui protège vraiment</h3>
+<p>La clé de chiffrement ne vit <b>pas</b> dans la base de données mais dans la
+configuration du serveur. Conséquence concrète : une sauvegarde de base volée
+ne permet de déchiffrer aucun secret. Le champ <b>Protection</b> de la fiche
+vous dit lequel des deux régimes s'applique — s'il indique « clé en base », la
+variable d'environnement n'est pas posée et la protection est moindre.</p>
+
+<h3>Bon réflexe</h3>
+<p>Chacun ne voit que ses propres secrets, y compris les administrateurs. Et
+quand un mot de passe a transité en clair quelque part, le bon geste n'est pas
+de le cacher après coup : on en génère un nouveau, on révoque l'ancien, et on
+dépose le nouveau ici.</p>
+]]></field>
+        </record>
+
+        <record id="guide_sauvegardes" model="tour.guide">
+            <field name="name">Récupérer une sauvegarde du serveur</field>
+            <field name="categorie">astuce</field>
+            <field name="sequence">4</field>
+            <field name="resume">Menu Sauvegardes : la liste des fichiers du serveur, avec un bouton de téléchargement.</field>
+            <field name="mots_cles">sauvegarde, backup, restaurer, télécharger, dump, filestore, récupérer, perte, sécurité</field>
+            <field name="contenu"><![CDATA[
+<h3>Où c'est</h3>
+<p>Menu <b>Sauvegardes → Fichiers du serveur</b>. Si la liste paraît vide ou
+datée, cliquez d'abord sur <b>Actualiser la liste</b> : la tour relit alors le
+dossier du serveur.</p>
+
+<h3>Ce que vous y trouvez</h3>
+<ul>
+<li><b>Base de données</b> — un fichier <code>.dump</code> par base. C'est le
+cœur : projets, tâches, contacts, comptabilité.</li>
+<li><b>Pièces jointes</b> — une archive <code>filestore</code>. Les documents,
+images et fichiers joints ne sont PAS dans la base, ils sont ici.</li>
+<li><b>Secrets</b> — la copie de la configuration serveur. Fichier sensible,
+affiché en orange dans la liste.</li>
+</ul>
+
+<h3>Télécharger</h3>
+<p>Bouton <b>Télécharger</b> au bout de la ligne. <b>Prenez toujours la base ET
+les pièces jointes de la même date</b> : la base seule vous rendrait une tour
+aux documents fantômes.</p>
+
+<h3>À savoir</h3>
+<ul>
+<li>Les sauvegardes tournent <b>toutes les nuits à 3 h</b>, automatiquement.</li>
+<li>Elles sont conservées <b>quinze jours</b>. Au-delà, la ligne reste affichée
+en grisé pour mémoire, mais le fichier n'existe plus.</li>
+<li>La tour peut <b>lire</b> ces fichiers, jamais les modifier ni les effacer.
+Une application capable de supprimer ses propres sauvegardes n'en a pas.</li>
+<li>Réservé aux administrateurs.</li>
+</ul>
+
+<h3>Le point important</h3>
+<p>Ces copies vivent sur <b>le même serveur</b> que la tour. Elles vous
+protègent d'une fausse manœuvre ou d'une base corrompue — <b>pas de la perte du
+serveur lui-même</b>. Tant qu'une sauvegarde hors-site n'est pas activée,
+ramenez une copie chez vous de temps en temps : c'est exactement ce que rappelle
+le rappel mensuel.</p>
+]]></field>
+        </record>
+
+        <record id="guide_support" model="tour.guide">
+            <field name="name">Engagement de support : 48 heures ouvrées</field>
+            <field name="categorie">commercial</field>
+            <field name="resume">Délai de réponse annoncé aux clients payants. Tenable même en déplacement.</field>
+            <field name="mots_cles">support, SLA, délai, réponse, engagement, client, contrat, CGV</field>
+            <field name="contenu"><![CDATA[
+<p><b>Délai annoncé : réponse sous 48 heures ouvrées.</b> À écrire dans les
+conditions de vente et sur la page de contact.</p>
+<h3>Pourquoi celui-là</h3>
+<p>À 35 € par mois, un engagement à 4 heures n'est pas tenable en travaillant
+seul et en clientèle. Un délai raté abîme plus la confiance qu'un délai
+modeste tenu : 48 h ouvrées est crédible, tenable un vendredi soir comme un
+dimanche, et déjà au-dessus de ce que pratiquent la plupart des petits
+hébergeurs.</p>
+<h3>Ce que « ouvrées » veut dire — à préciser au client</h3>
+<p>Le décompte court du lundi au vendredi, hors jours fériés. Une demande
+envoyée vendredi 17 h a donc une réponse attendue pour mardi 17 h. Le dire
+explicitement évite le malentendu du week-end.</p>
+<h3>Reste à faire</h3>
+<p>Créer l'adresse de support et la router vers la tour ; annoncer le délai
+dans les CGV.</p>
+]]></field>
+        </record>
+
+        <record id="guide_archi_4jours" model="tour.guide">
+            <field name="name">Ce qui a été construit — récapitulatif des 4 premiers jours</field>
+            <field name="categorie">architecture</field>
+            <field name="sequence">1</field>
+            <field name="interne" eval="True"/>
+            <field name="resume">Carte technique complète de la tour, pour répondre à une question client sans fouiller le code.</field>
+            <field name="mots_cles">architecture, docker, odoo, vps, caddy, https, modules, stack, technique, hébergement, sauvegarde</field>
+            <field name="contenu"><![CDATA[
+<h3>Ce que c'est</h3>
+<p>La tour est un <b>Odoo 18 Community</b> conteneurisé et débrandé : l'objectif
+est qu'un utilisateur ne devine pas qu'il s'agit d'Odoo. Elle centralise les
+projets, les notes, la comptabilité et le suivi commercial.</p>
+
+<h3>Où ça tourne</h3>
+<ul>
+<li><b>Serveur</b> : un VPS OVH à Gravelines, environ 9 € par mois, sans
+engagement. Accès par clé SSH uniquement — la connexion par mot de passe est
+désactivée. Pare-feu ouvert sur 22, 80 et 443 seulement.</li>
+<li><b>Mise en service</b> : Docker Compose. Quatre conteneurs — la base
+PostgreSQL, l'application, l'instance de démonstration, et Caddy en frontal.</li>
+<li><b>HTTPS</b> : Caddy obtient et renouvelle les certificats tout seul. Rien
+à surveiller de ce côté.</li>
+<li><b>Adresses</b> : la tour, une démonstration publique, et l'application
+Duelle, chacune sur son sous-domaine.</li>
+</ul>
+
+<h3>Ce qui a été ajouté par-dessus Odoo</h3>
+<ul>
+<li><b>Thème</b> — sombre, barre latérale, page de connexion sur mesure, et
+masquage des marqueurs d'origine (icônes, manifeste, messages d'erreur).</li>
+<li><b>Copilote</b> — un assistant conversationnel présent sur toutes les pages,
+qui sait lire les données de la personne connectée et créer des tâches. La clé
+d'API reste côté serveur, jamais envoyée au navigateur.</li>
+<li><b>Dépôt</b> — une boîte à vrac où l'on jette texte et fichiers ; un
+rangement automatique passe toutes les 30 minutes pour classer, résumer et
+repérer les doublons.</li>
+<li><b>Actualités</b> — un fil alimenté par des sources publiques gratuites.</li>
+<li><b>Rappels</b> — récurrence par-dessus le système d'activités natif.</li>
+<li><b>Coffre</b> — mots de passe et clés chiffrés, avec la clé de chiffrement
+stockée hors de la base.</li>
+<li><b>Accueil</b> — la page de synthèse.</li>
+<li><b>Commande vocale</b> — une compétence Alexa branchée sur le copilote,
+privée, non publiée.</li>
+<li><b>Application mobile</b> — un compagnon qui parle à la tour et fonctionne
+sur n'importe quel Odoo 17 ou 18, sans module serveur.</li>
+</ul>
+
+<h3>Comptabilité</h3>
+<p>Le moteur comptable standard avec le plan comptable français complet, plus
+un kit d'états financiers libre. La facturation électronique est déjà
+disponible au format réglementaire ; l'échéance de réception obligatoire est
+fixée à septembre 2026.</p>
+
+<h3>Encaissement</h3>
+<p>Le prestataire de paiement est configuré en production, avec la notification
+de paiement en place. Les factures envoyées portent un bouton de règlement.</p>
+
+<h3>Sauvegardes</h3>
+<p>Toutes les nuits : les deux bases, les pièces jointes et le fichier de
+secrets, avec un contrôle de relecture qui refuse une sauvegarde suspecte.
+Conservation quinze jours. <b>Limite assumée</b> : les copies vivent sur le
+même serveur — elles couvrent la fausse manœuvre et la base corrompue, pas la
+perte de la machine. La copie hors-site reste à activer.</p>
+
+<h3>Reproductibilité</h3>
+<p>Tout est dans un dépôt Git privé : le code, l'image, la configuration de
+déploiement et la documentation. Une tour se reconstruit depuis ce dépôt plus
+une sauvegarde de base. Aucune étape n'existe uniquement dans la tête de
+quelqu'un.</p>
+]]></field>
+        </record>
+
+        <record id="guide_piege_accueil" model="tour.guide">
+            <field name="name">Piège : ne jamais faire d'une page externe l'action d'accueil</field>
+            <field name="categorie">piege</field>
+            <field name="interne" eval="True"/>
+            <field name="resume">A enfermé les 18 comptes hors de la tour : boucle de redirection.</field>
+            <field name="mots_cles">accueil, action_id, redirection, boucle, verrouillé, bloqué, dashboard</field>
+            <field name="contenu"><![CDATA[
+<p>Poser une page externe comme action d'accueil d'un utilisateur crée une
+boucle : la racine de l'application exécute l'action d'accueil, qui redirige
+vers la page, dont le bouton de retour repointe sur la racine. L'utilisateur ne
+peut plus jamais entrer.</p>
+<p>Arrivé le 25/07 sur les 18 comptes d'un coup. Le tableau de bord est
+désormais un simple menu, et le bouton de retour vise une adresse qui ne
+repasse pas par la racine.</p>
+<p><b>Règle</b> : une page servie par un contrôleur reste un menu. Si une
+ouverture automatique est vraiment souhaitée, elle passe par la redirection
+de connexion, pas par l'action d'accueil.</p>
+]]></field>
+        </record>
+
+        <record id="guide_decision_rappels" model="tour.guide">
+            <field name="name">Décision : les rappels s'appuient sur les activités natives</field>
+            <field name="categorie">decision</field>
+            <field name="interne" eval="True"/>
+            <field name="resume">Ne pas réinventer un système de notification : n'ajouter que la récurrence.</field>
+            <field name="mots_cles">rappel, activité, décision, notification, natif, récurrence</field>
+            <field name="contenu"><![CDATA[
+<p>Le moteur possède déjà un système d'activités complet — file de choses à
+faire, échéances, retards, relances par courriel, compteur visible en
+permanence. Le reconstruire aurait produit une seconde liste concurrente que
+personne ne surveille.</p>
+<p>Seule la <b>récurrence</b> manquait. Le module se limite donc à décrire quoi
+rappeler et à quel rythme, puis dépose une activité ordinaire à l'échéance.</p>
+<p><b>Conséquence utile</b> : toute personne ayant déjà utilisé ce genre
+d'outil sait s'en servir sans formation, et les rappels se mélangent
+naturellement au reste des tâches.</p>
+]]></field>
+        </record>
+
+        <record id="guide_atelier_abonnement" model="tour.guide">
+            <field name="name">Faire travailler l'atelier sur l'abonnement, pas à l'usage</field>
+            <field name="categorie">astuce</field>
+            <field name="sequence">1</field>
+            <field name="interne" eval="True"/>
+            <field name="resume">Le jeton se fabrique sur votre ordinateur et se pousse vers le serveur : on ne colle jamais rien dans une fenêtre SSH.</field>
+            <field name="mots_cles">atelier, abonnement, forfait, jeton, token, setup-token, clé d'api, facturation, usage, coût, crédits, ssh, copier-coller, presse-papier, moteur claude</field>
+            <field name="contenu"><![CDATA[
+<h3>Le problème</h3>
+<p>L'atelier peut s'authentifier de deux façons, et elles ne coûtent pas la même
+chose. Avec une <b>clé d'API</b>, chaque mission est facturée à l'usage. Avec un
+<b>jeton d'abonnement</b>, elle consomme le forfait déjà payé tous les mois.
+À l'installation, c'est la clé d'API qui sert — donc la formule la plus chère.</p>
+
+<h3>Pourquoi ça coince</h3>
+<p>Le jeton se fabrique avec une commande qui ouvre une page de connexion, puis
+attend qu'on lui rende un code. Lancée directement sur le serveur, elle oblige à
+coller ce code dans une fenêtre SSH — et le collage d'une longue chaîne y est
+régulièrement tronqué ou avalé. Beaucoup de gens abandonnent là.</p>
+
+<h3>La parade : fabriquer le jeton chez soi, puis le pousser</h3>
+<p>Le jeton n'a pas besoin d'être créé sur le serveur : il est lié à votre
+compte, pas à la machine. On le produit donc sur son propre ordinateur, où le
+presse-papier fonctionne normalement, et on l'envoie ensuite par fichier.</p>
+<ol>
+<li>Sur votre ordinateur, dans un terminal :
+<pre>claude setup-token</pre>
+Une page de connexion s'ouvre. À la fin, un jeton s'affiche
+(il commence par <code>sk-ant-oat</code>).</li>
+<li>Collez-le dans un fichier texte quelconque — dans un éditeur de texte, où le
+collage marche toujours.</li>
+<li>Envoyez ce fichier vers le serveur sans jamais rien retaper :
+<pre>ssh tour-vps "cat &gt; ~/atelier/.token &amp;&amp; chmod 600 ~/atelier/.token" &lt; le-fichier.txt</pre></li>
+<li>Supprimez le fichier texte de votre ordinateur : il contient un secret.</li>
+</ol>
+
+<h3>Le piège qui suit</h3>
+<p><b>Poser le jeton ne suffit pas.</b> Tant qu'une clé d'API traîne à côté, elle
+gagne : l'outil bascule en facturation à l'usage dès qu'il la voit, et le
+forfait n'est jamais consommé. Le moteur livré règle ce conflit tout seul — il
+prend le jeton s'il existe et met la clé de côté — mais un moteur écrit à la main
+doit faire pareil, sinon le jeton ne sert à rien et rien ne le signale.</p>
+
+<h3>Vérifier que ça a pris</h3>
+<p>Confiez une mission d'essai depuis l'atelier, puis regardez la consommation
+sur la console du fournisseur (menu <b>Consoles</b>) : si le compteur à l'usage
+ne bouge plus, c'est le forfait qui travaille.</p>
+
+<h3>Ce que ça ne couvre pas</h3>
+<p>Le forfait a ses propres limites d'utilisation : une mission très longue peut
+s'arrêter en cours de route là où la facturation à l'usage aurait continué. Pour
+un travail de fond qui doit absolument aboutir, garder la clé d'API reste
+défendable — c'est un arbitrage entre coût et certitude, pas une erreur.</p>
+]]></field>
+        </record>
+
+<record id="guide_clone_patrick" model="tour.guide">
+            <field name="name">Le Clone de Patrick — ce qu'il sait faire, et ce qu'il ne fera jamais</field>
+            <field name="categorie">architecture</field>
+            <field name="sequence">60</field>
+            <field name="resume">Un agent qui apprend le style de Patrick, versionne sa fiche persona, et te PROPOSE des textes — sans jamais décider, envoyer ni publier. Activable case par case.</field>
+            <field name="mots_cles">clone, patrick, persona, style, miroir, apprentissage, veille, proposition, garde-fou, permissions, validation</field>
+            <field name="contenu"><![CDATA[
+<h3>Ce que c'est</h3>
+<p>Le Clone de Patrick est un agent de la tour (comme Clark ou Braignak) qui
+apprend <b>ton style d'écriture</b> et te <b>propose</b> des textes. Il est né
+d'un prototype Braignak (#40) qui a prouvé trois choses : on peut apprendre ton
+style depuis ce que tu écris, on peut versionner sa fiche persona avec retour
+arrière, et on peut le tenir <b>dans une cage</b> — il ne produit que du texte.</p>
+
+<h3>Ce qu'il sait faire</h3>
+<ul>
+<li><b>Apprendre ton style</b> : chaque jour (si la case est cochée), il relit
+tes décisions récentes et met à jour sa fiche persona — longueur des phrases,
+ton direct, mots que tu répètes. Chaque mise à jour crée une version, avec
+retour arrière possible.</li>
+<li><b>Proposer « si j'étais Patrick »</b> : chaque jour (si la case est
+cochée), il rend une fiche Réponses sur les décisions récentes — ce que tu
+ferais, en TON style. Une phrase par décision, court, sans blabla.</li>
+<li><b>Rédiger des propositions</b> : reformuler, préparer un texte « comme
+toi » — toujours pour validation.</li>
+</ul>
+
+<h3>Ce qu'il ne fera jamais</h3>
+<p>C'est la partie la plus importante — sa cage. Par défaut, le clone ne peut
+PAS :</p>
+<ul>
+<li><b>Envoyer des messages</b> (nulle part).</li>
+<li><b>Publier des contenus</b>.</li>
+<li><b>Modifier les fichiers de la tour</b>.</li>
+<li><b>Décider seul</b> : toute proposition attend ton feu vert.</li>
+</ul>
+<p>Ces quatre interdits sont des cases DÉCOCHÉES par défaut : tu ne les ouvres
+que si tu décides expressément. Le circuit « Clone — proposition à valider »
+(Raphael puis Patrick) garantit que rien ne sort sans validation.</p>
+
+<h3>Comment l'activer</h3>
+<ol>
+<li>Ouvre <b>Équipe → Clone de Patrick</b>.</li>
+<li>Onglet <b>« Permissions du Clone »</b> : coche ce que tu gardes
+(apprendre, veiller, proposer) et laisse décochés les garde-fous.</li>
+<li>Les crons tournent <b>seulement si leurs cases sont cochées</b>. Sans
+validation, le clone ne fait rien.</li>
+</ol>
+
+<h3>À retenir</h3>
+<p>Le clone est un <b>miroir</b>, pas un remplaçant : il écrit comme toi, il
+ne décide pas pour toi. C'est la règle n°1 de sa fiche.</p>
+]]></field>
+        </record>
+
+<record id="guide_reprise_session" model="tour.guide">
+            <field name="name">Reprendre une session coupée — l'auto-reprise</field>
+            <field name="categorie">astuce</field>
+            <field name="sequence">10</field>
+            <field name="interne">True</field>
+            <field name="resume">Une session d'agent peut être coupée sans prévenir : l'état est gardé dans SESSION.md, relu à chaque démarrage et remis à jour à la fin.</field>
+            <field name="mots_cles">reprise, session, coupure, interruption, continuité, SESSION.md, AGENTS.md, mémoriser, état, reprise de session, opencode</field>
+            <field name="contenu"><![CDATA[
+<h3>En deux phrases</h3>
+<p>Quand on pilote la tour depuis un agent (opencode), une session peut être
+coupée à tout moment — un plantage, une fermeture d'ordinateur, une panne.
+Rien n'est perdu : l'état du travail est écrit dans un fichier <b>SESSION.md</b>
+à la racine du dépôt, relu intégralement au démarrage suivant, et remis à jour
+à chaque fin de session.</p>
+
+<h3>Comment ça marche</h3>
+<ol>
+<li><b>Au démarrage</b> : opencode charge <code>AGENTS.md</code> (déclaré dans
+<code>opencode.json</code> → <code>instructions</code>). Ce fichier demande de
+chercher et de lire intégralement <code>SESSION.md</code> avant toute action.</li>
+<li><b>Pendant</b> : avant chaque tâche, on consigne ce qu'on va faire dans
+<code>SESSION.md</code> (section « Travail en cours », avec le contrôle de fin
+prévu). À chaque étape franchie, on met à jour le fichier.</li>
+<li><b>À la fin</b> : on résume ce qui est fait, ce qui reste, et la
+« Prochaine action » — c'est exactement ce que lira la session suivante.</li>
+</ol>
+
+<h3>Pourquoi on ne se fie pas à la mémoire</h3>
+<p>Deux sessions différentes, ou une session relancée, ne partagent rien
+d'autre que le disque. Si l'état n'est que dans la tête de l'agent précédent,
+il est perdu avec la coupure. Un <code>SESSION.md</code> tenu à jour est la
+seule chose qu'une autre intelligence (ou la même, relancée) peut lire pour
+reprendre le travail au bon endroit.</p>
+
+<h3>Bon à savoir</h3>
+<ul>
+<li><b>La reprise se fait depuis le fichier, jamais de mémoire</b> : c'est la
+règle n°1. Ce que laisse <code>SESSION.md</code> fait foi.</li>
+<li><b>Le code n'est pas dans la mémoire, il est dans les branches</b> : les
+modifications se font dans des worktrees (<code>scripts/chantier.sh</code>),
+jamais dans la branche principale — une session coupée ne laisse jamais un
+dépôt à moitié cassé.</li>
+<li><b>Écrit ≠ posé</b> : ce qui est dans SESSION.md (ou dans un commit) ne
+prouve pas que le serveur exécute le nouveau code. La reprise vérifie avec
+<code>deploy/etat.sh</code>, curl ou odoo shell — jamais sur une simple
+affirmation.</li>
+<li><b>Le guide ne remplace pas l'ancien <code>OPENCODE-SESSION.md</code></b> :
+ce dernier est le guide de reprise « papier » (architecture, cycle, règles) ;
+<code>SESSION.md</code> en est l'état vivant, mis à jour en continu.</li>
+</ul>
+]]></field>
+        </record>
+
+</data>
+
+    <!--
+        Ce guide-ci n'est volontairement PAS « noupdate » : il décrit une
+        équipe qui s'agrandit (Chloe, Clark, puis d'autres). Une documentation
+        qui ment envoie le lecteur dans un menu qui n'existe plus — donc la
+        version livrée doit gagner à chaque mise à jour, quitte à écraser une
+        retouche faite à la main.
+    -->
+    <data>
+
+        <!--
+            Sortir la fiche du bloc « noupdate » ne suffit PAS : le drapeau est
+            stocké sur la ligne ir.model.data au moment de la création, et c'est
+            lui qui est relu à chaque mise à jour — pas l'attribut du fichier.
+            Sans cette remise à zéro, le guide gardait son ancien titre en
+            silence, exactement comme les gabarits de courriel l'avaient fait.
+        -->
+        <function model="ir.model.data" name="write">
+            <function model="ir.model.data" name="search"
+                      eval="[[('module', '=', 'tour_guides'),
+                              ('name', '=', 'guide_discussion')]]"/>
+            <value eval="{'noupdate': False}"/>
+        </function>
+
+        <record id="guide_discussion" model="tour.guide">
+            <field name="name">Chloe et Clark : qui fait quoi dans la tour</field>
+            <field name="categorie">astuce</field>
+            <field name="sequence">2</field>
+            <field name="interne" eval="True"/>
+            <field name="resume">Chloe voit la tour, Clark écrit le code — et Chloe peut lui confier du travail toute seule.</field>
+            <field name="mots_cles">chloe, clark, équipe, agent, discussion, conversation, claude code, chat, copilote, bulle, fil, mémoire, session, atelier, moteur, dépôt, branche agent, développer, téléphone</field>
+            <field name="contenu"><![CDATA[
+<h3>Deux membres d'équipe, deux métiers</h3>
+<p><b>Chloe</b>, c'est la bulle en bas à droite. Elle parle de la tour : elle crée
+des notes, des tâches, met à jour le suivi d'une application, cherche dans le
+Dépôt. Elle ne voit ni le code, ni le serveur.</p>
+<p><b>Clark</b>, c'est l'agent qui écrit réellement le code. Il lit le dépôt,
+écrit des fichiers, et se souvient de tout ce qui a été dit dans le fil. On lui
+parle par le menu <b>Clark</b>.</p>
+<p>L'équipe s'agrandira : d'autres profils viendront, chacun avec son métier.
+Aujourd'hui il y a Chloe et Clark, et rien d'autre.</p>
+
+<h3>Chloe peut passer le relais à Clark</h3>
+<p>Depuis la bulle, dites simplement « demande à Clark de… ». Chloe ouvre une
+conversation avec lui et lui transmet la consigne : vous n'avez pas à changer
+de menu. Deux choses à savoir :</p>
+<ul>
+<li><b>Clark répond en quelques minutes</b>, pas dans la seconde. Chloe vous
+annonce le dépôt ; redemandez-lui plus tard « Clark a répondu ? » et elle ira
+chercher le compte rendu.</li>
+<li><b>Le sujet fait la mémoire.</b> Reprendre le même sujet poursuit la même
+conversation ; un nouveau sujet repart de zéro.</li>
+</ul>
+
+<h3>S'en servir directement</h3>
+<ol>
+<li>Menu <b>Clark → Mes conversations → Nouveau</b>.</li>
+<li>Écrivez votre message et <b>Envoyez</b>. Le sujet du fil se remplit tout seul
+avec votre première phrase.</li>
+<li>La réponse arrive en quelques secondes à une minute. Le bouton
+<b>Actualiser</b>, en haut, va la chercher sans attendre.</li>
+<li>Répondez dans la foulée : <b>inutile de répéter le contexte</b>, le fil s'en
+souvient. C'est toute la différence avec l'atelier, où chaque mission repart de rien.</li>
+</ol>
+<p>Ça marche depuis le téléphone, dans le navigateur, sans rien installer.</p>
+
+<h3>Où il travaille — et pourquoi ce n'est pas là où vous croyez</h3>
+<p>L'agent ne touche <b>pas</b> à la tour qui tourne. Il travaille dans une copie
+du dépôt, sur une branche à part. Il peut donc se tromper sans rien casser, et ce
+qu'il produit ne part en production que lorsqu'un humain décide de l'y porter,
+après relecture.</p>
+<p>Conséquence à connaître : lui demander « mets ça en ligne » ne mettra rien en
+ligne. C'est voulu.</p>
+
+<h3>La case « Autonomie totale »</h3>
+<p>Décochée, l'agent écrit des fichiers mais demande la permission avant de lancer
+une commande — et comme personne n'est devant l'écran pour la donner, il s'arrête.
+Cochée, il ne demande plus rien. C'est confortable et c'est un vrai pouvoir :
+à réserver à ce dépôt de travail, jamais à autre chose.</p>
+
+<h3>« Repartir de zéro »</h3>
+<p>Le bouton efface la mémoire de l'agent sans effacer ce que vous lisez à l'écran.
+Utile quand la conversation part dans une direction dont vous ne voulez plus, ou
+quand elle est devenue si longue qu'elle traîne son passé.</p>
+
+<h3>Ce que ça ne fait pas</h3>
+<ul>
+<li><b>Ce n'est pas instantané.</b> Comptez de quelques secondes à une minute par
+réponse. Ce n'est pas une messagerie.</li>
+<li><b>Un seul message à la fois</b> par fil : tant qu'une réponse est en route,
+le champ est verrouillé. Deux messages qui se croisent produiraient deux
+conversations divergentes.</li>
+<li><b>Réservé à l'administrateur.</b> Une conversation qui écrit sur le serveur
+n'a rien à faire dans les mains d'un compte invité. Chloe le sait : elle ne
+propose Clark qu'aux administrateurs.</li>
+<li><b>Le forfait a ses limites.</b> Un très long échange peut s'interrompre ;
+voir le guide sur l'abonnement pour le repli.</li>
+</ul>
+]]></field>
+        </record>
+
+</data>
+</odoo>

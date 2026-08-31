@@ -1,0 +1,34 @@
+# Modèles - ne pas publier (2G)
+*.gguf
+*.bin
+models/
+modeles/
+*.safetensors
+
+# Environnements
+alicization-venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets & état local
+state/alicization.db
+state/alicization.db.hidden
+state/*.db
+.env
+*.key
+.ssh/
+
+# Logs
+logs/
+*.log
+raw/
+tmp/
+
+# Docs PDF lourds (optionnel)
+docs/*.pdf
+
+# OS
+.DS_Store
+Thumbs.db

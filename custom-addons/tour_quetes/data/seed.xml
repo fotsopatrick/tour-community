@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- La roue des domaines de vie (principle QuestForge). -->
+    <record id="domaine_sante" model="quete.domaine">
+        <field name="name">Santé</field><field name="emoji">🩺</field><field name="sequence">10</field>
+    </record>
+    <record id="domaine_carriere" model="quete.domaine">
+        <field name="name">Carrière</field><field name="emoji">💼</field><field name="sequence">20</field>
+    </record>
+    <record id="domaine_finances" model="quete.domaine">
+        <field name="name">Finances</field><field name="emoji">💰</field><field name="sequence">30</field>
+    </record>
+    <record id="domaine_relations" model="quete.domaine">
+        <field name="name">Relations</field><field name="emoji">🤝</field><field name="sequence">40</field>
+    </record>
+    <record id="domaine_formation" model="quete.domaine">
+        <field name="name">Formation</field><field name="emoji">📚</field><field name="sequence">50</field>
+    </record>
+    <record id="domaine_maison" model="quete.domaine">
+        <field name="name">Maison</field><field name="emoji">🏠</field><field name="sequence">60</field>
+    </record>
+    <record id="domaine_autre" model="quete.domaine">
+        <field name="name">Autre</field><field name="emoji">🎯</field><field name="sequence">70</field>
+    </record>
+
+    <!-- La guilde par défaut : l'objectif carrière. -->
+    <record id="guilde_carriere" model="quete.guilde">
+        <field name="name">Guilde Carrière</field>
+        <field name="embleme">⚔️</field>
+        <field name="objectif">Préparer et décrocher les postes visés : les
+            offres se transforment en quêtes, chaque compétence se travaille,
+            chaque entretien laisse une trace.</field>
+        <field name="sequence">10</field>
+    </record>
+</odoo>

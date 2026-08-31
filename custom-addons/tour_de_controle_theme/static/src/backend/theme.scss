@@ -1,0 +1,621 @@
+// ============================================================
+// Tour de contrôle — skin backend (esthétique DaisyUI/shadcn)
+// Compilé deux fois (bundle clair + bundle dark) : les variables
+// $o-* portent les bonnes valeurs dans chaque schéma.
+// ============================================================
+
+:root {
+    --tdc-bg: #{$o-webclient-background-color};
+    --tdc-surface: #{$o-view-background-color};
+    --tdc-surface-2: #{$o-gray-200};
+    --tdc-surface-3: #{$o-gray-300};
+    --tdc-border: #{$o-gray-300};
+    --tdc-text: #{$o-gray-900};
+    --tdc-muted: #{$o-gray-600};
+    --tdc-primary: #3b82f6;
+    --tdc-primary-soft: rgba(59, 130, 246, 0.14);
+    --tdc-radius: 0.5rem; // --radius d'alder
+    --tdc-sidebar-w: 15.5rem;
+}
+
+// ---------- Typo générale ----------
+.o_web_client {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+// ---------- Sidebar : navbar verticale à gauche (desktop) ----------
+@media (min-width: 768px) {
+    .o_navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: var(--tdc-sidebar-w);
+        z-index: 1000;
+    }
+
+    .o_main_navbar {
+        // Neutralise les fonds hérités de la marque Odoo (violet #71639e en
+        // clair) : navbar.scss lit ces custom properties en priorité.
+        --NavBar-entry-color: var(--tdc-muted);
+        --NavBar-entry-color--active: var(--tdc-text);
+        --NavBar-entry-backgroundColor--hover: var(--tdc-surface-2);
+        --NavBar-entry-backgroundColor--focus: var(--tdc-surface-2);
+        --NavBar-entry-backgroundColor--active: var(--tdc-surface-2);
+
+        display: flex !important;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+        height: 100%;
+        padding: 0.75rem 0.625rem;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: var(--tdc-surface) !important;
+        border-right: 1px solid var(--tdc-border) !important;
+        border-bottom: 0 !important;
+    }
+
+    // Le contenu se décale à droite de la sidebar (les overlays/popovers, en
+    // position fixed, ne sont pas impactés).
+    //
+    // La largeur est bornée EN PLUS de la marge : sans elle, les vues qui
+    // calculent leur largeur sur la fenêtre entière (Paramètres, Applications)
+    // débordent de la marge et s'affichent hors écran — la zone paraît vide
+    // alors que le contenu existe. Symptôme constaté le 25/07 : ni les
+    // Paramètres ni les Applications n'étaient accessibles.
+    .o_web_client > .o_action_manager {
+        margin-left: var(--tdc-sidebar-w);
+        width: calc(100% - var(--tdc-sidebar-w));
+        max-width: calc(100% - var(--tdc-sidebar-w));
+        overflow-x: auto;
+    }
+
+    // Marque en tête (injectée par navbar.xml, remontée via order)
+    .o_main_navbar .tdc_brand {
+        order: -1;
+    }
+
+    // Bouton "Applications" (web_responsive) présenté comme une entrée de menu
+    .o_navbar_apps_menu {
+        display: flex;
+
+        .o_grid_apps_menu__button {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--tdc-radius);
+            color: var(--tdc-muted);
+
+            .oi-apps {
+                font-size: 1rem !important;
+            }
+
+            &::after {
+                content: "Applications";
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            &:hover,
+            &:focus,
+            &.show {
+                background: var(--tdc-surface-2);
+                color: var(--tdc-text);
+            }
+        }
+    }
+
+    // Nom de l'app courante = titre de section
+    .o_main_navbar .o_menu_brand {
+        margin: 0.5rem 0 0.125rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--tdc-text) !important;
+
+        &:hover {
+            background: transparent;
+        }
+    }
+
+    // Sections de l'app courante : liste verticale style "menu" DaisyUI
+    .o_main_navbar .o_menu_sections {
+        display: flex !important;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+        overflow: visible !important;
+
+        > * {
+            width: 100%;
+        }
+
+        .o_nav_entry,
+        .dropdown-toggle,
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100% !important;
+            padding: 0.45rem 0.75rem;
+            border-radius: var(--tdc-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--tdc-muted) !important;
+            background: transparent !important;
+
+            &:hover,
+            &:focus,
+            &:active,
+            &.show,
+            &.active,
+            &.focus {
+                background: var(--tdc-surface-2) !important;
+                color: var(--tdc-text) !important;
+            }
+        }
+    }
+
+    // Systray regroupé en bas de la sidebar
+    .o_main_navbar .o_menu_systray {
+        margin-top: auto !important;
+        margin-left: 0 !important;
+        padding-top: 0.625rem;
+        border-top: 1px solid var(--tdc-border);
+        display: flex !important;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 2px;
+
+        > div {
+            display: flex;
+        }
+
+        .dropdown-toggle,
+        .o_nav_entry {
+            border-radius: var(--tdc-radius);
+            color: var(--tdc-muted);
+
+            &:hover {
+                background: var(--tdc-surface-2);
+                color: var(--tdc-text);
+            }
+        }
+    }
+}
+
+// Marque (visible aussi en mobile, dans la barre du haut)
+.tdc_brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.375rem 0.75rem 0.875rem;
+    color: var(--tdc-text);
+    // C'est un lien depuis le 26/07 : on retire le soulignement du navigateur
+    // et on garde la couleur du texte, sinon la marque vire au bleu de lien.
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+
+    &:hover,
+    &:focus {
+        color: var(--tdc-text);
+        text-decoration: none;
+        opacity: 0.82;
+    }
+
+    .tdc_brand_logo {
+        display: inline-flex;
+        width: 1.75rem;
+        height: 1.75rem;
+        flex: 0 0 auto;
+    }
+
+    .tdc_brand_name {
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+    }
+}
+
+// ---------- Fond général ----------
+.o_action_manager,
+.o_content,
+.o_list_renderer,
+.o_kanban_view {
+    background-color: var(--tdc-bg);
+}
+
+// ---------- Panneau de contrôle ----------
+.o_control_panel {
+    background: var(--tdc-bg) !important;
+    border-bottom: 1px solid var(--tdc-border) !important;
+}
+
+// ---------- Boutons & champs : radius cohérent ----------
+.btn {
+    border-radius: var(--tdc-radius) !important;
+}
+
+.btn-primary {
+    background-color: var(--tdc-primary) !important;
+    border-color: var(--tdc-primary) !important;
+
+    &:hover {
+        background-color: #2563eb !important; // blue-600
+        border-color: #2563eb !important;
+    }
+}
+
+.form-control,
+.form-select,
+.input-group,
+.o_searchview {
+    border-radius: calc(var(--tdc-radius) - 2px);
+}
+
+// ---------- Cartes kanban : style DaisyUI ----------
+.o_kanban_view .o_kanban_record {
+    background: var(--tdc-surface);
+    border: 1px solid var(--tdc-border) !important;
+    border-radius: var(--tdc-radius) !important;
+    box-shadow: 0 1px 2px rgba(2, 8, 23, 0.4);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: var(--tdc-surface-3) !important;
+        box-shadow: 0 10px 28px rgba(2, 8, 23, 0.55);
+    }
+}
+
+.o_kanban_view .o_column_title,
+.o_kanban_header {
+    color: var(--tdc-text);
+}
+
+// ---------- Vue liste ----------
+.o_list_view {
+    .table {
+        border-radius: var(--tdc-radius);
+        overflow: hidden;
+    }
+
+    thead {
+        background: var(--tdc-surface) !important;
+
+        th {
+            border-bottom: 1px solid var(--tdc-border) !important;
+        }
+    }
+
+    tbody > tr:hover {
+        background: var(--tdc-surface-2) !important;
+    }
+}
+
+// ---------- Formulaires ----------
+.o_form_view .o_form_sheet {
+    background: var(--tdc-surface) !important;
+    border: 1px solid var(--tdc-border) !important;
+    border-radius: calc(var(--tdc-radius) * 1.5) !important;
+    box-shadow: 0 1px 2px rgba(2, 8, 23, 0.4);
+}
+
+// ---------- Menus déroulants, modales, popovers ----------
+.dropdown-menu,
+.o-dropdown--menu {
+    border: 1px solid var(--tdc-border) !important;
+    border-radius: var(--tdc-radius) !important;
+    box-shadow: 0 10px 32px rgba(2, 8, 23, 0.6) !important;
+
+    .dropdown-item {
+        border-radius: calc(var(--tdc-radius) - 2px);
+    }
+}
+
+.modal-content {
+    border: 1px solid var(--tdc-border) !important;
+    border-radius: calc(var(--tdc-radius) * 1.5) !important;
+}
+
+.o_popover {
+    border-radius: var(--tdc-radius) !important;
+}
+
+// ---------- Étiquettes ----------
+.o_tag,
+.badge {
+    border-radius: 999px !important;
+}
+
+// ---------- Menu Applications plein écran (web_responsive) ----------
+// theme.scss est compilé dans les deux bundles ; on ne noircit le menu apps
+// que dans le bundle sombre.
+$o-webclient-color-scheme: light !default;
+
+@if $o-webclient-color-scheme == dark {
+    .o_grid_apps_menu[data-theme] {
+        --app-menu-background: radial-gradient(
+            70rem 45rem at 50% -5%,
+            #0f172a 0%,
+            #020817 70%
+        ) !important;
+        --app-menu-text-color: #f8fafc !important;
+        --app-menu-text-shadow: none !important;
+        --app-menu-hover-background: rgba(59, 130, 246, 0.14) !important;
+    }
+
+    .o-app-menu-item__icon {
+        background-color: #f1f5f9 !important;
+        box-shadow: inset 0 0 0 1px #334155 !important;
+    }
+
+    .app-menu-container .search-container,
+    .app-menu-container .search-input {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .app-menu-container .form-control,
+    .o_grid_apps_menu .form-control {
+        background: #0f172a !important;
+        border: 1px solid #334155 !important;
+        border-radius: 0.5rem !important;
+        color: #f8fafc !important;
+
+        &::placeholder {
+            color: #64748b;
+        }
+    }
+}
+
+
+// ---------- Tiroir des applications : plein ecran + sortie visible ----------
+// Le tiroir s'ouvrait SOUS la barre du haut (max-height: 100dvh - navbar) et
+// laissait une bande vide : ca donnait un panneau qui glisse, pas un ecran.
+// On prend toute la hauteur, et on reserve en haut la place du bouton.
+.app-menu-container {
+    top: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding-top: 4rem !important;
+}
+
+// La sortie. Un panneau plein ecran sans bouton de fermeture est un piege :
+// l'utilisateur ne sait plus comment revenir, et Echap ne s'invente pas.
+.tdc_apps_close {
+    position: fixed;
+    top: 0.85rem;
+    right: 1.1rem;
+    z-index: 1100;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+
+    border: 1px solid var(--tdc-surface-3, rgba(148, 163, 184, 0.35));
+    border-radius: 999px;
+    background: var(--tdc-surface-2, rgba(30, 41, 59, 0.75));
+    color: var(--tdc-text, #e2e8f0);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--tdc-primary, #3b82f6);
+        color: #fff;
+        transform: rotate(90deg);
+    }
+}
+
+
+// ---------- Applications rangees par groupe ----------
+// La grille de web_responsive est un flex-wrap : nos sections doivent donc
+// prendre toute la largeur pour forcer un retour a la ligne, sinon les titres
+// se rangeraient a cote des tuiles comme s'ils en etaient.
+.app-menu-container {
+    .tdc_apps_groupe_titre {
+        width: 100%;
+        margin: 0 0 0.5rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--tdc-text-muted, #94a3b8);
+        // Un filet qui part du texte : ca separe sans faire de trait plein,
+        // qui decouperait l ecran en boites.
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        &::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--tdc-surface-3, rgba(148, 163, 184, 0.22));
+        }
+    }
+
+    .tdc_apps_groupe_compte {
+        font-weight: 500;
+        letter-spacing: 0;
+        opacity: 0.5;
+    }
+
+    .tdc_apps {
+        // `.o-app-menu-list` de web_responsive est ELLE-MEME une grille, en
+        // colonnes de 110 px. Notre conteneur y etait donc range dans UNE
+        // cellule de 110 px, et tout se retrouvait sur une colonne — avec un
+        // width: 100% qui valait 100 % de 110 px, donc qui ne corrigeait rien.
+        // `grid-column: 1 / -1` lui fait occuper toute la rangee ; c'est
+        // seulement a partir de la que notre propre grille a de la place.
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .tdc_apps_groupe {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+}
+
+// ---------- Affichage « liste » (par defaut) ----------
+// Le regroupement seul ne suffisait pas : de grandes tuiles rangees restent de
+// grandes tuiles, et la page devenait plus haute qu avant. Ici une ligne fine
+// par application — un menu se parcourt, il ne se contemple pas.
+//
+// Et les CATEGORIES elles-memes sont en colonnes. Empilees sur toute la
+// largeur, huit groupes obligeaient a faire defiler pour voir les derniers,
+// alors que le but de la vue liste est justement de tout embrasser d un coup.
+.app-menu-container .tdc_apps_liste {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1.5rem 2.25rem;
+    // Sans ca, toutes les colonnes prennent la hauteur de la plus haute et on
+    // se retrouve avec de grands vides sous les petits groupes.
+    align-items: start;
+
+    .tdc_apps_cat {
+        min-width: 0;
+    }
+
+    .tdc_apps_groupe {
+        display: block;
+    }
+
+    .o-app-menu-item {
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        margin: 0;
+        padding: 0.35rem 0.5rem;
+        border-radius: 0.55rem;
+        text-align: left;
+        transition: background 0.12s ease;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--tdc-surface-2, rgba(148, 163, 184, 0.12));
+        }
+
+        .o_app {
+            flex: 0 0 auto;
+        }
+
+        // 2 rem : assez pour qu on reconnaisse la couleur et le pictogramme.
+        // En dessous, une icone d application redevient un carre indistinct et
+        // on ne lit plus que le texte — autant supprimer les icones.
+        .o-app-menu-item__icon {
+            width: 2rem !important;
+            height: 2rem !important;
+            border-radius: 0.45rem !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+        }
+
+        // La pastille « application courante » est dimensionnee pour une
+        // grande tuile : a cette taille elle recouvrirait l icone entiere.
+        .o-app-menu-item__active {
+            font-size: 0.65rem;
+            bottom: -0.2rem;
+            right: -0.2rem;
+        }
+
+        .o-app-menu-item__name {
+            flex: 1 1 auto;
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            line-height: 1.25;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+// En grandes tuiles, chaque categorie reprend toute la largeur : c est une
+// vitrine, on la parcourt de haut en bas.
+.app-menu-container .tdc_apps_grille .tdc_apps_cat {
+    width: 100%;
+
+    & + .tdc_apps_cat {
+        margin-top: 1.4rem;
+    }
+}
+
+// La bascule d affichage, a gauche de la fermeture. Meme forme, meme taille :
+// deux boutons voisins de tailles differentes se lisent comme une hierarchie
+// qui n existe pas.
+.tdc_apps_vue_bascule {
+    position: fixed;
+    top: 0.85rem;
+    right: 3.9rem;
+    z-index: 1100;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+
+    border: 1px solid var(--tdc-surface-3, rgba(148, 163, 184, 0.35));
+    border-radius: 999px;
+    background: var(--tdc-surface-2, rgba(30, 41, 59, 0.75));
+    color: var(--tdc-text, #e2e8f0);
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--tdc-primary, #3b82f6);
+        color: #fff;
+    }
+}
+
+// Pointeurs de tours d'onboarding Odoo : hors sujet sur une console privée
+.o_tour_pointer {
+    display: none !important;
+}
+
+// ---------- Scrollbars discrètes ----------
+.o_web_client {
+    scrollbar-color: var(--tdc-surface-3) transparent;
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: var(--tdc-surface-3);
+        border-radius: 999px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}

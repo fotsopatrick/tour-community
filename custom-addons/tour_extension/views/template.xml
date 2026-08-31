@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_extension" name="Tour — Extension navigateur">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+                <style>
+                    :root { --fond:#020817; --surface:#0f172a; --surface2:#1e293b;
+                            --primaire:#3b82f6; --texte:#e2e8f0; --doux:#94a3b8;
+                            --ok:#22c55e; --r:.5rem; }
+                    * { box-sizing:border-box; }
+                    body { margin:0; background:var(--fond); color:var(--texte);
+                           font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+                    a { color:var(--primaire); }
+                    .wrap { max-width:760px; margin:0 auto; padding:2rem 1rem 5rem; }
+                    h1 { font-size:1.4rem; font-weight:650; margin:0 0 .25rem; }
+                    .sous { color:var(--doux); margin-bottom:1.5rem; }
+                    .retour { color:var(--doux); font-size:.9rem; }
+                    .retour:hover { color:var(--texte); }
+                    .carte { background:var(--surface); border:1px solid var(--surface2);
+                             border-radius:var(--r); padding:1.1rem 1.2rem; margin-bottom:1rem; }
+                    .carte h2 { font-size:1.05rem; margin:0 0 .6rem; }
+                    .carte p { margin:.3rem 0; color:var(--doux); line-height:1.55; }
+                    .carte p b { color:var(--texte); }
+                    .mdp { display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.6rem; }
+                    input[type=password] { padding:.55rem .8rem; font-size:1rem; border:1px solid
+                                           var(--surface2); border-radius:var(--r); background:var(--fond);
+                                           color:var(--texte); }
+                    button { padding:.6rem 1.2rem; font-size:1rem; cursor:pointer;
+                             border:none; border-radius:var(--r); background:var(--primaire);
+                             color:#fff; font-weight:600; }
+                    .erreur { color:#ef4444; margin-top:.6rem; font-size:.9rem; }
+                    .etapes { padding-left:1.1rem; }
+                    .etapes li { margin:.5rem 0; color:var(--texte); }
+                    .etapes code { background:var(--surface2); padding:.1rem .4rem;
+                                   border-radius:.25rem; font-size:.85rem; }
+                    .ok { color:var(--ok); font-weight:600; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="wrap">
+                <p><a class="retour" href="/tour/dashboard">← Retour à l'accueil</a></p>
+                <h1>Extension navigateur</h1>
+                <div class="sous">Le pont qui permet à Braignak de chercher sur
+                    le web via ton navigateur (les moteurs bloquent le serveur).
+                    Protégé par mot de passe.</div>
+
+                <t t-if="not mdp_ok and not telechargement">
+                    <div class="carte">
+                        <h2>Accès protégé</h2>
+                        <p>Entre le mot de passe pour télécharger l'extension
+                           (il se change dans Réglages → Extension navigateur).</p>
+                        <form method="post" action="/tour/extension" class="mdp">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+                            <input type="password" name="mdp"
+                                   placeholder="Mot de passe" autofocus="autofocus"/>
+                            <button type="submit">Déverrouiller</button>
+                        </form>
+                        <p t-if="erreur" class="erreur"><t t-esc="erreur"/></p>
+                    </div>
+                </t>
+
+                <t t-if="mdp_ok or telechargement">
+                    <div class="carte">
+                        <h2>Télécharger l'extension</h2>
+                        <p>Le fichier <b>tour-extension.zip</b> contient
+                           l'extension complète.</p>
+                        <form method="post" action="/tour/extension" class="mdp">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="mdp"
+                                   t-att-value="mdp if mdp else ''"/>
+                            <input type="hidden" name="action" value="telecharger"/>
+                            <button type="submit">⬇ Télécharger tour-extension.zip</button>
+                        </form>
+                        <p t-if="message" class="ok"><t t-esc="message"/></p>
+                    </div>
+
+                    <div class="carte">
+                        <h2>Installer (2 minutes)</h2>
+                        <ol class="etapes">
+                            <li>Dézippe le fichier téléchargé.</li>
+                            <li>Ouvre <code>chrome://extensions</code> et active
+                                <b>Mode développeur</b> (en haut à droite).</li>
+                            <li>Clique <b>« Charger l'extension non empaquetée »</b>
+                                et choisis le dossier dézippé.</li>
+                            <li>Ouvre la page de test : <a t-att-href="'/tour/extension/test'"
+                                href="/tour/extension/test">test.html</a></li>
+                            <li>Écris une recherche et clique — l'extension
+                                ouvre Bing dans ton navigateur et renvoie
+                                les résultats ici.</li>
+                        </ol>
+                    </div>
+
+                    <div class="carte">
+                        <h2>Garde-fou</h2>
+                        <p>L'extension ne lit <b>jamais</b> ta session privée :
+                           elle n'ouvre que la recherche demandée, et elle n'a
+                           aucune permission sur les onglets existants ni
+                           l'historique. C'est la règle n°1.</p>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

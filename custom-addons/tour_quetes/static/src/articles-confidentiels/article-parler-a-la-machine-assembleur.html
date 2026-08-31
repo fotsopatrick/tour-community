@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Parler à la machine jusqu'à l'assembleur — Tour de contrôle</title>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--texte:#e2e8f0;--doux:#94a3b8;--primaire:#3b82f6;--r:.6rem}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--texte);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.6}
+.tete{border-bottom:1px solid var(--surface2);background:rgba(2,8,23,.9)}
+.tete .wrap{max-width:1100px;margin:0 auto;padding:.7rem 1rem;display:flex;align-items:center;gap:1.5rem}
+.marque{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--texte);font-weight:700}
+.nav-tete{margin-left:auto;display:flex;gap:1rem}
+.nav-tete a{color:var(--doux);text-decoration:none;font-size:.88rem}
+.nav-tete a:hover{color:var(--texte)}
+article{max-width:720px;margin:2rem auto;padding:0 1rem 3rem}
+article h1{font-size:1.8rem;margin:.5rem 0 .1rem;line-height:1.25}
+article .meta{color:var(--doux);font-size:.85rem;margin-bottom:1.5rem}
+article p, article li{color:#cbd5e1;line-height:1.7;margin-bottom:.8rem}
+article h2{color:#7dd3fc;font-size:1.2rem;margin-top:1.8rem}
+article code{background:var(--surface);border:1px solid var(--surface2);border-radius:.3rem;padding:.1rem .4rem;font-size:.9em;color:#7dd3fc}
+article .note{background:var(--surface);border:1px solid var(--surface2);border-radius:.6rem;padding:1rem;font-size:.9rem;color:var(--doux)}
+</style>
+</head>
+<body>
+<header class="tete"><div class="wrap">
+  <a class="marque" href="/">Tour de contrôle</a>
+  <nav class="nav-tete">
+    <a href="/">Accueil</a>
+    <a href="/equipe.html">L'équipe</a>
+    <a href="/tout.html">La tour</a>
+    <a href="/articles.html">Articles</a>
+  </nav>
+</div></header>
+
+<article>
+  <p class="meta">Low-level · 02/08/2026</p>
+  <h1>Parler à la machine jusqu'à l'assembleur</h1>
+
+  <p>On m'a demandé si l'on pouvait <b>écrire du code assembleur en parlant à
+  une machine</b>. La réponse courte : oui. La réponse longue est plus
+  intéressante, parce qu'elle touche à ce que l'assembleur a de plus vrai.</p>
+
+  <p>L'assembleur n'est pas un langage comme les autres. Ce n'est pas une
+  abstraction posée sur la machine : c'est la machine, vue de l'intérieur.
+  Registres, mémoire, instructions, drapeaux. Rien entre toi et le silicium.</p>
+
+  <h2>Pourquoi descendre si bas ?</h2>
+  <ul>
+    <li><b>La performance</b> : rien ne tourne plus vite que le code qui parle
+    directement au processeur. Pour une boucle critique, chaque instruction
+    compte.</li>
+    <li><b>Le contrôle total</b> : registres, mémoire, périphériques — ce que
+    les langages de haut niveau décident pour toi, tu le décides toi-même.</li>
+    <li><b>La taille</b> : un programme en assembleur tient dans quelques
+    centaines d'octets. Quand la mémoire coûte, ça change tout.</li>
+    <li><b>La compréhension</b> : écrire en assembleur, c'est la meilleure
+    école d'architecture. On comprend comment un ordinateur fonctionne
+    vraiment — pas comment on l'imagine.</li>
+  </ul>
+
+  <h2>Et la voix, là-dedans ?</h2>
+  <p>Le vrai défi n'est pas d'écrire l'assembleur : c'est de <b>savoir ce
+  qu'on veut</b>. Une fois qu'on sait, la machine traduit. C'est pour ça que
+  la compétence compte encore plus que l'outil — l'outil rend la compétence
+  accessible, il ne la remplace pas.</p>
+
+  <div class="note">L'assembleur se paie cher sur le marché de l'embarqué et
+  de la sécurité bas niveau. Mais son vrai bénéfice est ailleurs : il rend
+  concret ce que tout le reste abstrait.</div>
+</article>
+</body>
+</html>

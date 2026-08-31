@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_conteneurs" name="Conteneurs — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Conteneurs — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .col{display:flex;flex-direction:column;gap:10px}
+          .ct{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;
+              display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+          .ct .n{font-weight:650;font-size:14px;min-width:190px}
+          .ct .img{color:var(--muted);font-family:var(--mono);font-size:11.5px;flex:1;min-width:120px}
+          .ct .ram{color:var(--muted);font-size:12px;min-width:130px;font-variant-numeric:tabular-nums}
+          .ct .st{font-size:11.5px;padding:3px 10px;border-radius:20px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+          .ct .st.up{color:var(--good);border-color:var(--good)}
+          .ct .st.down{color:var(--warn);border-color:var(--warn)}
+          .ct .btn{font:inherit;font-size:12.5px;cursor:pointer;border-radius:8px;padding:7px 14px;border:1px solid var(--line);
+                   background:var(--surface);color:var(--ink)}
+          .ct .btn:hover{border-color:var(--accent)}
+          .ct .btn.arreter:hover{border-color:var(--crit);color:var(--crit)}
+          .ct .protege{color:var(--faint);font-size:11px;font-style:italic}
+          .note{border:1px solid var(--crit);color:var(--crit);background:var(--crit-soft);border-radius:10px;padding:10px 12px;font-size:12.5px;margin-top:14px}
+          .aide{color:var(--muted);font-size:12px;margin-top:10px}
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Conteneurs du serveur</h1>
+              <div class="sub">RAM réelle, démarrer / arrêter · administrateur seulement</div>
+            </div>
+            <div class="spacer"></div>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <t t-if="erreur">
+            <div class="note"><t t-esc="erreur"/></div>
+          </t>
+
+          <div class="col">
+            <t t-foreach="conteneurs" t-as="c">
+              <div class="ct">
+                <span class="n"><t t-esc="c['nom']"/></span>
+                <span class="img"><t t-esc="c['image']"/></span>
+                <span class="ram"><t t-esc="c['ram']"/></span>
+                <span t-attf-class="st #{c['etat'].startswith('Up') and 'up' or 'down'}">
+                  <t t-esc="c['etat']"/>
+                </span>
+                <t t-if="c['protege']">
+                  <span class="protege">protégé — ne pas arrêter</span>
+                </t>
+                <t t-else="">
+                  <form t-attf-method="post" t-attf-action="/tour/conteneurs/#{c['nom']}/start" style="margin:0">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button type="submit" class="btn">Démarrer</button>
+                  </form>
+                  <form t-attf-method="post" t-attf-action="/tour/conteneurs/#{c['nom']}/stop" style="margin:0">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button type="submit" class="btn arreter">Arrêter</button>
+                  </form>
+                </t>
+              </div>
+            </t>
+            <t t-if="not conteneurs and not erreur">
+              <div class="aide">Aucun conteneur renvoyé par le service hôte.</div>
+            </t>
+          </div>
+
+          <div class="aide">Les conteneurs critiques (tour-odoo-1, tour-db-1, tour-caddy-1) sont
+            protégés : le service refuse de les arrêter. La démo et le bac à sable,
+            eux, peuvent être éteints pour libérer de la RAM.</div>
+        </div>
+      </body>
+    </html>
+  </template>
+</odoo>

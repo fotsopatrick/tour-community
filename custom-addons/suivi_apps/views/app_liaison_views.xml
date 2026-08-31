@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tâche : l'app que cette tâche fait avancer. Ancré sur user_ids
+         (présent dans le formulaire de base de project), pas sur un champ
+         d'un module optionnel : suivi_apps ne dépend pas de tour_dashboard. -->
+    <record id="app_liaison_task_form" model="ir.ui.view">
+        <field name="name">project.task.form.app.liaison</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+            <field name="user_ids" position="after">
+                <field name="app_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="app_liaison_task_list" model="ir.ui.view">
+        <field name="name">project.task.list.app.liaison</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2"/>
+        <field name="arch" type="xml">
+            <field name="stage_id" position="before">
+                <field name="app_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Mission : la même app, pour la remontée. -->
+    <record id="app_liaison_mission_form" model="ir.ui.view">
+        <field name="name">atelier.mission.form.app.liaison</field>
+        <field name="model">atelier.mission</field>
+        <field name="inherit_id" ref="tour_atelier.view_atelier_mission_form"/>
+        <field name="arch" type="xml">
+            <field name="moteur" position="after">
+                <field name="app_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="app_liaison_mission_list" model="ir.ui.view">
+        <field name="name">atelier.mission.list.app.liaison</field>
+        <field name="model">atelier.mission</field>
+        <field name="inherit_id" ref="tour_atelier.view_atelier_mission_list"/>
+        <field name="arch" type="xml">
+            <field name="moteur" position="after">
+                <field name="app_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

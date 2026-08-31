@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Le gabarit -->
+    <record id="vue_modele_form" model="ir.ui.view">
+        <field name="name">circuit.modele.form</field>
+        <field name="model">circuit.modele</field>
+        <field name="arch" type="xml">
+            <form string="Gabarit de circuit">
+                <header>
+                    <button name="toggle_active" type="object"
+                            string="Activer ce gabarit"
+                            class="btn-primary"
+                            invisible="active"/>
+                    <button name="toggle_active" type="object"
+                            string="Mettre en brouillon"
+                            class="btn-secondary"
+                            invisible="not active"/>
+                    <button name="action_exporter" type="object"
+                            string="Exporter (JSON)" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Circuit article"/></h1>
+                    </div>
+                    <field name="description" placeholder="À quoi sert ce circuit."/>
+                    <group invisible="not detecte">
+                        <field name="detecte" readonly="1"/>
+                        <field name="note" readonly="1"/>
+                    </group>
+                    <field name="active" invisible="1"/>
+                    <separator string="Les portes, dans l'ordre"/>
+                    <field name="etape_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="role"/>
+                            <field name="membre_id"
+                                   domain="[('moteur','!=',False)]"
+                                   invisible="role != 'agent'"/>
+                            <field name="gabarit_enfant_id"
+                                   options="{'no_create': True}"
+                                   placeholder="(aucun embranchement)"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_modele_liste" model="ir.ui.view">
+        <field name="name">circuit.modele.liste</field>
+        <field name="model">circuit.modele</field>
+        <field name="arch" type="xml">
+            <list string="Gabarits">
+                <field name="name"/>
+                <field name="nb_etapes"/>
+                <field name="detecte" optional="hide"/>
+                <field name="active" optional="show"/>
+                <field name="description" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_modele" model="ir.actions.act_window">
+        <field name="name">Gabarits de circuits</field>
+        <field name="res_model">circuit.modele</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Une instance en cours -->
+    <record id="vue_instance_form" model="ir.ui.view">
+        <field name="name">circuit.instance.form</field>
+        <field name="model">circuit.instance</field>
+        <field name="arch" type="xml">
+            <form string="Circuit en cours">
+                <header>
+                    <button name="action_lancer" type="object" class="btn-primary"
+                            string="Lancer le circuit" invisible="etat != 'brouillon'"/>
+                    <button name="action_forcer" type="object"
+                            string="Forcer la porte (test)" invisible="etat != 'en_cours'"
+                            confirm="Approuver la porte courante à la main, sans attendre l'agent ?"/>
+                    <button name="action_reprendre" type="object"
+                            class="btn-warning" string="Reprendre à la porte"
+                            invisible="etat not in ('refuse','en_cours')"
+                            confirm="Repartir à la porte courante ? L'acquis n'est pas rejoué."/>
+                    <button name="action_rendre_public" type="object" class="btn-primary"
+                            string="Rendre public" invisible="etat != 'publie_prive'"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Mon article / mon module"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="modele_id" readonly="etat != 'brouillon'"/>
+                            <field name="etape_nom"/>
+                            <field name="reprises"/>
+                        </group>
+                        <group>
+                            <field name="module_cible"
+                                   placeholder="tour_debat (si le circuit finit en prod)"/>
+                        </group>
+                    </group>
+                    <separator string="Contenu (ce qui traverse le circuit)"/>
+                    <field name="sujet"/>
+                    <separator string="Trace des portes"/>
+                    <field name="trace_html" nolabel="1" readonly="1"/>
+                    <separator string="Journal des portes"/>
+                    <field name="passage_ids" readonly="1">
+                        <list>
+                            <field name="etape_id"/>
+                            <field name="etat"/>
+                            <field name="avis"/>
+                        </list>
+                    </field>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_instance_liste" model="ir.ui.view">
+        <field name="name">circuit.instance.liste</field>
+        <field name="model">circuit.instance</field>
+        <field name="arch" type="xml">
+            <list string="Circuits" decoration-success="etat in ('publie_prive','publie_public')"
+                  decoration-danger="etat == 'refuse'">
+                <field name="create_date"/>
+                <field name="name"/>
+                <field name="modele_id"/>
+                <field name="etape_nom"/>
+                <field name="etat" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_instance" model="ir.actions.act_window">
+        <field name="name">Circuits en cours</field>
+        <field name="res_model">circuit.instance</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun circuit lancé.</p>
+            <p>Choisis un gabarit, mets ton contenu, lance : il traverse les
+               portes (les agents relisent), finit chez toi, tu publies.</p>
+        </field>
+    </record>
+
+    <record id="action_circuits_cockpit" model="ir.actions.act_url">
+        <field name="name">Cockpit des circuits</field>
+        <field name="url">/tour/cockpit/circuits</field>
+        <field name="target">self</field>
+    </record>
+    <menuitem id="menu_circuits_root" name="Circuits" sequence="9"
+              parent="tour_dashboard.menu_pilotage_circuits"/>
+    <menuitem id="menu_circuit_cockpit" name="Cockpit des circuits"
+              parent="menu_circuits_root" sequence="0"
+              action="action_circuits_cockpit"
+              groups="base.group_system"/>
+    <menuitem id="menu_circuit_instance" name="Circuits en cours"
+              parent="menu_circuits_root" sequence="1" action="action_instance"/>
+    <menuitem id="menu_circuit_modele" name="Gabarits"
+              parent="menu_circuits_root" sequence="2" action="action_modele"/>
+
+    <record id="vue_import_form" model="ir.ui.view">
+        <field name="name">circuit.modele.import.form</field>
+        <field name="model">circuit.modele.import</field>
+        <field name="arch" type="xml">
+            <form string="Importer un gabarit">
+                <field name="contenu"
+                       placeholder="Colle ici le JSON exporté depuis une autre base."/>
+                <footer>
+                    <button name="action_importer" type="object"
+                            class="btn-primary" string="Importer"/>
+                    <button special="cancel" string="Annuler"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_import_modele" model="ir.actions.act_window">
+        <field name="name">Importer un gabarit</field>
+        <field name="res_model">circuit.modele.import</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_circuit_import" name="Importer un gabarit"
+              parent="menu_circuits_root" action="action_import_modele"
+              sequence="30"/>
+
+    <record id="cron_circuits" model="ir.cron">
+        <field name="name">Circuits : ramener les portes agents</field>
+        <field name="model_id" ref="model_circuit_instance"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever()</field>
+        <field name="interval_number">2</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

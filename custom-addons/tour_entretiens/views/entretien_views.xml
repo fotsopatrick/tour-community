@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_entretien_form" model="ir.ui.view">
+        <field name="name">entretien.fiche.form</field>
+        <field name="model">entretien.fiche</field>
+        <field name="arch" type="xml">
+            <form string="Entretien">
+                <header>
+                    <button name="action_preparer" type="object" class="btn-primary"
+                            string="Préparer" invisible="etat == 'en_cours'"/>
+                    <button name="action_passe" type="object"
+                            string="Je l'ai passé" invisible="etat != 'prepare'"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="CTO associé"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="entreprise"/>
+                            <field name="date_entretien"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="L'offre">
+                            <field name="offre" nolabel="1"
+                                   placeholder="Collez l'annonce telle quelle — c'est la matière première de la préparation."/>
+                        </page>
+                        <page string="La préparation" invisible="not preparation">
+                            <field name="preparation" nolabel="1" readonly="1"/>
+                        </page>
+                        <!-- Toujours visible une fois l'entretien passé : les
+                             questions réellement posées reviennent d'un
+                             recruteur à l'autre — c'est la partie qui prend
+                             de la valeur avec le temps. -->
+                        <page string="Ce qui s'est vraiment passé">
+                            <field name="verdict" nolabel="1"
+                                   placeholder="Les questions posées pour de vrai, ce qui a marché, ce qui a coincé. À remplir le jour même — le soir on a déjà oublié."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_entretien_list" model="ir.ui.view">
+        <field name="name">entretien.fiche.list</field>
+        <field name="model">entretien.fiche</field>
+        <field name="arch" type="xml">
+            <list decoration-success="etat == 'prepare'"
+                  decoration-muted="etat == 'passe'">
+                <field name="date_entretien" string="Quand"/>
+                <field name="name"/>
+                <field name="entreprise" optional="show"/>
+                <field name="etat"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_entretiens" model="ir.actions.act_window">
+        <field name="name">Entretiens</field>
+        <field name="res_model">entretien.fiche</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Préparer un entretien</p>
+            <p>Collez l'offre, cliquez « Préparer », et revenez lire :
+               questions probables, quoi raconter, quoi réviser.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_entretiens" name="Entretiens"
+              action="action_entretiens" sequence="94"
+              web_icon="tour_entretiens,static/description/icon.svg"/>
+
+    <record id="cron_relever" model="ir.cron">
+        <field name="name">Entretiens : ramener les préparations</field>
+        <field name="model_id" ref="model_entretien_fiche"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever()</field>
+        <field name="interval_number">2</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="braignak_etude_view_list" model="ir.ui.view">
+        <field name="name">braignak.etude.list</field>
+        <field name="model">braignak.etude</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="etat == 'close'" decoration-success="verdict == 'a_reprendre'">
+                <field name="priorite" optional="show"/>
+                <field name="name"/>
+                <field name="nature"/>
+                <field name="etat"/>
+                <field name="nb_capacites" string="Capacités"/>
+                <field name="verdict" optional="show"/>
+                <field name="source" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- La file « À traiter » : c'est elle qui répond à « qui choisit ? ».
+         Vingt-cinq verdicts sans ordre sont une pile qui ne se vide jamais ;
+         cette liste EST l'ordre — la priorité d'abord, puis la plus ancienne
+         (celle qui attend depuis le plus longtemps). On traite du haut vers
+         le bas, et le bas se vide quand on clôt. -->
+    <record id="braignak_file_view_list" model="ir.ui.view">
+        <field name="name">braignak.etude.file</field>
+        <field name="model">braignak.etude</field>
+        <field name="arch" type="xml">
+            <list string="À traiter"
+                  default_order="priorite_ordre, create_date">
+                <field name="priorite"/>
+                <field name="name"/>
+                <field name="create_date" string="Attend depuis"/>
+                <field name="nb_fort" string="Capacités fortes"/>
+                <field name="verdict"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="braignak_etude_view_form" model="ir.ui.view">
+        <field name="name">braignak.etude.form</field>
+        <field name="model">braignak.etude</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_observer" type="object" string="Préparer l'observation"
+                            class="btn-primary" invisible="etat not in ('brouillon', 'observation')"
+                            help="Rédige la mission d'observation. Elle reste en brouillon : rien ne part sans vous."/>
+                    <button name="action_prototyper" type="object" string="Demander un prototype"
+                            invisible="verdict != 'a_prototyper'"/>
+                    <button name="action_tuer" type="object" string="Clore l'étude"
+                            invisible="etat == 'close'"/>
+                    <button name="action_relancer" type="object" string="Relancer l'étude"
+                            invisible="etat == 'close'"
+                            help="Pourquoi on relance + nouvelles consignes : Braignak reprend l'étude existante et l'actualise (marché, tour, données)."/>
+                    <button name="action_arret_urgence" type="object" string="ARRÊT D'URGENCE"
+                            class="btn-danger" confirm="Couper Braignak et supprimer les missions en brouillon ?"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nom de l'application observée"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="source" placeholder="https://… ou D:/PROJETS/…"/>
+                            <field name="nature"/>
+                        </group>
+                        <group>
+                            <field name="verdict"/>
+                            <field name="priorite"
+                                   help="Qui choisit ? Vous. La file « À traiter » se range toute seule par cette priorité, puis par ancienneté."/>
+                            <field name="nb_fort" string="Capacités à fort intérêt"/>
+                            <field name="nb_capacites"/>
+                        </group>
+                    </group>
+                    <group string="En bref" invisible="not resume">
+                        <field name="resume" nolabel="1" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Capacités repérées">
+                            <field name="capacite_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="interet"/>
+                                    <field name="existe_deja" widget="boolean_toggle"/>
+                                    <field name="tache_id" readonly="1"/>
+                                    <button name="action_creer_tache" type="object" icon="fa-plus"
+                                            title="Créer la tâche dans le journal de la tour"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Observations">
+                            <field name="observations" placeholder="Ce qui a été constaté…"/>
+                        </page>
+                        <page string="Verdict">
+                            <field name="justification" placeholder="Pourquoi. Obligatoire pour clore."/>
+                        </page>
+                        <page string="Missions engendrées">
+                            <field name="mission_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="etat"/>
+                                    <field name="moteur"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="braignak_journal_view_list" model="ir.ui.view">
+        <field name="name">braignak.journal.list</field>
+        <field name="model">braignak.journal</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false">
+                <field name="create_date" string="Quand"/>
+                <field name="etude_id"/>
+                <field name="action"/>
+                <field name="utilisateur_id" string="Demandé par"/>
+                <field name="detail"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="braignak_etude_search" model="ir.ui.view">
+        <field name="name">Braignak Études — recherche</field>
+        <field name="model">braignak.etude</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="source"/>
+                <field name="verdict"/>
+                <filter name="etude_terminee" string="Étude terminée"
+                        domain="[('etat', '=', 'close')]"/>
+                <filter name="etude_en_cours" string="En cours"
+                        domain="[('etat', 'not in', ('close',))]"/>
+                <filter name="etude_a_reprendre" string="À reprendre"
+                        domain="[('verdict', '=', 'a_reprendre'), ('etat', '!=', 'close')]"/>
+                <group expand="0" string="Groupe">
+                    <filter name="grp_etat" string="État" domain="[]"
+                            context="{'group_by': 'etat'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="braignak_etude_action" model="ir.actions.act_window">
+        <field name="name">Études</field>
+        <field name="res_model">braignak.etude</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="braignak_etude_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune application étudiée</p>
+            <p>Braignak regarde une application, en tire la liste de ce qu'elle
+               sait faire, et dit ce qui manque à la tour. Il ne se lance jamais
+               seul : chaque mission reste en brouillon jusqu'à ce que vous
+               l'envoyiez.</p>
+        </field>
+    </record>
+
+    <record id="braignak_file_action" model="ir.actions.act_window">
+        <field name="name">À traiter</field>
+        <field name="res_model">braignak.etude</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="braignak_file_view_list"/>
+        <field name="search_view_id" ref="braignak_etude_search"/>
+        <field name="domain">[("verdict", "in", ("a_reprendre", "a_prototyper")), ("etat", "!=", "close")]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien à décider.</p>
+            <p>Les études dont le verdict attend une suite : « à reprendre »
+               ou « à prototyper ». L'ordre est la hiérarchie : la priorité
+               d'abord, puis la plus ancienne. Traite du haut vers le bas — un
+               verdict traité sort de la file (prototype demandé, tâches
+               créées, ou étude close).</p>
+        </field>
+    </record>
+
+    <record id="braignak_journal_action" model="ir.actions.act_window">
+        <field name="name">Journal de Braignak</field>
+        <field name="res_model">braignak.journal</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Tout ce que Braignak a fait, dans l'ordre. Ce journal ne se
+               modifie pas et ne s'efface pas — pas même par un administrateur.
+               C'est ce qui rend l'observateur observable.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_braignak_root" name="Braignak" sequence="46"
+              web_icon="tour_braignak,static/description/icon.svg"
+              groups="base.group_user"/>
+    <menuitem id="menu_braignak_file" name="À traiter" parent="menu_braignak_root"
+              action="braignak_file_action" sequence="1" groups="base.group_system"/>
+    <menuitem id="menu_braignak_etudes" name="Études" parent="menu_braignak_root"
+              action="braignak_etude_action" sequence="2" groups="base.group_system"/>
+    <menuitem id="menu_braignak_journal" name="Journal" parent="menu_braignak_root"
+              action="braignak_journal_action" sequence="3"/>
+
+  <!-- PAGE PUBLIQUE (03/08) : l'étude « frontières africaines », style cockpit.
+       Contenu 100 % statique — rien n'est lu dans la base, aucune donnée
+       interne. Page pensée pour être montrée (mode démonstration), le texte
+       respecte la règle des six ans. -->
+  <template id="etude_frontieres" name="Étude — Frontières africaines">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Comment sécuriser les frontières poreuses en Afrique</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          body { margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans); }
+          .wrap { max-width:1060px; margin:0 auto; padding:18px; }
+          .tower { display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:16px 18px; margin-bottom:20px; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); }
+          .tower h1 { font-size:19px; margin:0; }
+          .tower .sub { font-size:12.5px; color:var(--muted); margin-top:2px; }
+          .strips { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:20px; }
+          .strip { background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:14px 15px; border-left:3px solid var(--accent); }
+          .strip.ok { border-left-color:var(--good); }
+          .strip.blue { border-left-color:var(--c1); }
+          .strip.warn { border-left-color:var(--warn); }
+          .strip.crit { border-left-color:var(--crit); }
+          .strip .lbl { font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+          .strip .val { font-family:var(--mono); font-size:26px; font-variant-numeric:tabular-nums; font-weight:600; margin-top:3px; line-height:1.1; }
+          .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px; margin-bottom:12px; }
+          .panel { background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:14px 16px; }
+          .panel h2 { font-size:14px; margin:0 0 4px; }
+          .panel .hint { color:var(--muted); font-size:12px; margin:0 0 10px; }
+          ul { margin:0; padding:0 0 0 18px; }
+          li { font-size:13px; margin:5px 0; line-height:1.5; }
+          .phrase { font-size:15px; line-height:1.6; }
+          .phrase b { color:var(--c1); }
+          .verdict { background:var(--surface); border:1px solid var(--good); border-radius:14px; box-shadow:var(--shadow); padding:16px 18px; margin:14px 0; border-left:4px solid var(--good); }
+          .verdict .v-t { font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--good); }
+          .verdict .v-c { font-size:15px; line-height:1.6; margin-top:4px; }
+          .lvl { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 2px; }
+          .lvl .chip { font-family:var(--mono); font-size:10.5px; font-weight:600; padding:2px 9px; border-radius:20px; background:var(--panel); border:1px solid var(--line); color:var(--muted); }
+          .lvl .chip.f1 { background:var(--good-soft); color:var(--good); border-color:var(--good); }
+          .lvl .chip.f2 { background:rgba(47,111,176,.13); color:var(--c1); border-color:var(--c1); }
+          .lvl .chip.f3 { background:var(--warn-soft, rgba(181,101,29,.13)); color:var(--warn); border-color:var(--warn); }
+          .lvl .chip.f4 { background:var(--crit-soft); color:var(--crit); border-color:var(--crit); }
+          .card { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin:8px 0; }
+          .card .t { font-size:13px; font-weight:600; }
+          .card .d { font-size:12.5px; color:var(--muted); margin-top:3px; line-height:1.5; }
+          .note { background:var(--panel); border:1px solid var(--line); color:var(--muted); border-radius:12px; padding:12px 14px; font-size:12.5px; margin-top:14px; line-height:1.6; }
+          .steps { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+          .steps .st { font-size:11px; padding:3px 10px; border-radius:20px; border:1px solid var(--line); color:var(--muted); }
+          .steps .st.num { border-color:var(--c1); color:var(--c1); font-weight:600; }
+          .footer { text-align:center; color:var(--faint); font-size:11.5px; margin:22px 0 6px; font-family:var(--mono); }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Comment sécuriser les frontières poreuses en Afrique</h1>
+              <div class="sub">une étude en mots simples · règle des six ans</div>
+            </div>
+            <div class="spacer" style="flex:1"></div>
+            <div class="live"><span class="dot"></span> Étude</div>
+          </header>
+
+          <!-- La phrase clé -->
+          <section class="verdict">
+            <div class="v-t">L'idée en une phrase</div>
+            <div class="v-c">Une frontière se défend comme une maison : <b>on voit</b> qui approche, <b>on sait</b> qui passe, et <b>on a des gens prêts à réagir vite</b>. Ni mur seul, ni drones seuls — tout ensemble.</div>
+          </section>
+
+          <!-- La grille du colonel (ajout du 04/08) : trois niveaux -->
+          <section class="panel" style="margin-bottom:12px">
+            <h2>La grille du colonel — les trois niveaux</h2>
+            <p class="hint">complétée le 04/08, après son retour : « tout problème militaire se traite aux trois niveaux »</p>
+            <p class="phrase">Un problème militaire, c'est comme une maison à trois étages.
+            En bas, le <b>tactique</b> : le geste — qui surveille, qui contrôle, qui court.
+            Au milieu, l'<b>opérationnel</b> : la manœuvre — comment tous ces gestes travaillent ensemble, au bon endroit, au bon moment.
+            En haut, le <b>stratégique</b> : la raison — pourquoi les gens passent, et comment faire pour qu'ils n'aient plus besoin de passer en cachette.
+            Un plan qui n'a qu'un étage s'écroule.</p>
+          </section>
+
+          <!-- Les bandeaux -->
+          <section class="strips">
+            <div class="strip ok"><div class="lbl">1 — Voir</div><div class="val">Surveiller</div></div>
+            <div class="strip blue"><div class="lbl">2 — Contrôler</div><div class="val">Filtrer</div></div>
+            <div class="strip warn"><div class="lbl">3 — Réagir</div><div class="val">Intervenir</div></div>
+          </section>
+
+          <section class="panel" style="margin-bottom:12px">
+            <h2>Le problème</h2>
+            <p class="hint">des lignes sur la carte, sans mur ni poste</p>
+            <p class="phrase">En Afrique, beaucoup de frontières sont des lignes sur la carte, sans mur ni poste. Des gens, des marchandises et des armes passent sans contrôle. C'est ce qu'on appelle une frontière <b>poreuse</b>. Il n'existe pas une méthode magique — il faut un ensemble de moyens, choisis selon l'argent et les hommes disponibles.</p>
+          </section>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Les moyens — du plus simple au plus cher</h2>
+              <p class="hint">quatre niveaux, du peuple à la technologie</p>
+              <div class="card"><div class="lvl"><span class="chip f1">1 · simple</span></div><div class="t">Les gens et l'organisation</div><div class="d">Patrouilles à pied ou à vélo, postes de contrôle aux routes et marchés, radios simples, informateurs et lien avec les villages. C'est la base de tout.</div></div>
+              <div class="card"><div class="lvl"><span class="chip f2">2 · un peu plus</span></div><div class="t">Les outils de surveillance simples</div><div class="d">Tours de guet avec jumelles et radio, petits drones pour voir de haut, caméras aux postes officiels, capteurs de mouvement sur les pistes.</div></div>
+              <div class="card"><div class="lvl"><span class="chip f3">3 · encore plus</span></div><div class="t">La surveillance électronique</div><div class="d">Caméras thermiques (elles voient la nuit), petits radars, capteurs sismiques qui sentent les pas, un centre de renseignement qui rassemble tout sur un écran.</div></div>
+              <div class="card"><div class="lvl"><span class="chip f4">4 · le plus cher</span></div><div class="t">La grande technologie</div><div class="d">Drones militaires, satellites, barrières intelligentes qui signalent quand on les touche, radars côtiers. Pour pays riches ou aide internationale.</div></div>
+            </section>
+
+            <section class="panel">
+              <h2>Ce qui marche vraiment (exemples)</h2>
+              <p class="hint">des cas vrais, avec leur leçon</p>
+              <div class="card"><div class="t">Botswana (Afrique)</div><div class="d">Une clôture + des patrouilles + des contrôles ont fait baisser le braconnage et la migration du bétail. Leçon : une simple barrière marche si on y met des hommes et de la surveillance.</div></div>
+              <div class="card"><div class="t">Maroc</div><div class="d">Murs et fossés, mais surtout un travail de renseignement : savoir où et quand les gens passent.</div></div>
+              <div class="card"><div class="t">Inde / Bangladesh</div><div class="d">Une clôture éclairée avec des sentiers de patrouille. Leçon : la clôture sert à ralentir, pas à arrêter — ce sont les hommes qui arrêtent.</div></div>
+              <div class="card"><div class="t">Sahel (Barkhane, G5)</div><div class="d">Beaucoup d'argent et de soldats n'ont pas suffi : le désert est immense. Leçon : connaître le terrain et les routes d'abord, acheter le matériel ensuite.</div></div>
+            </section>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Le niveau opérationnel — faire travailler ensemble</h2>
+              <p class="hint">la manœuvre : le bon geste, au bon endroit, au bon moment</p>
+              <div class="card"><div class="t">Découper la frontière en secteurs</div><div class="d">Un chef par secteur, qui connaît son terrain et répond de ce qui s'y passe. Une frontière sans chef de secteur, c'est une maison sans gardien d'étage.</div></div>
+              <div class="card"><div class="t">Un seul centre qui voit tout</div><div class="d">Les patrouilles, les drones, les villageois, les douanes : chacun voit un morceau. Le renseignement ne sert que si tout arrive au même endroit, sur la même carte, chez les mêmes personnes.</div></div>
+              <div class="card"><div class="t">Une réserve mobile</div><div class="d">On ne peut pas être fort partout. On tient les points clés, et on garde une force rapide qui se déplace là où ça chauffe. C'est elle qui gagne, pas les murs.</div></div>
+              <div class="card"><div class="t">La logistique, nerf de tout</div><div class="d">De l'essence, des pièces de rechange, des soldes payées à l'heure. Un soldat mal payé au bord d'une route de contrebande devient un péage. La logistique, c'est aussi de la discipline.</div></div>
+              <div class="card"><div class="t">Le tempo</div><div class="d">La frontière vit : jours de marché, saisons des récoltes, nuits sans lune. La manœuvre suit le rythme des passeurs, pas celui des bureaux.</div></div>
+              <div class="card"><div class="t">Armée, police, douanes, villages : une seule équipe</div><div class="d">Quatre services qui ne se parlent pas, c'est quatre frontières trouées. Un exercice commun par trimestre, avec le pays voisin quand c'est possible.</div></div>
+            </section>
+
+            <section class="panel">
+              <h2>Le niveau stratégique — assécher la source</h2>
+              <p class="hint">la raison : pourquoi ils passent, et comment fermer le robinet</p>
+              <div class="card"><div class="t">Comprendre pourquoi les gens passent</div><div class="d">Travail, commerce, famille : la plupart des passages sont honnêtes. Ouvrir des passages faciles et légaux pour eux, c'est isoler les dangereux — on ne cherche plus une aiguille dans une botte de foin, on a enlevé le foin.</div></div>
+              <div class="card"><div class="t">La frontière se défend à deux États</div><div class="d">Accords avec le voisin, patrouilles conjointes, renseignement partagé, organisations régionales. Un pays seul déplace le problème ; deux pays le règlent.</div></div>
+              <div class="card"><div class="t">L'économie des zones frontalières</div><div class="d">Un jeune qui a un travail ne porte pas les sacs des trafiquants. Routes, marchés, écoles dans les régions frontalières : c'est de la défense aussi, la moins chère de toutes sur dix ans.</div></div>
+              <div class="card"><div class="t">La population, premier capteur</div><div class="d">Les villages savent tout avant tout le monde. Ils parlent si on les respecte et si on les protège. La confiance se gagne en années et se perd en une bavure.</div></div>
+              <div class="card"><div class="t">Un État propre aux postes</div><div class="d">Le poste frontière est le visage de l'État. S'il est corrompu, toute la stratégie est morte : les gens honnêtes contournent et les trafiquants paient. Contrôler les contrôleurs.</div></div>
+              <div class="card"><div class="t">Penser en dix ans</div><div class="d">Une école de gardes-frontières, un budget d'entretien garanti, un point complet chaque année. La tactique se juge en jours, l'opérationnel en mois, la stratégie en années.</div></div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <h2>Pourquoi les projets échouent</h2>
+            <p class="hint">cinq pièges connus</p>
+            <ul>
+              <li>Acheter du matériel sans former les hommes qui s'en servent.</li>
+              <li>Acheter sans pièces de rechange ni réparateur.</li>
+              <li>Oublier les postes officiels : un poste corrompu est pire qu'une frontière ouverte.</li>
+              <li>Vouloir fermer TOUTE la frontière — c'est impossible. Il faut tenir les points importants : routes, gués, cols, marchés.</li>
+              <li>Se méfier du voisin : une frontière se défend à deux. Sans accord entre les deux pays, rien ne tient.</li>
+            </ul>
+          </section>
+
+          <section class="panel" style="margin-top:12px">
+            <h2>La recommandation en dix points</h2>
+            <p class="hint">pour un État africain, dans l'ordre</p>
+            <div class="steps">
+              <span class="st num">1 · Carte</span>
+              <span class="st num">2 · Postes aux bons endroits</span>
+              <span class="st num">3 · Patrouilles régulières</span>
+              <span class="st num">4 · Radio + contact unique</span>
+              <span class="st num">5 · Centre de renseignement</span>
+              <span class="st num">6 · Drones simples ensuite</span>
+              <span class="st num">7 · Former avant d'acheter</span>
+              <span class="st num">8 · Prévoir l'entretien</span>
+              <span class="st num">9 · Accord avec le voisin</span>
+              <span class="st num">10 · Vérifier chaque mois</span>
+            </div>
+          </section>
+
+          <div class="note">La règle d'or : tout écrit doit être compris par un enfant de six ans. Si on ne peut pas l'expliquer simplement, c'est qu'on ne l'a pas compris soi-même. Un bon plan de frontière se raconte en trois mots — <b>voir, contrôler, réagir</b> — et se pense à trois étages : <b>le geste</b> (tactique), <b>la manœuvre</b> (opérationnel), <b>la raison</b> (stratégique).</div>
+          <div class="footer">étude de la tour — page publique de démonstration</div>
+        </div>
+      </body>
+    </html>
+  </template>
+
+
+  <template id="etudes_privees" name="Resultats d etudes — prive">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Resultats d etudes — prive</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          body { margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans); }
+          .wrap { max-width:900px; margin:0 auto; padding:18px; }
+          h1 { font-size:19px; }
+          .sub { color:var(--muted); font-size:12.5px; margin-bottom:16px; }
+          .et { display:block; background:var(--surface); border:1px solid var(--line);
+                border-radius:12px; padding:12px 15px; margin:8px 0; text-decoration:none;
+                color:var(--ink); }
+          .et:hover { border-color:var(--accent); }
+          .et .t { font-weight:600; font-size:14px; }
+          .et .m { color:var(--muted); font-family:var(--mono); font-size:11px; margin-top:3px; }
+          .tag { display:inline-block; font-family:var(--mono); font-size:10px;
+                 padding:1px 8px; border-radius:12px; border:1px solid var(--line);
+                 margin-left:6px; color:var(--muted); }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <h1>Resultats d etudes</h1>
+          <div class="sub">prive — les etudes de Braignak et de Raphael, les plus recentes d abord</div>
+          <t t-foreach="etudes" t-as="e">
+            <a t-attf-href="/braignak/etudes/#{e.id}" class="et">
+              <div class="t"><t t-esc="e.name"/></div>
+              <div class="m">
+                <t t-esc="e.create_date" t-options="{'widget': 'date'}"/>
+                <span class="tag"><t t-esc="e.etat"/></span>
+                <span t-if="e.verdict" class="tag"><t t-esc="e.verdict"/></span>
+              </div>
+            </a>
+          </t>
+        </div>
+      </body>
+    </html>
+  </template>
+
+  <template id="etude_privee_detail" name="Etude — detail prive">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title t-esc="e.name"/>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          body { margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans); }
+          .wrap { max-width:820px; margin:0 auto; padding:18px; }
+          h1 { font-size:19px; }
+          .m { color:var(--muted); font-family:var(--mono); font-size:11.5px; margin-bottom:14px; }
+          .corps { background:var(--surface); border:1px solid var(--line);
+                   border-radius:14px; padding:16px 18px; line-height:1.65; font-size:14px; }
+          .corps h2 { font-size:15px; }
+          a.retour { color:var(--muted); font-size:12px; text-decoration:none; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <a class="retour" href="/braignak/etudes">&#8592; toutes les etudes</a>
+          <h1><t t-esc="e.name"/></h1>
+          <div class="m">
+            <t t-esc="e.create_date" t-options="{'widget': 'datetime'}"/>
+            — etat : <t t-esc="e.etat"/><t t-if="e.verdict"> — verdict : <t t-esc="e.verdict"/></t>
+          </div>
+          <div class="corps"><t t-out="e.resume"/></div>
+        </div>
+      </body>
+    </html>
+  </template>
+
+  <record id="braignak_relance_wizard_form" model="ir.ui.view">
+    <field name="name">braignak.relance.wizard.form</field>
+    <field name="model">braignak.relance.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Relancer l'étude">
+        <group>
+          <field name="etude_id" readonly="1"/>
+          <field name="raison" required="1"
+                 placeholder="Pourquoi tu relances (le marché a changé, la tour a évolué, de nouvelles données...)" />
+          <field name="consignes"
+                 placeholder="Ce que tu veux que Braignak regarde ou intègre en plus cette fois" />
+          <field name="donnees"
+                 placeholder="De nouvelles données à intégrer (liens, chiffres, autres concurrents à regarder...)" />
+        </group>
+        <footer>
+          <button name="valider" type="object" string="Lancer la relance" class="oe_highlight"/>
+          <button string="Annuler" class="oe_link" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+</odoo>

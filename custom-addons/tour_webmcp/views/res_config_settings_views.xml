@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="res_config_settings_view_form" model="ir.ui.view">
+    <field name="name">res.config.settings.view.form.tour.webmcp</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//form" position="inside">
+        <div class="app_settings_block" data-string="WebMCP" data-key="tour_webmcp" groups="base.group_system">
+          <h2>Tour — WebMCP</h2>
+          <div class="row mt16 o_settings_container">
+            <div class="col-12 col-lg-6 o_setting_box">
+              <div class="o_setting_left_pane"/>
+              <div class="o_setting_right_pane">
+                <label for="webmcp_api_key" string="Clé d'accès WebMCP"/>
+                <div class="text-muted">
+                  Le token que les clients MCP (opencode, Claude...) envoient
+                  dans l'en-tête <code>Authorization: Bearer ...</code>. Sans
+                  lui, l'endpoint <code>/mcp/tour</code> reste fermé.
+                </div>
+                <div class="content-group">
+                  <div class="mt8">
+                    <field name="webmcp_api_key" class="o_input"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6 o_setting_box">
+              <div class="o_setting_left_pane"/>
+              <div class="o_setting_right_pane">
+                <label for="webmcp_gemini_key" string="Clé API Gemini"/>
+                <div class="text-muted">
+                  Clé Google Gemini partagée (AI Studio). Chloé et Braignak la
+                  lisent quand leur moteur est réglé sur Gemini.
+                </div>
+                <div class="content-group">
+                  <div class="mt8">
+                    <field name="webmcp_gemini_key" class="o_input"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6 o_setting_box">
+              <div class="o_setting_left_pane"/>
+              <div class="o_setting_right_pane">
+                <label for="webmcp_chat_moteur" string="Moteur de Chloé"/>
+                <div class="text-muted">
+                  Chloé (chat) : DeepSeek par défaut, Gemini au choix.
+                </div>
+                <div class="content-group">
+                  <div class="mt8">
+                    <field name="webmcp_chat_moteur"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6 o_setting_box">
+              <div class="o_setting_left_pane"/>
+              <div class="o_setting_right_pane">
+                <label for="webmcp_braignak_moteur" string="Moteur de Braignak"/>
+                <div class="text-muted">
+                  Braignak (observateur) : DeepSeek par défaut, Gemini au choix.
+                </div>
+                <div class="content-group">
+                  <div class="mt8">
+                    <field name="webmcp_braignak_moteur"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6 o_setting_box">
+              <div class="o_setting_left_pane"/>
+              <div class="o_setting_right_pane">
+                <label for="webmcp_cartes_path" string="Carte vivante (cartes.json)"/>
+                <div class="text-muted">
+                  Chemin du JSON relevé (carte-zones.sh). Lu par la carte
+                  vivante et par l'outil WebMCP <code>lire_carte</code>.
+                </div>
+                <div class="content-group">
+                  <div class="mt8">
+                    <field name="webmcp_cartes_path" class="o_input"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </xpath>
+    </field>
+  </record>
+</odoo>

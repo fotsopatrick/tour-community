@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_decision_list" model="ir.ui.view">
+        <field name="name">decision.fiche.list</field>
+        <field name="model">decision.fiche</field>
+        <field name="arch" type="xml">
+            <list decoration-bf="etat == 'attente'"
+                  decoration-success="etat == 'approuve'"
+                  decoration-danger="etat == 'rejete'"
+                  decoration-muted="etat == 'archive'">
+                <field name="priorite" widget="badge"
+                       decoration-danger="priorite == '1'"
+                       decoration-warning="priorite == '2'"/>
+                <field name="create_date" string="Depuis"/>
+                <field name="titre_lisible"/>
+                <field name="origine_lisible"/>
+                <field name="etat" widget="badge"
+                       decoration-warning="etat == 'attente'"
+                       decoration-success="etat == 'approuve'"
+                       decoration-danger="etat == 'rejete'"
+                       decoration-muted="etat == 'archive'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_decision_form" model="ir.ui.view">
+        <field name="name">decision.fiche.form</field>
+        <field name="model">decision.fiche</field>
+        <field name="arch" type="xml">
+            <form string="Décision">
+                <header>
+                    <button name="action_approuver" type="object"
+                            string="Approuver" class="btn-primary"
+                            invisible="etat != 'attente'"/>
+                    <button name="action_rejeter" type="object"
+                            string="Rejeter (avec le commentaire)"
+                            invisible="etat != 'attente'"/>
+                    <button name="action_archiver" type="object"
+                            string="Archiver (sans suite)" class="btn-link"
+                            invisible="etat != 'attente'"/>
+                    <button name="action_ouvrir_origine" type="object"
+                            string="Voir l'origine"
+                            invisible="not res_model"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="titre_lisible" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="priorite" widget="radio" options="{'horizontal': True}"/>
+                            <field name="origine_lisible" readonly="1"/>
+                            <field name="decide_le" readonly="1"
+                                   invisible="not decide_le"/>
+                        </group>
+                    </group>
+                    <field name="resume" readonly="1" invisible="not resume"/>
+                    <!-- Le commentaire est VISIBLE avant le rejet, pas caché
+                         dans une fenêtre : un rejet doit coûter une phrase,
+                         c'est ce qui le rend utile à l'agent qui reproposera.
+                         Et son TITRE dit son vrai rôle : quand l'agent
+                         attend des réponses, ce champ sert à répondre AVANT
+                         d'approuver — l'appeler « si tu rejettes » a envoyé
+                         les réponses de Patrick dans le fil (28/07). -->
+                    <field name="attend_reponses" invisible="1"/>
+                    <group string="L'agent attend tes réponses — écris-les ici, puis Approuver"
+                           invisible="etat != 'attente' or not attend_reponses">
+                        <field name="commentaire" nolabel="1"
+                               placeholder="Tes réponses, point par point. Elles partent telles quelles à l'agent, qui reprendra le même chantier. (Pour rejeter : écris ce qui ne va pas, puis Rejeter.)"/>
+                    </group>
+                    <group string="Si tu rejettes, dis pourquoi"
+                           invisible="etat != 'attente' or attend_reponses">
+                        <field name="commentaire" nolabel="1"
+                               placeholder="Ce qui ne va pas, en une ou deux phrases. Un agent s'en servira pour reproposer. (Pour archiver sans relancer : écris pourquoi c'est incompréhensible / hors sujet, puis Archiver.)"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_decisions" model="ir.actions.act_window">
+        <field name="name">Décisions</field>
+        <field name="res_model">decision.fiche</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_attente': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien à décider</p>
+            <p>Quand un agent ou l'équipe attend ton feu vert, ça apparaît
+               ici. Approuve, ou rejette avec un mot — l'agent reproposera.</p>
+        </field>
+    </record>
+
+    <record id="vue_decision_search" model="ir.ui.view">
+        <field name="name">decision.fiche.search</field>
+        <field name="model">decision.fiche</field>
+        <field name="arch" type="xml">
+            <search>
+                <filter name="attente" string="À décider"
+                        domain="[('etat', '=', 'attente')]"/>
+                <filter name="decidees" string="Décidées"
+                        domain="[('etat', '!=', 'attente')]"/>
+            </search>
+        </field>
+    </record>
+
+    <menuitem id="menu_decisions" name="Décisions"
+              action="action_decisions" sequence="3"
+              web_icon="tour_decisions,static/description/icon.svg"/>
+
+    <record id="cron_rabattre" model="ir.cron">
+        <field name="name">Décisions : rabattre ce qui attend</field>
+        <field name="model_id" ref="model_decision_fiche"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_rabattre()</field>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

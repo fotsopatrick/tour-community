@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate="1" : la liste vit ensuite dans l'écran. Une mise à jour du
+         module ne doit pas effacer un endroit ajouté ou décoché à la main. -->
+    <data noupdate="1">
+
+        <!-- ===== Cercle 1 — Patrick, Raphaël, opencode ===== -->
+
+        <record id="source_mail_patrick" model="recherche.source">
+            <field name="name">La boîte mail de Patrick</field>
+            <field name="resume">Les candidatures envoyées et les réponses des recruteurs.</field>
+            <field name="genre">mail</field>
+            <field name="adresse">fotsoorel95@gmail.com</field>
+            <field name="pour_quoi">mes candidatures</field>
+            <field name="cercle">1</field>
+            <field name="sequence">1</field>
+            <field name="comment_y_aller">Connecteur Gmail de Claude Code : taper /mcp puis choisir « claude.ai Gmail », et autoriser AVEC ce compte-là (pas frsecretservice).
+Chercher les mots : candidature, votre candidature, entretien, recrutement, architecte.
+Jamais de mot de passe ici.</field>
+        </record>
+
+        <record id="source_disque_projets" model="recherche.source">
+            <field name="name">Le disque D: — PROJETS</field>
+            <field name="resume">La vraie racine des projets, et les CV sur le Bureau.</field>
+            <field name="genre">fichier</field>
+            <field name="adresse">D:\PROJETS</field>
+            <field name="pour_quoi">mon code, mes CV</field>
+            <field name="cercle">1</field>
+            <field name="sequence">2</field>
+            <field name="comment_y_aller">Depuis le PC de Patrick. Les CV en PDF sont sur le Bureau (cv-patrick.pdf, cv-patrick-en.pdf).</field>
+        </record>
+
+        <record id="source_tour_base" model="recherche.source">
+            <field name="name">La base de la tour</field>
+            <field name="resume">Tâches, Réponses, Décisions, Connaissances, entretiens.</field>
+            <field name="genre">base</field>
+            <field name="adresse">tour (PostgreSQL, conteneur db)</field>
+            <field name="pour_quoi">mon travail</field>
+            <field name="cercle">1</field>
+            <field name="sequence">3</field>
+            <field name="comment_y_aller">docker compose exec odoo odoo shell -d tour, ou les écrans de la tour.</field>
+        </record>
+
+        <record id="source_vps" model="recherche.source">
+            <field name="name">Le serveur de la tour</field>
+            <field name="resume">Le code, les scripts, les rendus des agents.</field>
+            <field name="genre">fichier</field>
+            <field name="adresse">tour-vps:~/tour</field>
+            <field name="pour_quoi">mon code</field>
+            <field name="cercle">1</field>
+            <field name="sequence">4</field>
+            <field name="comment_y_aller">ssh tour-vps. La clé SSH est le vrai secret de la maison : elle ne sort jamais.</field>
+        </record>
+
+        <!-- ===== Cercle 2 — les agents ===== -->
+
+        <record id="source_veille_missions" model="recherche.source">
+            <field name="name">La veille de missions</field>
+            <field name="resume">Les missions freelance collectées toutes les 6 h.</field>
+            <field name="genre">service</field>
+            <field name="adresse">http://127.0.0.1:3210/api/missions</field>
+            <field name="pour_quoi">des missions</field>
+            <field name="cercle">2</field>
+            <field name="sequence">10</field>
+            <field name="comment_y_aller">Tourne sur le serveur, en local seulement. systemctl status veille-missions.</field>
+        </record>
+
+        <record id="source_depots_github" model="recherche.source">
+            <field name="name">Les dépôts GitHub de Patrick</field>
+            <field name="resume">Une vingtaine de dépôts, dont plusieurs privés.</field>
+            <field name="genre">depot</field>
+            <field name="adresse">github.com/fotsopatrick</field>
+            <field name="pour_quoi">mon code</field>
+            <field name="cercle">2</field>
+            <field name="sequence">11</field>
+            <field name="comment_y_aller">gh repo list fotsopatrick</field>
+        </record>
+
+        <record id="source_freelancer" model="recherche.source">
+            <field name="name">Freelancer</field>
+            <field name="resume">L'API publique des missions. Marche sans compte.</field>
+            <field name="genre">web</field>
+            <field name="adresse">https://www.freelancer.com/api/projects/0.1/projects/active/</field>
+            <field name="pour_quoi">des missions</field>
+            <field name="cercle">2</field>
+            <field name="sequence">12</field>
+        </record>
+
+        <record id="source_indeed" model="recherche.source">
+            <field name="name">Indeed</field>
+            <field name="resume">Les offres d'emploi. À coller dans les entretiens.</field>
+            <field name="genre">web</field>
+            <field name="adresse">https://fr.indeed.com</field>
+            <field name="pour_quoi">des offres</field>
+            <field name="cercle">2</field>
+            <field name="sequence">13</field>
+            <field name="comment_y_aller">Pas d'API gratuite. On passe par le navigateur, on colle l'offre dans Entretiens.</field>
+        </record>
+
+        <record id="source_malt" model="recherche.source">
+            <field name="name">Malt</field>
+            <field name="resume">Bloqué par Cloudflare (403). Éteint pour ne pas taper dans le vide.</field>
+            <field name="genre">web</field>
+            <field name="adresse">https://www.malt.fr</field>
+            <field name="pour_quoi">des missions</field>
+            <field name="cercle">2</field>
+            <field name="actif" eval="False"/>
+            <field name="sequence">14</field>
+            <field name="comment_y_aller">Ne pas réessayer en boucle : c'est du 403 Cloudflare, pas une panne passagère.</field>
+        </record>
+
+        <!-- ===== Cercle 4 — les invités en démonstration ===== -->
+
+        <record id="source_vitrine" model="recherche.source">
+            <field name="name">La vitrine publique</field>
+            <field name="resume">Ce que voit n'importe qui sur le site.</field>
+            <field name="genre">web</field>
+            <field name="adresse">https://matourdecontrole.fr</field>
+            <field name="pour_quoi">la tour</field>
+            <field name="cercle">4</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="source_demo" model="recherche.source">
+            <field name="name">La tour de démonstration</field>
+            <field name="resume">Des données inventées, faites pour être montrées.</field>
+            <field name="genre">base</field>
+            <field name="adresse">https://demo.matourdecontrole.fr</field>
+            <field name="pour_quoi">la démonstration</field>
+            <field name="cercle">4</field>
+            <field name="sequence">41</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_atelier_mission_form" model="ir.ui.view">
+        <field name="name">atelier.mission.form</field>
+        <field name="model">atelier.mission</field>
+        <field name="arch" type="xml">
+            <form string="Mission">
+                <header>
+                    <button name="action_envoyer" type="object" class="btn-primary"
+                            string="Envoyer à l'atelier"
+                            invisible="etat == 'envoyee'"/>
+                    <button name="action_relever" type="object"
+                            string="Voir si c'est prêt"
+                            invisible="etat != 'envoyee'"/>
+                    <button name="action_continuer" type="object"
+                            string="Continuer sur ce chantier"
+                            invisible="etat not in ('terminee', 'echec')"/>
+                    <button name="action_transformer_en_gabarit" type="object"
+                            string="Transformer en gabarit"
+                            class="btn-secondary"
+                            invisible="etat != 'terminee'"/>
+                    <button name="action_ouvrir_site" type="object"
+                            string="Ouvrir le site" class="btn-secondary"
+                            invisible="not url"/>
+                    <field name="etat" widget="statusbar"
+                           statusbar_visible="brouillon,envoyee,terminee"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"
+                                   placeholder="Corriger l'affichage des paramètres"/></h1>
+                    </div>
+                    <group>
+                        <field name="consigne" nolabel="1"
+                               placeholder="Écrivez comme à quelqu'un qui ne connaît pas le contexte : ce qu'il faut produire, où, et comment savoir que c'est réussi."/>
+                    </group>
+                    <group>
+                        <field name="precedente_id" readonly="1"
+                               invisible="not precedente_id"/>
+                        <field name="moteur" readonly="etat == 'envoyee'"/>
+                        <field name="depot" readonly="etat == 'envoyee'"/>
+                        <field name="publier"/>
+                        <field name="verbose" readonly="etat == 'envoyee'"/>
+                        <field name="slug" invisible="not publier"
+                               placeholder="laisser vide pour une adresse automatique"/>
+                        <field name="url" widget="url" readonly="1"
+                               invisible="not url"/>
+                        <field name="nb_fichiers" readonly="1"
+                               invisible="not url"/>
+                    </group>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not publier">
+                        Pour être mise en ligne, la mission doit produire un
+                        fichier <b>index.html</b> dans son dossier de travail.
+                        Seuls les fichiers d'un site web sont copiés — pages,
+                        styles, scripts, images, polices. Le reste est laissé
+                        sur place : c'est ce qui évite de publier par accident
+                        une clé oubliée dans un fichier de réglages.
+                    </div>
+                    <group col="4">
+                        <field name="envoyee_le" readonly="1"/>
+                        <field name="duree" readonly="1"/>
+                        <field name="moteur_utilise" readonly="1"
+                               invisible="not moteur_utilise"/>
+                        <field name="jeton" readonly="1" groups="base.group_no_one"/>
+                    </group>
+                    <!-- CE QU'IL A VU SANS QUE CE SOIT SON TRAVAIL.
+                         Placé AVANT le compte rendu, et pas après : une
+                         remarque hors sujet rangée sous un rapport de trois
+                         mille lignes n'est jamais lue. C'est précisément la
+                         chose qui pourrait coûter cher et que personne
+                         d'autre n'a vue. -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not hors_perimetre">
+                        <b>Il a relevé ceci en passant — ce n'est pas son
+                        métier.</b><br/>
+                        <field name="hors_perimetre" nolabel="1" readonly="1"/>
+                        <span class="text-muted">Ce n'est pas un constat, c'est
+                        une piste : à confier à celui dont c'est le
+                        périmètre.</span>
+                    </div>
+
+                    <div class="alert alert-danger" role="alert"
+                         invisible="discipline != 'manquant'">
+                        <b>Cette mission a produit quelque chose, et l'agent n'a
+                        pas déclaré son retest.</b><br/>
+                        <span class="text-muted">Le travail n'est pas
+                        forcément mauvais — mais rien ne prouve qu'il ait été
+                        revérifié. À traiter comme non testé.</span>
+                    </div>
+
+                    <!-- EN BREF d'abord, le détail derrière un onglet.
+                         Patrick, 30/07 : le mur de texte rend la tour
+                         illisible à la main. On lit le résumé ; on ouvre
+                         le détail seulement si on en a besoin. -->
+                    <group string="En bref" invisible="not resume">
+                        <field name="resume" nolabel="1" readonly="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Compte rendu détaillé"
+                              invisible="not reponse">
+                            <field name="discipline" readonly="1"
+                                   invisible="discipline == 'sans_objet'"/>
+                            <field name="retest_declare" invisible="1"/>
+                            <field name="compris_declare" readonly="1"
+                                   string="A reformulé la demande avant de commencer"/>
+                            <field name="reponse" nolabel="1" readonly="1"/>
+                        </page>
+                        <page string="Avancement"
+                              invisible="avancement == 'non_consigne' and not etape_ids">
+                            <group>
+                                <field name="avancement" readonly="1"
+                                       widget="badge"
+                                       decoration-success="avancement == 'fait'"
+                                       decoration-info="avancement == 'en_cours'"
+                                       decoration-danger="avancement == 'pas_fait'"/>
+                                <field name="avancement_detail" readonly="1"
+                                       placeholder="L'agent n'a pas précisé où il en est."/>
+                            </group>
+                            <field name="etape_ids" readonly="1">
+                                <list>
+                                    <field name="sequence"/>
+                                    <field name="nom"/>
+                                    <field name="etat" widget="badge"
+                                           decoration-success="etat == 'fait'"
+                                           decoration-info="etat == 'en_cours'"
+                                           decoration-danger="etat == 'pas_fait'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <div class="alert alert-info" role="alert">
+                        La tour ne lance aucune commande elle-même : elle dépose la
+                        mission, et l'atelier la ramasse sur le serveur. Le résultat
+                        arrive dans la minute qui suit la fin des travaux.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_atelier_mission_list" model="ir.ui.view">
+        <field name="name">atelier.mission.list</field>
+        <field name="model">atelier.mission</field>
+        <field name="arch" type="xml">
+            <list string="Missions" decoration-success="etat == 'terminee'"
+                  decoration-info="etat == 'envoyee'" decoration-danger="etat == 'echec'">
+                <field name="create_date" string="Créée"/>
+                <field name="name"/>
+                <field name="moteur" optional="show"/>
+                <field name="depot" optional="show"/>
+                <field name="etat"/>
+                <field name="avancement" optional="show"/>
+                <field name="duree" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_atelier_mission" model="ir.actions.act_window">
+        <field name="name">Missions</field>
+        <field name="res_model">atelier.mission</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Confier une première mission</p>
+            <p>Décrivez ce qu'il faut faire, envoyez, et revenez lire le compte
+               rendu. Depuis un téléphone comme depuis un ordinateur.</p>
+        </field>
+    </record>
+
+    <!-- OUVERT AUX UTILISATEURS (29/07, demande de Patrick : « accès à
+         tous les modules par défaut, sauf les paramètres »). L'Atelier est
+         un module PRODUIT : celui qui fait construire une app par Chloe
+         doit voir SES missions. La règle du propriétaire (regles.xml)
+         fait le cloisonnement — chacun les siennes, l'admin tout. -->
+    <menuitem id="menu_atelier_racine" name="Atelier" sequence="72"
+              web_icon="tour_atelier,static/description/icon.svg"/>
+    <menuitem id="menu_atelier" name="Missions" parent="menu_atelier_racine"
+              action="action_atelier_mission"/>
+</odoo>

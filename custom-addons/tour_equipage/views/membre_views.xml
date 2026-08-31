@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_membre_liste" model="ir.ui.view">
+        <field name="name">equipe.membre.liste</field>
+        <field name="model">equipe.membre</field>
+        <field name="arch" type="xml">
+            <list string="L'équipe" default_order="niveau desc, xp desc">
+                <field name="embleme"/>
+                <field name="name"/>
+                <field name="poste"/>
+                <field name="niveau"/>
+                <field name="titre"/>
+                <field name="xp"/>
+                <field name="avancement" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_membre_form" model="ir.ui.view">
+        <field name="name">equipe.membre.form</field>
+        <field name="model">equipe.membre</field>
+        <field name="arch" type="xml">
+            <form string="Membre">
+                <header>
+                    <button name="action_parler" type="object" class="btn-primary"
+                            string="Parler avec lui" invisible="not moteur"/>
+                    <!-- Le chemin vers l'atelier depuis l'équipe (Patrick,
+                         29/07 : « je ne peux rien envoyer à l'atelier »). -->
+                    <button name="action_confier_mission" type="object"
+                            string="Confier une mission" invisible="not moteur"/>
+                    <button name="action_recalculer" type="object"
+                            string="Relire les compteurs"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Prénom"/></h1>
+                        <h3><field name="poste" placeholder="Son poste en trois mots"/></h3>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="embleme"/>
+                            <field name="moteur"/>
+                            <field name="actif_le"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="niveau"/>
+                            <field name="titre"/>
+                            <field name="titre_jp"/>
+                            <field name="xp"/>
+                            <field name="xp_palier"/>
+                            <field name="avancement" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Compétences">
+                            <field name="competence_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="quoi"/>
+                                    <field name="valeur"/>
+                                    <field name="etoiles"/>
+                                    <field name="xp"/>
+                                    <field name="mesure_le"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Ses livraisons">
+                            <field name="livraison_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="type"/>
+                                    <field name="url"/>
+                                    <field name="date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Mes consignes pour lui">
+                            <div class="alert alert-info" role="alert">
+                                Ce que tu écris ici part en tête de chaque nouvelle
+                                conversation avec lui. Ce n'est pas une note : ça
+                                arrive vraiment jusqu'à lui.
+                            </div>
+                            <field name="consignes"
+                                   placeholder="Ex : réponds toujours en français, va droit au but, préviens-moi avant de toucher aux paiements."/>
+                        </page>
+                        <page string="Mes consignes à moi (personnelles)">
+                            <div class="alert alert-info" role="alert">
+                                Vos consignes à vous, envoyées à cet agent
+                                chaque fois que <b>vous</b> lui confiez
+                                quelque chose. Chacun a les siennes — et ses
+                                refus et garde-fous passent toujours avant :
+                                vous personnalisez sa voix, jamais ses
+                                verrous.
+                            </div>
+                            <field name="consigne_perso_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="user_id" readonly="1"
+                                           optional="hide"/>
+                                    <field name="texte"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Ce qu'il sait faire">
+                            <field name="exemples"
+                                   placeholder="Trois ou quatre demandes types, pour savoir quoi lui confier."/>
+                        </page>
+                        <page string="Son périmètre">
+                            <field name="perimetre"/>
+                        </page>
+                        <page string="Ce qu'il ne fait pas">
+                            <field name="refus"/>
+                        </page>
+                        <page string="Pourquoi ce nom">
+                            <field name="origine"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_membre" model="ir.actions.act_window">
+        <field name="name">L'équipe</field>
+        <field name="res_model">equipe.membre</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Le registre s'ouvre : liste cliquable, fiche, et le bouton qui
+         mène aux enregistrements comptés. Une ligne sèche qu'on ne peut
+         pas creuser n'informe pas, elle nargue (Patrick, 29/07). -->
+    <record id="vue_exploit_liste" model="ir.ui.view">
+        <field name="name">equipe.exploit.liste</field>
+        <field name="model">equipe.exploit</field>
+        <field name="arch" type="xml">
+            <list string="Registre des faits">
+                <field name="date" optional="hide"/>
+                <field name="membre_id" optional="hide"/>
+                <field name="name"/>
+                <field name="resume" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_exploit_form" model="ir.ui.view">
+        <field name="name">equipe.exploit.form</field>
+        <field name="model">equipe.exploit</field>
+        <field name="arch" type="xml">
+            <form string="Fait d'armes">
+                <header>
+                    <button name="action_voir_detail" type="object"
+                            class="btn-primary" string="Voir le détail"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <field name="membre_id"/>
+                        <field name="date"/>
+                        <field name="gain"/>
+                        <field name="code"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_exploit" model="ir.actions.act_window">
+        <field name="name">Registre des faits</field>
+        <field name="res_model">equipe.exploit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="vue_livraison_liste" model="ir.ui.view">
+        <field name="name">equipe.livraison.liste</field>
+        <field name="model">equipe.livraison</field>
+        <field name="arch" type="xml">
+            <list string="Carnet des livraisons" default_order="date desc">
+                <field name="date"/>
+                <field name="membre_id" optional="hide"/>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="url" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_livraison_form" model="ir.ui.view">
+        <field name="name">equipe.livraison.form</field>
+        <field name="model">equipe.livraison</field>
+        <field name="arch" type="xml">
+            <form string="Livraison">
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="membre_id"/>
+                            <field name="type"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="url"
+                                   placeholder="https://… ou D:/PROJETS/…"/>
+                        </group>
+                    </group>
+                    <group string="Ce que c'est">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_livraison" model="ir.actions.act_window">
+        <field name="name">Carnet des livraisons</field>
+        <field name="res_model">equipe.livraison</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- La page de l'équipe dans la grille des applications. Patrick,
+         29/07 : « je ne vois pas le lien de la page de compétence de
+         l'équipe dans app mais il est bien dans accueil ». Un menu racine
+         avec icône = une tuile dans la grille ; la page reste la même. -->
+    <record id="action_page_equipage" model="ir.actions.act_url">
+        <field name="name">Équipe</field>
+        <field name="url">/tour/equipe</field>
+        <field name="target">self</field>
+    </record>
+    <menuitem id="menu_equipage_racine" name="Équipe" sequence="27"
+              action="action_page_equipage"
+              web_icon="tour_equipage,static/description/icon.svg"/>
+
+    <menuitem id="menu_equipage" name="L'équipe"
+              parent="tour_dashboard.menu_pilotage_equipe" sequence="18"
+              action="action_membre"/>
+    <menuitem id="menu_exploit" name="Registre de l'équipe"
+              parent="menu_equipage" sequence="20"
+              action="action_exploit"/>
+    <menuitem id="menu_livraison" name="Livraisons de design"
+              parent="menu_equipage" sequence="21"
+              action="action_livraison"/>
+
+    <record id="cron_mesurer" model="ir.cron">
+        <field name="name">Équipe : relire l'expérience</field>
+        <field name="model_id" ref="model_equipe_membre"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_mesurer()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Le journal des grosses opérations : les tâches du projet ODOO,
+         TOUTES visibles (le filtre « tâches ouvertes » d'Odoo cache les
+         terminées — ici, pas de filtre, pas de surprise). -->
+    <record id="app_journal_view_list" model="ir.ui.view">
+        <field name="name">app.journal.list</field>
+        <field name="model">project.task</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false"
+                  default_order="create_date desc">
+                <field name="create_date" string="Date" optional="show"/>
+                <field name="name" string="Opération"/>
+                <field name="state" string="État" widget="badge"
+                       decoration-success="state == '1_done'"
+                       decoration-info="state == '01_in_progress'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="app_journal_action" model="ir.actions.act_window">
+        <field name="name">Journal des opérations</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="app_journal_view_list"/>
+        <field name="domain">[("project_id.name", "ilike", "ODOO"), ("parent_id", "=", False)]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Journal vide</p>
+            <p>Chaque grosse opération de Claude sur la tour est consignée ici,
+               datée, avec le détail dans la fiche (clique sur une ligne).</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_suivi_journal" name="Journal"
+              parent="menu_suivi_apps_root"
+              action="app_journal_action" sequence="15"/>
+
+</odoo>

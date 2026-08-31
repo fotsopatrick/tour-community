@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!--
+        Le tiroir des applications s'ouvrait sous la barre du haut et laissait
+        une bande vide : on avait un panneau qui glisse, pas un écran. On le
+        passe en plein écran (voir theme.scss) — mais un panneau plein écran
+        sans sortie visible est un piège : on ne sait plus comment revenir.
+
+        D'où ce bouton. Il appelle `onMenuClick`, exactement le même gestionnaire
+        que l'icône qui a servi à ouvrir — donc aucune logique nouvelle, aucun
+        état à maintenir, et rien qui puisse se désynchroniser.
+
+        À côté, la bascule d'affichage : liste fine ou grandes tuiles.
+    -->
+    <t t-inherit="web_responsive.AppsMenu" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('app-menu-container')]" position="inside">
+            <button
+                class="tdc_apps_close"
+                title="Fermer (Échap)"
+                aria-label="Fermer"
+                t-on-click.stop="onMenuClick"
+            >
+                <i class="fa fa-times" />
+            </button>
+        </xpath>
+    </t>
+
+
+    <!--
+        Les applications, rangées par groupe avec un titre.
+
+        On remplace la grille plate de web_responsive par une suite de sections.
+        Le composant AppMenuItem reste exactement le même : on ne change que
+        l'ordre, l'entête et la classe du conteneur — pas le rendu d'une tuile.
+        C'est ce qui garantit que la recherche, les raccourcis et la navigation
+        continuent de marcher, et c'est aussi pourquoi les deux affichages ne
+        coûtent qu'une feuille de style : le HTML est le même.
+    -->
+    <t t-inherit="web.NavBar.AppsMenu" t-inherit-mode="extension">
+        <xpath expr="//AppMenuItem" position="replace">
+            <div t-attf-class="tdc_apps tdc_apps_{{ tdcVue.mode }}">
+                <!--
+                    La bascule d'affichage vit ICI et pas à côté du bouton de
+                    fermeture, même si elle s'affiche au même endroit.
+
+                    Raison, apprise en cassant la page : le bouton de fermeture
+                    appartient au gabarit de `web_responsive.AppsMenu`, donc au
+                    composant AppsMenu. `tdcVue` et `tdcBasculerVue`, eux, sont
+                    greffés sur NavBar. Un gabarit qui référence une variable
+                    d'un AUTRE composant fait lever OWL, et c'est tout le tiroir
+                    qui ne rend plus rien — pas seulement le bouton.
+                -->
+                <button
+                    class="tdc_apps_vue_bascule"
+                    t-att-title="tdcVue.mode === 'liste' ? 'Afficher en grandes tuiles' : 'Afficher en liste'"
+                    aria-label="Changer l'affichage"
+                    t-on-click.stop="tdcBasculerVue"
+                >
+                    <i t-attf-class="fa {{ tdcVue.mode === 'liste' ? 'fa-th-large' : 'fa-list' }}" />
+                </button>
+                <!--
+                    Titre et applications sont enveloppes ENSEMBLE : sans ce
+                    conteneur, une mise en colonnes separerait un titre de son
+                    groupe, et on lirait « Protéger » au-dessus des
+                    applications de la colonne d'à côté.
+                -->
+                <t t-foreach="appsGroupes" t-as="groupe" t-key="groupe.titre">
+                    <div class="tdc_apps_cat">
+                        <div class="tdc_apps_groupe_titre">
+                            <span t-esc="groupe.titre"/>
+                            <span class="tdc_apps_groupe_compte" t-esc="groupe.apps.length"/>
+                        </div>
+                        <div class="tdc_apps_groupe">
+                            <AppMenuItem
+                                t-foreach="groupe.apps"
+                                t-as="app"
+                                t-key="app.id"
+                                app="app"
+                                currentApp="currentApp"
+                                href="getMenuItemHref(app)"
+                                onClick="onNavBarDropdownItemSelection.bind(this)"
+                            />
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

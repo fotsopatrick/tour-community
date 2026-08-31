@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_recrutement_list" model="ir.ui.view">
+    <field name="name">equipe.recrutement.list</field>
+    <field name="model">equipe.recrutement</field>
+    <field name="arch" type="xml">
+      <list string="Postes à pourvoir"
+            decoration-success="etat == 'embauche'"
+            decoration-muted="etat == 'refuse'">
+        <field name="name"/>
+        <field name="pourquoi"/>
+        <field name="nom_propose"/>
+        <field name="etat"/>
+        <field name="membre_id"/>
+        <field name="origine" optional="hide"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_recrutement_form" model="ir.ui.view">
+    <field name="name">equipe.recrutement.form</field>
+    <field name="model">equipe.recrutement</field>
+    <field name="arch" type="xml">
+      <form string="Poste à pourvoir">
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="embleme" class="me-2"/><field name="name"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="nom_propose"/>
+              <field name="etat"/>
+              <field name="membre_id" readonly="1"/>
+            </group>
+            <group>
+              <field name="origine"/>
+            </group>
+          </group>
+          <group string="Pourquoi ce poste">
+            <field name="pourquoi" nolabel="1"/>
+          </group>
+          <group string="Trace">
+            <field name="note" nolabel="1" readonly="1"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_recrutement" model="ir.actions.act_window">
+    <field name="name">Postes à pourvoir</field>
+    <field name="res_model">equipe.recrutement</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Tout le travail a un responsable.</p>
+      <p>Quand un métier n'a personne, il apparaît ici — et la question part
+         dans Décisions. C'est toi qui embauches.</p>
+    </field>
+  </record>
+
+  <menuitem id="menu_recrutement" name="Postes à pourvoir"
+            parent="menu_equipage_racine"
+            action="action_recrutement" sequence="30"/>
+
+  <record id="cron_recrutement" model="ir.cron">
+    <field name="name">Équipe : un travail sans responsable ?</field>
+    <field name="model_id" ref="model_equipe_recrutement"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_verifier()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="active" eval="True"/>
+  </record>
+
+</odoo>

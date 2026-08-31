@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_404_tour" name="Page introuvable (vitrine)">
+<head>
+
+<script>var t;try{t=localStorage.getItem('vitrine-theme')}catch(e){}if(t!=='sombre'){document.documentElement.setAttribute('data-theme','clair')}</script>
+<meta charset="utf-8"/>
+<!-- Sans cette ligne, un téléphone rend la page en largeur d'ordinateur puis
+     dézoome. C'est LA cause du rendu « page web » au lieu d'« application ». -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#020817"/>
+<!-- L icone de l onglet. En SVG et ecrite dans la page : elle reste nette
+     a toutes les tailles, ne coute aucune requete, et ne peut pas etre
+     oubliee au deploiement comme le serait un fichier a part. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020817'/%3E%3Ccircle cx='32' cy='9' r='3' fill='%233b82f6'/%3E%3Cline x1='32' y1='10' x2='32' y2='18' stroke='%233b82f6' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M17 20 h30 l-5 12 h-20 z' fill='%233b82f6'/%3E%3Cpath d='M27 32 h10 l3 22 h-16 z' fill='%23cbd5e1'/%3E%3Cline x1='22' y1='54' x2='42' y2='54' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23020817'/%3E%3Ccircle cx='32' cy='9' r='3' fill='%233b82f6'/%3E%3Cline x1='32' y1='10' x2='32' y2='18' stroke='%233b82f6' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M17 20 h30 l-5 12 h-20 z' fill='%233b82f6'/%3E%3Cpath d='M27 32 h10 l3 22 h-16 z' fill='%23cbd5e1'/%3E%3Cline x1='22' y1='54' x2='42' y2='54' stroke='%23cbd5e1' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"/>
+<title>Page introuvable — Tour de contrôle</title>
+<!-- CORRIGE LE 22/08 (defaut vu par Patrick a l'ecran). Ce modele a ete
+     recopie du fabricant de pages de la vitrine. Ce fabricant remplace
+     lui-meme des trous ecrits entre doubles accolades. Ici, personne ne les
+     remplacait : le trou "hreflang" s'affichait donc EN CLAIR sur la page,
+     et les trous "description" et "canonique" partaient tels quels aux
+     moteurs de recherche. Les trous sont bouches.
+     Le lien canonical et la ligne hreflang sont SUPPRIMES : une page
+     "introuvable" n'a pas d'adresse officielle a declarer, et n'a pas de
+     traduction. On ajoute noindex : on ne veut pas qu'un moteur range une
+     page d'erreur dans ses resultats. -->
+<meta name="description" content="Cette adresse n'existe pas sur la tour de contrôle. Revenez à l'accueil pour retrouver votre chemin."/>
+<meta name="robots" content="noindex, follow"/>
+<meta property="og:title" content="Page introuvable — Tour de contrôle"/>
+<meta property="og:description" content="Cette adresse n'existe pas sur la tour de contrôle. Revenez à l'accueil pour retrouver votre chemin."/>
+<meta property="og:type" content="website"/>
+<!-- Ce que Google doit comprendre du site, en langage machine. Sans ça il
+     devine — et il devine mal pour un service local peu connu. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Tour de contrôle",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "Une console qui retient tout ce que vous avez à faire, et une équipe qui fait avancer pendant que vous êtes ailleurs. Pour ceux qui mènent un emploi, des projets à côté et l'administratif en même temps.",
+  "url": "https://matourdecontrole.fr/",
+  "inLanguage": "fr-FR",
+  "offers": {
+    "@type": "Offer",
+    "price": "25",
+    "priceCurrency": "EUR",
+    "priceSpecification": {
+      "@type": "UnitPriceSpecification",
+      "price": "25",
+      "priceCurrency": "EUR",
+      "unitText": "MOIS"
+    }
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "Code Nomi Nomi",
+    "address": {"@type": "PostalAddress", "addressLocality": "Grenoble", "addressCountry": "FR"},
+    "email": "contact@matourdecontrole.fr"
+  }
+}
+</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
+<link rel="stylesheet" href="https://matourdecontrole.fr/vitrine.css"/>
+
+<!-- Carte de partage et description (05/08, audit RoastMyUrl) :
+     sans og:image, un lien colle sur LinkedIn ou dans une candidature
+     s'affiche sans visuel. L'image existait deja, elle n'etait
+     branchee nulle part. -->
+<meta property="og:image" content="https://matourdecontrole.fr/og-tour.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:type" content="image/png"/>
+<meta property="og:image:alt" content="Tour de controle — la console qui retient tout ce que vous avez a faire"/>
+<meta property="og:url" content="https://tour.matourdecontrole.fr/"/>
+<meta property="og:site_name" content="Tour de controle"/>
+<meta property="og:locale" content="fr_FR"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Page introuvable — Tour de contrôle"/>
+<meta name="twitter:image" content="https://matourdecontrole.fr/og-tour.png"/>
+<meta name="twitter:description" content="Cette adresse n'existe pas sur la tour de contrôle. Revenez à l'accueil pour retrouver votre chemin."/>
+<link rel="stylesheet" href="https://matourdecontrole.fr/vitrine-theme.css"/>
+</head>
+
+<body id="haut">
+<header class="tete">
+  <div class="wrap">
+    <nav class="navbar navbar-expand-lg nav-tour">
+      <a class="navbar-brand marque" href="https://matourdecontrole.fr/" aria-label="Revenir à l'accueil">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tour de contrôle" class="logo-tour">
+          <defs>
+            <linearGradient id="lgCab" x1="0" y1="0" x2="0.2" y2="1">
+              <stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/>
+            </linearGradient>
+            <linearGradient id="lgFut" x1="0" y1="0" x2="0.3" y2="1">
+              <stop offset="0" stop-color="#e2e8f0"/><stop offset="1" stop-color="#94a3b8"/>
+            </linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="14" fill="#1e293b"/>
+          <g stroke="#f59e0b" stroke-linecap="round" opacity="0.55">
+            <path d="M38 8 L47 4" stroke-width="2.2"/>
+            <path d="M39 12 L49 11" stroke-width="1.8" opacity="0.6"/>
+          </g>
+          <circle cx="32" cy="9" r="3.2" fill="#f59e0b"/>
+          <line x1="32" y1="11" x2="32" y2="18" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+          <path d="M15 20 h34 l-5.5 13 h-23 z" fill="url(#lgCab)"/>
+          <rect x="21" y="24" width="22" height="5.5" rx="2.7" fill="#0f172a" opacity="0.35"/>
+          <path d="M26.5 33 h11 l3.5 21 h-18 z" fill="url(#lgFut)"/>
+          <rect x="29" y="39" width="6" height="6" rx="2" fill="#0f172a" opacity="0.3"/>
+          <line x1="21" y1="54" x2="43" y2="54" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <span class="mot">Tour de contrôle</span>
+      </a>
+      <span class="lang-select" style="margin-left:1rem;white-space:nowrap;font-size:.82rem"><a href="#" onclick="choisirLangue('fr');return false" style="color:var(--doux);text-decoration:none;font-weight:700">FR</a> <span style="color:#334155">·</span> <a href="#" onclick="choisirLangue('en');return false" style="color:var(--doux);text-decoration:none">EN</a></span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navTour" aria-controls="navTour" aria-expanded="false"
+              aria-label="Ouvrir le menu"><span style="color:var(--doux);font-size:1.35rem;line-height:1">&amp;#9776;</span></button>
+      <div class="collapse navbar-collapse" id="navTour">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+          <li class="nav-item"><a class="nav-link" href="https://matourdecontrole.fr/equipe">L'équipe</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Moi</a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/qui">Qui je suis</a></li>
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/realisations">Réalisations</a></li>
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/temoignage">Témoignage</a></li>
+              
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/cv-patrick.pdf">Mon CV (PDF)</a></li>
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/cv-patrick-en.pdf">My CV (PDF)</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">La tour</a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/tout">Tout au même endroit</a></li>
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/fonctionnalites">Pour vous</a></li>
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/articles">Articles</a></li>
+              <li><a class="dropdown-item" href="https://tour.matourdecontrole.fr/tour/equipe-public" target="_blank" rel="noopener">Compétences de l'équipe (en direct)</a></li>
+              <li><a class="dropdown-item" href="https://matourdecontrole.fr/essaie-la-demo">Essayer la démo</a></li>
+          <li><a class="dropdown-item" href="https://matourdecontrole.fr/entrainer-agent">Entraîner votre agent</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a class="btn btn-outline-light btn-sm rounded-pill ms-lg-2" href="https://matourdecontrole.fr/offres">Voir les offres</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</header>
+<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Page introuvable — Tour de contrôle</h1>
+
+<main class="carte-404" style="min-height:60vh;display:grid;place-items:center;padding:48px 24px;">
+  <div style="width:min(620px,100%);background:var(--surface,#0f172a);border:1px solid var(--ligne,#1e293b);
+      border-radius:1rem;padding:clamp(28px,5vw,48px);text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45);">
+    <div style="font-size:clamp(64px,14vw,104px);font-weight:800;line-height:1;letter-spacing:-.04em;
+        background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent;">404</div>
+    <span style="display:inline-block;margin:14px 0 22px;padding:5px 14px;border:1px solid var(--ligne,#1e293b);
+        border-radius:999px;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
+        color:var(--doux,#94a3b8);background:rgba(30,41,59,.5);">Page introuvable</span>
+    <h1 style="font-size:clamp(21px,3.4vw,27px);font-weight:650;margin-bottom:10px">Cette page n'existe pas</h1>
+    <p style="color:var(--doux,#94a3b8);font-size:15.5px;max-width:44ch;margin:0 auto">
+      L'adresse est erronée, ou la page a été déplacée. Une petite vérification de l'URL, et c'est reparti.</p>
+    <div style="display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:26px">
+      <a class="btn btn-primary rounded-pill" href="https://matourdecontrole.fr/">Revenir à l'accueil</a>
+      <a class="btn btn-outline-light rounded-pill" href="https://matourdecontrole.fr/articles">Voir les articles</a>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="wrap">
+    <div>
+      <a href="https://demo.matourdecontrole.fr" rel="noopener">Démo publique</a>
+      &amp;nbsp;·&amp;nbsp;
+      <a href="https://github.com/fotsopatrick/tour-community" rel="noopener">Community</a>
+      &amp;nbsp;·&amp;nbsp;
+      <a href="https://tour.matourdecontrole.fr" rel="noopener">Se connecter</a>
+    </div>
+    <div class="legal">
+      <!-- L'adresse complete vit sur la page des mentions legales, pas ici.
+           La loi impose qu'elle soit ACCESSIBLE, pas qu'elle figure sur
+           chaque page : un lien direct suffit et c'est la pratique courante.
+           Ca evite d'afficher une adresse personnelle a tout visiteur de
+           passage, et ca n'enleve rien a personne — celui qui la cherche la
+           trouve en un clic. -->
+      <b>Code Nomi Nomi</b> — Grenoble, France<br/>
+      Contact : <a href="mailto:contact@matourdecontrole.fr">contact@matourdecontrole.fr</a><br/>
+      <a href="https://matourdecontrole.fr/cgv">Mentions légales et conditions générales</a> &amp;middot; <a href="https://matourdecontrole.fr/confidentialite">Confidentialité</a> &amp;middot; <a href="https://matourdecontrole.fr/cgu">CGU</a> &amp;middot; <a href="https://matourdecontrole.fr/security.txt">Sécurité</a>
+    </div>
+  </div>
+
+<div class="reseaux" style="margin-top:.75rem">
+  Nous suivre : 
+  <a href="https://www.linkedin.com/in/patrick-kamdem-a39a419a" rel="me noopener" target="_blank">LinkedIn</a> &amp;middot;
+  <a href="https://github.com/fotsopatrick" rel="me noopener" target="_blank">GitHub</a> &amp;middot;
+  <a href="https://www.youtube.com/@OrelFOTSO" rel="me noopener" target="_blank">YouTube</a>
+  &amp;nbsp;&amp;middot;
+  <a id="twitch-live" href="https://www.twitch.tv/codenominomi" rel="me noopener" target="_blank" style="display:none;color:#a970ff;font-weight:700;text-decoration:none"><span style="display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:#e53e3e;margin-right:.35rem;vertical-align:middle"></span>EN DIRECT</a>
+</div>
+<script>
+      // Badge Twitch « EN DIRECT » (08/08) : la vitrine est statique, elle
+      // interroge la tour (/twitch-live, même origine) pour savoir si Patrick
+      // diffuse. En cas d'échec : pas de badge, pas d'erreur visible.
+      (function () {
+        var el = document.getElementById("twitch-live");
+        if (!el) return;
+        fetch("/twitch-live", {cache: "no-store"})
+          .then(function (r) { return r.json(); })
+          .then(function (d) { if (d &amp;&amp; d.live) { el.style.display = "inline"; } })
+          .catch(function () {});
+      })();
+    </script>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+      // Compteur de visites (01/08) : pixel 1x1, id anonyme local.
+      (function () {
+        var cle = "tdc_v"; var uid = "";
+        try { uid = localStorage.getItem(cle) || ""; } catch (e) {}
+        if (!uid) {
+          uid = "v" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+          try { localStorage.setItem(cle, uid); } catch (e) {}
+        }
+        new Image().src = "/pix?u=" + encodeURIComponent(uid)
+          + "&amp;p=" + encodeURIComponent(location.pathname);
+      })();
+    </script>
+<script src="https://matourdecontrole.fr/vitrine-lang.js?v=20260810"></script>
+<a href="https://matourdecontrole.fr/essaie-braignak" class="braignak-fab" title="Discuter avec Braignak">🔭</a>
+<script src="https://matourdecontrole.fr/vitrine-theme.js"></script>
+</body>
+    </template>
+    <template id="page_404" inherit_id="http_routing.404">
+        <xpath expr="." position="replace">
+            <t t-call="tour_404.page_404_tour"/>
+        </xpath>
+    </template>
+</odoo>

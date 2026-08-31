@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Chacun ses missions, l'admin tout. Deux règles de GROUPE qui se
+         combinent en OU — jamais une règle globale (la leçon de Clark sur
+         tour_reponses : une globale s'applique à tout le monde, admin
+         compris, et enferme tout le monde dehors). -->
+    <record id="regle_mission_proprietaire" model="ir.rule">
+        <field name="name">Missions : chacun les siennes</field>
+        <field name="model_id" ref="model_atelier_mission"/>
+        <field name="domain_force">[("create_uid", "=", user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="regle_mission_admin" model="ir.rule">
+        <field name="name">Missions : l'admin voit tout</field>
+        <field name="model_id" ref="model_atelier_mission"/>
+        <field name="domain_force">[(1, "=", 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    </record>
+</odoo>

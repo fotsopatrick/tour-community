@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sans noupdate : réappliqué à chaque mise à jour du module. -->
+<odoo>
+    <!-- Nom de l'app dans le manifest PWA (défaut Odoo : "Odoo") -->
+    <function model="ir.config_parameter" name="set_param">
+        <value>web.web_app_name</value>
+        <value>Tour de contrôle</value>
+    </function>
+</odoo>

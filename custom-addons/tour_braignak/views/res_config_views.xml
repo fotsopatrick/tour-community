@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_braignak" model="ir.ui.view">
+        <field name="name">res.config.settings.braignak</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Braignak" string="Braignak" name="tour_braignak"
+                     logo="/tour_guides/static/description/icon.svg">
+                    <block title="L'observateur"
+                           help="Braignak étudie des applications et propose ce qui manque à la tour. Il est à l'arrêt par défaut.">
+                        <setting id="braignak_actif_setting"
+                                 string="Braignak en marche"
+                                 help="Décoché, il refuse toute action. Le rallumer ici ne suffit pas : le moteur, sur le serveur, exige en plus un fichier d'autorisation que la tour ne peut pas créer.">
+                            <field name="braignak_actif"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

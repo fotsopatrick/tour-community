@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="Entretiens">
+  <!-- Deux bulles qui se repondent : l'entretien est un dialogue, pas un
+       examen. Trois formes, lisible a 16 px. -->
+  <rect width="100" height="100" rx="22" fill="#0f172a"/>
+  <path d="M22 30 h34 a8 8 0 0 1 8 8 v10 a8 8 0 0 1-8 8 H36 l-10 9 v-9 h-4 a8 8 0 0 1-8-8 V38 a8 8 0 0 1 8-8z" fill="#3b82f6"/>
+  <path d="M52 62 h20 a8 8 0 0 0 8-8 v-6 a8 8 0 0 0-8-8 h-2 v6 a12 12 0 0 1-12 12z" fill="#94a3b8" opacity=".85"/>
+  <circle cx="70" cy="74" r="4" fill="#94a3b8" opacity=".85"/>
+</svg>

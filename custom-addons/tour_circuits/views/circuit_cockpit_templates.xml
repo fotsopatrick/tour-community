@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_pacman" name="Flux des circuits · Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Flux des circuits · Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          #pacman { width:100%; max-width:494px; border:1px solid var(--line);
+                    border-radius:14px; background:var(--surface); display:block; }
+          .pacman-wrap { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; }
+          .pacman-side { min-width:240px; flex:1; }
+          .pacman-vitesse { display:flex; align-items:center; gap:.8rem; max-width:494px;
+                            background:var(--panel); border:1px solid var(--line);
+                            border-radius:var(--r); padding:.55rem .9rem; margin-top:.6rem; }
+          .pacman-vitesse label { color:var(--muted); font-size:.85rem; font-weight:600; }
+          .pacman-vitesse input[type=range] { flex:1; accent-color:var(--primaire); cursor:pointer; }
+          .pacman-vitesse span { color:var(--texte); font-weight:700; min-width:2.6em; text-align:right; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Flux des circuits</h1>
+              <div class="sub">la donnée mange les portes une par une</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> En base</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/circuits" title="Revenir au plan">Carte 2D</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips">
+            <div class="strip ok">
+              <div class="lbl">Agents</div>
+              <div class="val"><t t-esc="nb_agents"/></div>
+            </div>
+            <div class="strip blue">
+              <div class="lbl">Circuits en cours</div>
+              <div class="val"><t t-esc="nb_en_cours"/></div>
+              <div class="pill flat">le premier en cours est joué</div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Gabarits actifs</div>
+              <div class="val"><t t-esc="nb_gabarits"/></div>
+            </div>
+          </section>
+
+          <section class="board">
+            <h2>Le circuit, en jeu</h2>
+            <p class="hint">Le point en mouvement est la donnée qui avance. Les pastilles sont
+              les portes : grises = à venir, vertes = franchies. Si aucun circuit
+              n'est en cours, le premier gabarit sert de démonstration.</p>
+            <div class="pacman-wrap">
+              <canvas id="pacman" aria-label="Circuit en cours, façon pacman"></canvas>
+              <div class="pacman-side">
+                <div class="panel">
+                  <h2>Comment le lire</h2>
+                  <p class="hint">Une porte mangée = une étape validée. Le jaune qui
+                    avance = l'objet réel dans le circuit. Rien n'est dessiné à la
+                    main : la page lit les circuits de la base au chargement.</p>
+                </div>
+                <div class="board-note">Données relues de la base à chaque chargement.</div>
+              </div>
+            </div>
+            <div class="pacman-vitesse">
+              <button type="button" class="themebtn" id="pac-play"
+                      aria-label="Lecture ou pause" title="Lecture / pause (barre d'espace)">⏸ Pause</button>
+              <button type="button" class="themebtn" id="pac-rejouer"
+                      aria-label="Rejouer depuis le début" title="Rejouer depuis le début">↺ Rejouer</button>
+              <label for="vitesse">Vitesse</label>
+              <input type="range" id="vitesse" min="1" max="10" step="1" value="5"
+                     aria-label="Vitesse du flux"/>
+              <span id="vitesse-lbl">×1</span>
+            </div>
+          </section>
+        </div>
+
+        <script type="application/json" id="pacman-data"><t t-out="pacman_json"/></script>
+        <script src="/tour_circuits/static/src/pacman.js"></script>
+        <script>
+          document.getElementById("themebtn").addEventListener("click", function () {
+            var root = document.documentElement, cur = root.getAttribute("data-theme");
+            root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+            try { localStorage.setItem("cockpit-theme", root.getAttribute("data-theme")); } catch (e) {}
+          });
+          try {
+            var t = localStorage.getItem("cockpit-theme");
+            if (t) document.documentElement.setAttribute("data-theme", t);
+          } catch (e) {}
+          const h = () => new Date().toLocaleString("fr-FR", {
+              hour: "2-digit", minute: "2-digit", second: "2-digit"
+          });
+          const d = () => new Date().toLocaleDateString("fr-FR", {
+              weekday: "long", day: "numeric", month: "long"
+          });
+          const mj = () => {
+              const el = document.getElementById("clock"), ed = document.getElementById("date");
+              if (el) el.textContent = h();
+              if (ed) ed.textContent = d();
+          };
+          mj(); setInterval(mj, 1000);
+        </script>
+      </body>
+    </html>
+  </template>
+
+  <template id="page_carte3d" name="Carte 3D — Circuits · Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Carte 3D — Circuits · Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          #carte3d { width:100%; height:620px; border:1px solid var(--line);
+                     border-radius:14px; background:var(--surface); display:block;
+                     touch-action:none; }
+          .note3d { background:var(--crit-soft); border:1px solid var(--crit);
+                    color:var(--crit); font-family:var(--mono); font-size:12px;
+                    padding:10px 12px; border-radius:10px; margin-top:14px; }
+          .repli { margin-top:10px; }
+          .carte3d-tabs { display:flex; flex-wrap:wrap; align-items:center;
+                          gap:6px; margin:6px 0 10px; font-family:var(--mono); font-size:12px; }
+          .carte3d-tab { background:var(--panel); border:1px solid var(--line);
+                         color:var(--muted); padding:4px 14px; border-radius:20px; cursor:pointer; }
+          .carte3d-tab.actif { background:var(--good-soft); color:var(--good); border-color:var(--good); }
+          .carte3d-focus { margin-left:12px; color:var(--muted); }
+          .carte3d-focus select { background:var(--panel); color:var(--texte);
+                         border:1px solid var(--line); border-radius:8px;
+                         padding:3px 8px; font-family:var(--mono); }
+          .carte3d-filtre { margin-left:auto; color:var(--muted); }
+          .carte3d-f { background:var(--panel); border:1px solid var(--line);
+                         color:var(--muted); padding:2px 10px; border-radius:14px;
+                         cursor:pointer; font-size:11px; }
+          .carte3d-f.actif { color:var(--good); border-color:var(--good); }
+          .carte3d-p { background:var(--panel); border:1px solid var(--line);
+                         color:var(--muted); padding:2px 10px; border-radius:14px;
+                         cursor:pointer; font-size:11px; }
+          .carte3d-p.actif { color:#facc15; border-color:#facc15;
+                         background:rgba(250,204,21,.12); }
+          .carte3d-liste { margin-top:8px; font-family:var(--mono); font-size:12px;
+                         color:var(--muted); }
+          .carte3d-liste b { color:var(--texte); }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Carte 3D — Circuits</h1>
+              <div class="sub">le réseau d'agents vu d'un coup d'œil · orbite, zoom, clic</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> WebGL · En base</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/circuits" title="Revenir à la carte 2D">Carte 2D</a>
+            <a class="themebtn" href="/tour/cockpit/tests">Tests</a>
+            <a class="themebtn" href="/tour/cockpit/agents">Agents</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips">
+            <div class="strip ok">
+              <div class="lbl">Agents</div>
+              <div class="val"><t t-esc="nb_agents"/></div>
+            </div>
+            <div class="strip blue">
+              <div class="lbl">Circuits en cours</div>
+              <div class="val"><t t-esc="nb_en_cours"/></div>
+              <div class="pill flat">pulsations en mouvement</div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Messages bus (40 derniers)</div>
+              <div class="val"><t t-esc="nb_bus"/></div>
+            </div>
+            <div class="strip ok">
+              <div class="lbl">Publiés</div>
+              <div class="val"><t t-esc="nb_publies"/></div>
+            </div>
+          </section>
+
+          <section class="board">
+            <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">Le réseau, en volume
+              <a class="themebtn" href="/tour/cockpit/circuits" title="Basculer vers la vue 2D">↺ Vue 2D</a>
+            </h2>
+            <p class="hint">Patrick au centre ; chaque agent est une console, chaque
+              circuit un tube qui relie ses portes dans l'ordre. Les circuits en
+              cours vibrent (l'objet avance de porte en porte), les messages du
+              bus filent entre l'expéditeur et le destinataire, et l'agent qui
+              travaille là, maintenant, clignote. Glisser = orbiter, molette =
+              zoomer, cliquer une console = son nom.</p>
+            <div class="carte3d-tabs">
+              <button type="button" class="carte3d-tab actif" data-mode="global">Vue complète</button>
+              <button type="button" class="carte3d-tab" data-mode="focus">Focus agent</button>
+              <span class="carte3d-focus">
+                Agent&#160;:
+                <select id="focus-agent" disabled="disabled"><option>—</option></select>
+              </span>
+              <span class="carte3d-filtre">
+                Liens&#160;:
+                <button type="button" class="carte3d-f actif" data-filtre="tout">Tous</button>
+                <button type="button" class="carte3d-f" data-filtre="circuits">Circuits</button>
+                <button type="button" class="carte3d-f" data-filtre="bus">Bus</button>
+                <button type="button" class="carte3d-p" id="carte3d-pacman" data-pacman="1"
+                        title="Ne jouer QUE les circuits en cours : le flux avance, rien d'autre">Flux en cours</button>
+              </span>
+            </div>
+            <canvas id="carte3d" aria-label="Carte 3D des circuits de la tour"></canvas>
+            <div class="legend" id="legende3d"></div>
+            <div class="board-note" id="sel3d">Clique un composant pour le voir de près.</div>
+            <div class="carte3d-liste" id="liens3d"></div>
+            <div class="board-note">Données relues de la base à chaque chargement —
+              le plan lit les circuits, le bus et l'atelier, rien n'est dessiné à
+              la main. Sans WebGL, un lien vers le plan 2D reste disponible.</div>
+          </section>
+
+          <div class="note3d" id="repli-3d" style="display:none">
+            WebGL n'est pas disponible sur ce navigateur : la carte 3D ne peut pas
+            s'afficher ici. Le plan 2D reste le filet de sécurité →
+            <a href="/tour/cockpit/circuits">le plan des circuits</a>.
+          </div>
+        </div>
+
+        <script type="application/json" id="board3d-data"><t t-out="board_json"/></script>
+        <script src="/tour_circuits/static/src/three.min.js"></script>
+        <script src="/tour_circuits/static/src/carte3d.js"></script>
+        <script>
+          document.getElementById("themebtn").addEventListener("click", function () {
+            var root = document.documentElement, cur = root.getAttribute("data-theme");
+            root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+            try { localStorage.setItem("cockpit-theme", root.getAttribute("data-theme")); } catch (e) {}
+            if (window.TourCarte3D) { try { TourCarte3D.rafraichirTheme(); } catch (e) {} }
+          });
+          try {
+            var t = localStorage.getItem("cockpit-theme");
+            if (t) document.documentElement.setAttribute("data-theme", t);
+          } catch (e) {}
+          const h = () => new Date().toLocaleString("fr-FR", {
+              hour: "2-digit", minute: "2-digit", second: "2-digit"
+          });
+          const d = () => new Date().toLocaleDateString("fr-FR", {
+              weekday: "long", day: "numeric", month: "long"
+          });
+          const mj = () => {
+              const el = document.getElementById("clock"), ed = document.getElementById("date");
+              if (el) el.textContent = h();
+              if (ed) ed.textContent = d();
+          };
+          mj(); setInterval(mj, 1000);
+        </script>
+      </body>
+    </html>
+  </template>
+
+  <template id="page_circuits" name="Circuits — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Circuits — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          :root { --c1-soft: rgba(47,111,176,.13); }
+          .col { display:flex; flex-direction:column; gap:9px; }
+          .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+          .card .c-h { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+          .card .c-n { font-size:13px; font-weight:600; }
+          .card .c-c { font-size:12.5px; margin-top:6px; white-space:pre-wrap; word-break:break-word; }
+          .card .c-s { color:var(--faint); font-size:11px; margin-top:4px; font-family:var(--mono); }
+          .card .c-d { color:var(--faint); font-size:11.5px; margin-top:3px; font-style:italic; }
+          table.mini { width:100%; border-collapse:collapse; font-size:12px; }
+          table.mini td, table.mini th { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; vertical-align:top; }
+          table.mini th { color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; }
+          table.mini tr:last-child td { border-bottom:0; }
+          ul.plat { list-style:none; margin:0; padding:0; }
+          ul.plat li { font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line); }
+          ul.plat li:last-child { border-bottom:0; }
+          ul.plat .mono { font-family:var(--mono); font-size:11.5px; }
+          .empty { color:var(--faint); font-style:italic; font-size:12.5px; }
+          .tag { font-family:var(--mono); font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+          .tag.ok { background:var(--good-soft); color:var(--good); }
+          .tag.bad { background:var(--crit-soft); color:var(--crit); }
+          .tag.blue { background:var(--c1-soft); color:var(--c1); }
+          .tag.flat { background:var(--panel); color:var(--muted); border:1px solid var(--line); }
+          .av { font-family:var(--mono); font-size:10px; font-weight:600; padding:1px 7px; border-radius:20px; white-space:nowrap; }
+          .av.fait { background:var(--good-soft); color:var(--good); }
+          .av.en_cours { background:var(--c1-soft); color:var(--c1); }
+          .av.pas_fait { background:var(--crit-soft); color:var(--crit); }
+          .av.non_consigne { background:var(--panel); color:var(--muted); }
+          .steps { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+          .steps .st { font-size:10.5px; padding:1px 7px; border-radius:20px; border:1px solid var(--line); color:var(--muted); }
+          .steps .st.fait { border-color:var(--good); color:var(--good); }
+          .steps .st.en_cours { border-color:var(--c1); color:var(--c1); }
+          .steps .st.pas_fait { border-color:var(--crit); color:var(--crit); }
+          .agent { color:var(--muted); font-size:11px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.5px; margin:10px 0 4px; }
+          .agent:first-child { margin-top:0; }
+          .note { background:var(--crit-soft); border:1px solid var(--crit); color:var(--crit); font-family:var(--mono); font-size:12px; padding:10px 12px; border-radius:10px; margin-top:14px; }
+          /* ---- La carte (plan « circuit imprimé ») ---- */
+          .board { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:20px; }
+          .board h2 { margin:0 0 2px; font-size:16px; }
+          .board .hint { color:var(--muted); font-size:12.5px; margin:0 0 12px; }
+          .board-svg { width:100%; height:auto; display:block; border-radius:10px; background:var(--panel); }
+          .verdict-play { margin:14px 0; padding:11px 14px; border-radius:10px;
+                          font-size:14px; border:1px solid var(--line); }
+          .verdict-play.ok { background:var(--good-soft); color:var(--good);
+                             border-color:var(--good); }
+          .verdict-play.ko { background:var(--crit-soft); color:var(--crit);
+                             border-color:var(--crit); }
+          .verdict-play .mono { font-family:var(--mono); font-size:12px; opacity:.85; }
+          .board-svg text { font-family:var(--mono); }
+          .board-svg .trace { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+          .board-svg .chip-txt { fill:var(--ink); }
+          .board-svg .chip-sub { fill:var(--muted); }
+          .board-svg .pin { fill:var(--muted); }
+          .board-svg .trace.rejouable { cursor:pointer; }
+          .board-svg .trace.rejouable:hover { stroke-width:3.2; opacity:1; }
+          .board-svg .rejouable-btn { cursor:pointer; }
+          .legend { display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:12px; font-size:11.5px; color:var(--muted); }
+          .legend .sw { display:inline-block; width:26px; height:4px; border-radius:2px; vertical-align:middle; margin-right:6px; }
+          .legend .sw.dash { background-image:repeating-linear-gradient(90deg, currentColor 0 6px, transparent 6px 11px); }
+          .board-note { font-size:11px; color:var(--faint); margin-top:8px; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Circuits — Tour de Contrôle</h1>
+              <div class="sub">chaînes d'approbation · gabarits, brouillons détectés, en cours</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> En base</div>
+            <div>
+              <div class="clock" id="clock">--:--:--</div>
+              <div class="date" id="date">—</div>
+            </div>
+            <button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">☾ / ☀</button>
+            <a class="themebtn" href="/tour/cockpit/carte3d" title="Passer à la carte 3D">Carte 3D</a>
+            <a class="themebtn" href="/tour/cockpit/tests">Tests</a>
+            <a class="themebtn" href="/tour/cockpit/agents">Agents</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips">
+            <div class="strip ok">
+              <div class="lbl">Gabarits actifs</div>
+              <div class="val"><t t-esc="nb_gabarits"/></div>
+            </div>
+            <div class="strip blue">
+              <div class="lbl">Brouillons détectés</div>
+              <div class="val"><t t-esc="nb_detectes"/></div>
+              <div class="pill flat">à valider puis activer</div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Circuits en cours</div>
+              <div class="val"><t t-esc="nb_en_cours"/></div>
+            </div>
+            <div class="strip ok">
+              <div class="lbl">Publiés</div>
+              <div class="val"><t t-esc="nb_publies"/></div>
+            </div>
+          </section>
+
+          <!-- Verdict du dernier « ▶ Lancer » (06/08). Avant, le bouton
+               redirigeait en silence : on ne savait jamais s'il avait agi. -->
+          <div t-if="lance" class="verdict-play ok" role="status">
+            <b>▶ Circuit lancé</b> — <t t-esc="lance_nom"/>
+            <span class="mono">(instance #<t t-esc="lance"/>, état <t t-esc="lance_etat"/>)</span>
+            <a href="/tour/cockpit/pacman" style="margin-left:10px">le voir avancer →</a>
+          </div>
+          <div t-if="echec" class="verdict-play ko" role="alert">
+            <b>✖ Le circuit n'a pas démarré</b> — <t t-esc="echec"/>
+          </div>
+
+          <!-- ============ LA CARTE : plan « circuit imprimé » ============ -->
+          <section class="board">
+            <h2 style="display:flex;align-items:center;justify-content:space-between;gap:10px">Carte des circuits — le plan
+              <a class="themebtn" href="/tour/cockpit/carte3d" title="Basculer vers la vue 3D">↻ Vue 3D</a>
+            </h2>
+            <p class="hint">chaque agent est un composant ; chaque circuit est une
+              piste qui relie ses portes dans l'ordre. Gabarits en pointillés,
+              circuits en cours en trait plein, et un rond lumineux indique la
+              porte où en est chaque circuit en cours.</p>
+            <svg class="board-svg" id="board" viewBox="0 0 1040 720" role="img"
+                 aria-label="Plan des circuits de la tour"></svg>
+            <div class="legend" id="board-legend"></div>
+            <div class="board-note">La détection propose, Patrick dispose. Le plan lit
+              la base et recharge les positions des circuits en cours toutes les
+              ~20 s — rien n'est dessiné à la main.</div>
+          </section>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Circuits en cours</h2>
+              <p class="hint">un objet avance de porte en porte</p>
+              <div class="col">
+                <t t-if="en_cours">
+                  <t t-foreach="en_cours" t-as="i">
+                    <div class="card">
+                      <div class="c-h">
+                        <span class="c-n"><t t-esc="i['name']"/></span>
+                        <span class="tag blue"><t t-esc="i['modele_id'].name"/></span>
+                      </div>
+                      <div class="c-c">porte : <b><t t-esc="i['etape_nom']"/></b></div>
+                      <div class="c-s"><t t-esc="i['create_date']" t-options="{'widget': 'datetime'}"/></div>
+                    </div>
+                  </t>
+                </t>
+                <t t-else="">
+                  <div class="empty">Aucun circuit en cours.</div>
+                </t>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2>Brouillons détectés</h2>
+              <p class="hint">proposés par la détection — jamais activés seuls</p>
+              <div class="col">
+                <t t-if="detectes">
+                  <t t-foreach="detectes" t-as="g">
+                    <div class="card">
+                      <div class="c-h">
+                        <span class="c-n"><t t-esc="g['name']"/></span>
+                        <span class="tag flat"><t t-esc="g['nb_etapes']"/> portes</span>
+                      </div>
+                      <t t-if="g['note']">
+                        <div class="c-d"><t t-esc="g['note']"/></div>
+                      </t>
+                    </div>
+                  </t>
+                </t>
+                <t t-else="">
+                  <div class="empty">Aucun brouillon. La détection proposera un circuit quand
+                    une compétence sera créée.</div>
+                </t>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Gabarits actifs</h2>
+              <p class="hint">les chaînes prêtes à lancer</p>
+              <ul class="plat">
+                <t t-foreach="gabarits" t-as="g">
+                  <li style="display:flex;align-items:center;gap:8px;justify-content:space-between">
+                    <span><b><t t-esc="g.name"/></b>
+                      <span class="mono"> — <t t-esc="g.nb_etapes"/> portes</span>
+                    </span>
+                    <form method="post" action="/tour/cockpit/circuits/lancer"
+                          style="display:inline">
+                      <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                      <input type="hidden" name="modele_id" t-att-value="g.id"/>
+                      <button type="submit" class="themebtn"
+                              title="Lancer ce circuit maintenant"
+                              aria-label="Lancer le circuit">▶ Lancer</button>
+                    </form>
+                  </li>
+                </t>
+              </ul>
+            </section>
+
+            <section class="panel">
+              <h2>Publiés</h2>
+              <p class="hint">toutes les portes passées</p>
+              <ul class="plat">
+                <t t-foreach="publies" t-as="i">
+                  <li><t t-esc="i['name']"/>
+                    <span t-attf-class="tag #{i['etat'] == 'publie_public' and 'ok' or 'blue'}">
+                      <t t-esc="i['etat']"/>
+                    </span>
+                  </li>
+                </t>
+              </ul>
+            </section>
+          </div>
+
+          <section class="panel">
+            <h2>Évolution des agents</h2>
+            <p class="hint">leurs prochaines actions en forme de circuit : fait / en cours / pas fait</p>
+            <t t-if="evolutions">
+              <t t-foreach="evolutions" t-as="e">
+                <div class="agent"><t t-esc="e['agent']"/></div>
+                <t t-foreach="e['missions']" t-as="x">
+                  <div class="card" style="margin-top:4px">
+                    <div class="c-h">
+                      <span class="c-n"><t t-esc="x['quoi']"/></span>
+                      <span t-attf-class="av #{x['avancement'] or 'non_consigne'}">
+                        <t t-esc="x['avancement'] or 'non_consigne'"/>
+                      </span>
+                    </div>
+                    <t t-if="x['detail']">
+                      <div class="c-d"><t t-esc="x['detail']"/></div>
+                    </t>
+                    <t t-if="x['etapes']">
+                      <div class="steps">
+                        <t t-foreach="x['etapes']" t-as="s">
+                          <span t-attf-class="st #{s['etat']}"><t t-esc="s['nom']"/></span>
+                        </t>
+                      </div>
+                    </t>
+                  </div>
+                </t>
+              </t>
+            </t>
+            <t t-else="">
+              <div class="empty">Aucune mission consignée pour l'instant.</div>
+            </t>
+          </section>
+
+          <div class="note">La détection propose, Patrick dispose : un brouillon reste
+            inactif tant que tu ne l'as pas validé et activé.</div>
+        </div>
+
+        <script type="application/json" id="board-data"><t t-out="board_json"/></script>
+        <script>window.TDC_CSRF = "<t t-esc="csrf_token"/>";</script>
+        <script src="/tour_circuits/static/src/circuits-board.js"></script>
+        <script>
+          document.getElementById("themebtn").addEventListener("click", function () {
+            var root = document.documentElement, cur = root.getAttribute("data-theme");
+            root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+            try { localStorage.setItem("cockpit-theme", root.getAttribute("data-theme")); } catch (e) {}
+          });
+          try {
+            var t = localStorage.getItem("cockpit-theme");
+            if (t) document.documentElement.setAttribute("data-theme", t);
+          } catch (e) {}
+          const h = () => new Date().toLocaleString("fr-FR", {
+              hour: "2-digit", minute: "2-digit", second: "2-digit"
+          });
+          const d = () => new Date().toLocaleDateString("fr-FR", {
+              weekday: "long", day: "numeric", month: "long"
+          });
+          const mj = () => {
+              const el = document.getElementById("clock"), ed = document.getElementById("date");
+              if (el) el.textContent = h();
+              if (ed) ed.textContent = d();
+          };
+          mj(); setInterval(mj, 1000);
+        </script>
+      </body>
+    </html>
+  </template>
+</odoo>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="tour_copilote.Copilote">
+        <div class="o_tour_copilote">
+            <div t-if="state.open" class="o_tour_copilote_panel">
+                <div class="o_tour_copilote_header">
+                    <span class="o_tour_copilote_title">Chloé</span>
+                    <button class="o_tour_copilote_iconbtn" title="Actualiser"
+                            t-on-click="refresh">⟳</button>
+                    <button class="o_tour_copilote_iconbtn" title="Effacer la conversation"
+                            t-on-click="clear">🗑</button>
+                    <button class="o_tour_copilote_iconbtn" title="Masquer"
+                            t-on-click="toggle">✕</button>
+                </div>
+                <div class="o_tour_copilote_body" t-ref="scroll">
+                    <div t-if="!state.messages.length" class="o_tour_copilote_empty">
+                        Demande à Chloé, en français :<br/>
+                        « note que je dois rappeler Imane »,<br/>
+                        « passe Duelle à 50 % »,<br/>
+                        « où en est PointVirgule ? »
+                    </div>
+                    <t t-foreach="state.messages" t-as="msg" t-key="msg_index">
+                        <div t-attf-class="o_tour_copilote_msg {{ msg.role === 'user' ? 'is-user' : 'is-bot' }} {{ msg.isError ? 'is-error' : '' }}">
+                            <t t-esc="msg.content"/>
+                            <div t-if="msg.actions and msg.actions.length" class="o_tour_copilote_actions">
+                                <t t-foreach="msg.actions" t-as="action" t-key="action_index">
+                                    <span class="o_tour_copilote_action">✓ <t t-esc="action"/></span>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                    <div t-if="state.busy" class="o_tour_copilote_msg is-bot is-busy">…</div>
+                </div>
+                <div t-if="state.piece" class="o_tour_copilote_piece">
+                    <span>📎 <t t-esc="state.piece.nom"/></span>
+                    <button class="o_tour_copilote_iconbtn" title="Retirer"
+                            t-on-click="retirerPiece">✕</button>
+                </div>
+                <div class="o_tour_copilote_input">
+                    <input type="file" style="display:none" t-ref="fichier"
+                           accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.txt,.log,.json"
+                           t-on-change="onFichier"/>
+                    <button class="o_tour_copilote_iconbtn"
+                            title="Joindre une capture — dis « bug » et je la range dans la tour"
+                            t-on-click="choisirPiece">📎</button>
+                    <textarea rows="1" placeholder="Écris à Chloé…"
+                              t-model="state.input" t-on-keydown="onKeydown"/>
+                    <button class="o_tour_copilote_send" t-on-click="send"
+                            t-att-disabled="state.busy">➤</button>
+                </div>
+            </div>
+            <button class="o_tour_copilote_bubble" t-on-click="toggle"
+                    t-att-title="state.open ? 'Masquer Chloé' : 'Parler à Chloé'">
+                <t t-if="state.open">✕</t>
+                <t t-else="">💬</t>
+            </button>
+        </div>
+    </t>
+
+</templates>

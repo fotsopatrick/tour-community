@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="cron_ouvrir_semaine" model="ir.cron">
+    <field name="name">Jeu de Braignak — ouvrir l'édition de la semaine</field>
+    <field name="model_id" ref="model_braignak_jeu_edition"/>
+    <field name="state">code</field>
+    <field name="code">model.cron_ouvrir_semaine()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">weeks</field>
+    <field name="active">True</field>
+  </record>
+
+  <record id="cron_verdict_7h" model="ir.cron">
+    <field name="name">Jeu de Braignak — verdict de 7 h</field>
+    <field name="model_id" ref="model_braignak_jeu_edition"/>
+    <field name="state">code</field>
+    <field name="code">model.cron_verdict_7h()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="active">True</field>
+  </record>
+</odoo>

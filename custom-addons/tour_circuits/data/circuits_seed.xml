@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Circuit ARTICLE : un agent écrit son expérience, ça se fait relire,
+             ça finit chez Patrick, publié en privé. -->
+        <record id="circuit_article" model="circuit.modele">
+            <field name="name">Article — l'expérience d'un agent</field>
+            <field name="description">Un agent écrit un article sur son expérience ; sécurité, veille, Braignak et Raphael relisent ; Patrick tranche ; publié en privé (Patrick peut rendre public).</field>
+        </record>
+        <record id="art_e1" model="circuit.etape">
+            <field name="modele_id" ref="circuit_article"/>
+            <field name="sequence">10</field><field name="name">Sécurité</field><field name="role">agent</field>
+        </record>
+        <record id="art_e2" model="circuit.etape">
+            <field name="modele_id" ref="circuit_article"/>
+            <field name="sequence">20</field><field name="name">Veille</field><field name="role">agent</field>
+        </record>
+        <record id="art_e3" model="circuit.etape">
+            <field name="modele_id" ref="circuit_article"/>
+            <field name="sequence">30</field><field name="name">Braignak</field><field name="role">agent</field>
+        </record>
+        <record id="art_e4" model="circuit.etape">
+            <field name="modele_id" ref="circuit_article"/>
+            <field name="sequence">40</field><field name="name">Raphael</field><field name="role">agent</field>
+        </record>
+        <record id="art_e5" model="circuit.etape">
+            <field name="modele_id" ref="circuit_article"/>
+            <field name="sequence">50</field><field name="name">Patrick</field><field name="role">patron</field>
+        </record>
+
+        <!-- Circuit REVUE : Braignak → Clark → sécurité → veille → Raphael →
+             Patrick → production. -->
+        <record id="circuit_revue" model="circuit.modele">
+            <field name="name">Revue — de l'idée à la production</field>
+            <field name="description">Braignak, Clark, sécurité, veille et Raphael relisent ; Patrick tranche ; mise en production.</field>
+        </record>
+        <record id="rev_e1" model="circuit.etape">
+            <field name="modele_id" ref="circuit_revue"/>
+            <field name="sequence">10</field><field name="name">Braignak</field><field name="role">agent</field>
+        </record>
+        <record id="rev_e2" model="circuit.etape">
+            <field name="modele_id" ref="circuit_revue"/>
+            <field name="sequence">20</field><field name="name">Clark</field><field name="role">agent</field>
+        </record>
+        <record id="rev_e3" model="circuit.etape">
+            <field name="modele_id" ref="circuit_revue"/>
+            <field name="sequence">30</field><field name="name">Sécurité</field><field name="role">agent</field>
+        </record>
+        <record id="rev_e4" model="circuit.etape">
+            <field name="modele_id" ref="circuit_revue"/>
+            <field name="sequence">40</field><field name="name">Veille</field><field name="role">agent</field>
+        </record>
+        <record id="rev_e5" model="circuit.etape">
+            <field name="modele_id" ref="circuit_revue"/>
+            <field name="sequence">50</field><field name="name">Raphael</field><field name="role">agent</field>
+        </record>
+        <record id="rev_e6" model="circuit.etape">
+            <field name="modele_id" ref="circuit_revue"/>
+            <field name="sequence">60</field><field name="name">Patrick</field><field name="role">patron</field>
+        </record>
+        <record id="rev_e7" model="circuit.etape">
+            <field name="modele_id" ref="circuit_revue"/>
+            <field name="sequence">70</field><field name="name">Production</field><field name="role">prod</field>
+        </record>
+
+        <!-- La détection de compétence, passée chaque nuit : relit les
+             compétences récentes, complète les brouillons manquants. -->
+        <record id="cron_circuit_detecter" model="ir.cron">
+            <field name="name">Circuits : détection de compétence (brouillons)</field>
+            <field name="model_id" ref="model_circuit_modele"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_detecter()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- 01/08 : détecter les compétences sur le travail RÉPÉTÉ des
+             constructeurs (opencode, raphael) -> compétence -> circuit
+             brouillon. Idem, chaque nuit. -->
+        <record id="cron_detecter_competences_travail" model="ir.cron">
+            <field name="name">Circuits : détecter les compétences sur le travail répété</field>
+            <field name="model_id" ref="model_equipe_competence"/>
+            <field name="state">code</field>
+            <field name="code">model._detecter_competences()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Circuit ESTIMATION D'UNE TÂCHE (09/08, Merline — Décision #2291).
+             Une tâche en cours du projet « Tour de contrôle » est-elle
+             TRAITABLE PAR UN AGENT (→ file A, part à l'atelier) ou une
+             DÉCISION HUMAINE (→ file B, attend Patrick) ? Ce circuit pose la
+             question à un agent, qui applique la méthode ci-dessous, puis
+             Patrick valide ou corrige. Le verdict est écrit sur la tâche
+             (champ pour_agent : True = agent, False = humain) et dans la
+             réponse du circuit. Règle de fond : le doute va vers l'humain —
+             une tâche non classée par les marqueurs reste en file B.
+             MÉTHODE ET OUTILS (à suivre dans cet ordre) :
+             1. Lire le TITRE de la tâche, puis sa description.
+             2. Marqueurs de DÉCISION HUMAINE (si UN matche le titre → B) :
+                [PATRICK], décision, valider, arbitrer, trancher, choisir,
+                acheter/achat/payer/paiement/remboursement/facturer,
+                renouveler/révoquer, fermer les comptes, statut,
+                entretien/candidature/postuler/emploi/CV, parler à/à Alexis,
+                à confirmer, prix/tarif/budget/coût, revendre/revente,
+                mot de passe/clé d'activation/clé API, préférence, conseils
+                validés, dossier de financement, business plan, obtenir,
+                « Idée : », à vendre/offre à vendre, le cap doit/le cap se,
+                politique, déclenchée au premier client, avis juridique,
+                formation du contrat, réviser la certification.
+             3. Marqueurs AGENT (si le titre est propre ET un marqueur matche →
+                A) : Chantier :, Étude :, Recherche :, Donner suite, [WEBAPP],
+                [REGRESSION], [URGENT], [VITRINE], [BRAIGNAK], [OPEN SOURCE],
+                [RECHERCHE], [FILTRE], [DISCORD], [BANC DE VALIDATION],
+                [ARCHIVE], [REPONSES], [OPCODE], [CHLOE], [NEWSLETTER],
+                [SOUTIEN], [CLONE], [GARDE], réparer/corriger/fixer/dépanner,
+                créer/construire/implémenter/développer/fabriquer/générer,
+                ajouter/intégrer/installer/brancher/relier,
+                tester/vérifier/diagnostiquer/auditer/éprouver/mesurer,
+                explorer/analyser/comparer/documenter/rédiger/écrire,
+                suivi/suivre/surveiller, migration/convertir/déplacer,
+                module/outil/script/app/page/webapp/bouton/connecteur/circuit,
+                automatiser/déployer/publier, relancer/nettoyer/purger/trier/
+                archiver/renommer/vider/supprimer, inventaire/recenser,
+                refaire/refondre/réécrire, chercher/rechercher/trouver,
+                masquer/sécuriser/confiner, préparer/concevoir, envoyer/
+                répondre/relire, jouer/jeu, les crons, RGPD, formation/
+                cursus/guide.
+             4. Si ni l'un ni l'autre ne matche : chercher dans la DESCRIPTION
+                les marqueurs forts (« Patrick doit décider », « décision de
+                Patrick », « à valider par Patrick ») → B. Si la description
+                est VIDE → B (on ne lance pas une mission sur du vide).
+             5. Sinon (doute) → B. Le doute va vers l'humain, toujours.
+             6. Le verdict se vérifie : une tâche A doit avoir une description
+                écrite et un périmètre actionnable ; une tâche B doit pouvoir
+                être EXPLIQUÉE à Patrick en une phrase (pourquoi c'est à lui).
+             OUTIL RÉUTILISABLE : le classifieur automatique vit dans
+             deploy/classifieur-taches.py (fichier versionné). L'agent peut
+             l'appeler pour un avis, mais le verdict rendu au circuit reste
+             le sien — l'outil propose, l'humain (ici l'agent puis Patrick)
+             décide. -->
+        <record id="circuit_estimation_tache" model="circuit.modele">
+            <field name="name">Estimation d'une tâche — agent ou humaine ?</field>
+            <field name="description">Une tâche en cours du projet « Tour de contrôle » est-elle traitable par un agent (file A) ou une décision humaine (file B) ? L'agent applique la méthode des marqueurs, Patrick valide ou corrige, le verdict est écrit sur la tâche. Le doute va vers l'humain.</field>
+            <field name="type_operation">standard</field>
+        </record>
+        <record id="est_tache_e1" model="circuit.etape">
+            <field name="modele_id" ref="circuit_estimation_tache"/>
+            <field name="sequence">10</field>
+            <field name="name">Estimer la tâche</field>
+            <field name="role">agent</field>
+            <!-- Clark estime : Chloe, l'assistante, REFUSE les tâches
+                 techniques par périmètre (vu au retest 09/08 — elle a rendu
+                 « c'est le métier de Clark »). -->
+            <field name="membre_id" ref="tour_equipage.membre_clark"/>
+        </record>
+        <record id="est_tache_e2" model="circuit.etape">
+            <field name="modele_id" ref="circuit_estimation_tache"/>
+            <field name="sequence">20</field>
+            <field name="name">Patrick valide ou corrige</field>
+            <field name="role">patron</field>
+        </record>
+
+        <!-- Circuit BONNES PRATIQUES POUR MODIFIER UN ÉLÉMENT (09/08,
+             Patrick). Avant de toucher à un élément de la tour (module,
+             script, conteneur, garde-fou, donnée), on suit cette séquence.
+             C'est la méthode qui a servi à réparer le cockpit défense, les
+             noms propriétaires et le pipeline d'atelier : elle est consignée
+             ici pour être rejouable, pas apprise par cœur.
+             MÉTHODE (à suivre dans l'ordre, chaque porte vérifie une étape) :
+             1. MESURER avant d'affirmer — l'état réel de l'élément (ce qui
+                tourne, ce qui répond, ce que la base dit), pas une mémoire.
+             2. VÉRIFIER LA PLACE LIBRE — personne ne travaille déjà dessus
+                (verifier-place-libre.sh). Un travail qui écrase celui d'un
+                autre ne se voit qu'après.
+             3. POINT DE SAUVEGARDE — le dépôt doit être propre (tout
+                commité par fichiers nommés, jamais git add -A) avant de
+                toucher. Un commit = un point de retour.
+             4. TRAVAILLER DANS UN CHANTIER — worktree obligatoire, jamais
+                dans le dépôt principal. Deux mains, deux dossiers.
+             5. RETESTER avec LES YEUX DE CELUI QUI S'EN SERT — non-admin,
+                navigateur réel, données réelles. Le retest se joue sur
+                l'état d'AVANT (le contrôle doit avoir vu le défaut) puis
+                APRÈS (le même contrôle est vert).
+             6. DÉPLOYER en circuit — test → démo → prod, jamais en prod
+                directement. Un module qui n'a pas tourné en démo n'est pas
+                déployable.
+             7. CONSIGNER — date + heure, ce qui a été mesuré, où ça vit,
+                comment revenir en arrière (la sauvegarde avant).
+             LE RETEST EST LA PREUVE : un correctif non repassé n'est pas
+             corrigé, il est supposé corrigé. -->
+        <record id="circuit_bonnes_pratiques" model="circuit.modele">
+            <field name="name">Bonnes pratiques — modifier un élément de la tour</field>
+            <field name="description">Avant de toucher à un élément (module, script, garde-fou, donnée), on suit la séquence : mesurer, vérifier la place libre, sauvegarder, travailler en chantier, retester, déployer en circuit, consigner. Chaque porte vérifie une étape.</field>
+            <field name="type_operation">standard</field>
+        </record>
+        <record id="bp_e1" model="circuit.etape">
+            <field name="modele_id" ref="circuit_bonnes_pratiques"/>
+            <field name="sequence">10</field>
+            <field name="name">Préparer (mesurer, place libre, sauvegarde)</field>
+            <field name="role">agent</field>
+        </record>
+        <record id="bp_e2" model="circuit.etape">
+            <field name="modele_id" ref="circuit_bonnes_pratiques"/>
+            <field name="sequence">20</field>
+            <field name="name">Retester (les yeux de celui qui s'en sert)</field>
+            <field name="role">agent</field>
+        </record>
+        <record id="bp_e3" model="circuit.etape">
+            <field name="modele_id" ref="circuit_bonnes_pratiques"/>
+            <field name="sequence">30</field>
+            <field name="name">Patrick valide</field>
+            <field name="role">patron</field>
+        </record>
+
+    </data>
+</odoo>

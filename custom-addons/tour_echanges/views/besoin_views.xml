@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_besoin_liste" model="ir.ui.view">
+        <field name="name">echange.besoin.liste</field>
+        <field name="model">echange.besoin</field>
+        <field name="arch" type="xml">
+            <list string="Courrier à faire" decoration-muted="etat in ('envoye', 'sans_suite')">
+                <field name="date"/>
+                <field name="type_dest"/>
+                <field name="name"/>
+                <field name="qui"/>
+                <field name="etat" widget="badge"
+                       decoration-success="etat == 'envoye'"
+                       decoration-info="etat == 'redige'"
+                       decoration-warning="etat == 'a_rediger'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_besoin_form" model="ir.ui.view">
+        <field name="name">echange.besoin.form</field>
+        <field name="model">echange.besoin</field>
+        <field name="arch" type="xml">
+            <form string="Courrier à faire">
+                <header>
+                    <button name="action_voir_brouillon" type="object" class="btn-primary"
+                            string="Ouvrir le brouillon" invisible="not message_id"/>
+                    <button name="action_envoye" type="object"
+                            string="C'est envoyé" invisible="etat in ('envoye', 'sans_suite')"/>
+                    <button name="action_sans_suite" type="object"
+                            string="Sans suite" invisible="etat in ('envoye', 'sans_suite')"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type_dest"/>
+                            <field name="qui"/>
+                            <field name="message_id"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="origine"/>
+                            <field name="code" groups="base.group_no_one"/>
+                        </group>
+                    </group>
+                    <separator string="Détail"/>
+                    <field name="detail"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_besoin_recherche" model="ir.ui.view">
+        <field name="name">echange.besoin.recherche</field>
+        <field name="model">echange.besoin</field>
+        <field name="arch" type="xml">
+            <search string="Courrier">
+                <field name="name"/>
+                <field name="qui"/>
+                <filter name="a_faire" string="À faire"
+                        domain="[('etat', 'in', ('a_rediger', 'redige'))]"/>
+                <filter name="envoyes" string="Envoyés"
+                        domain="[('etat', '=', 'envoye')]"/>
+                <group expand="0" string="Regrouper">
+                    <filter name="par_type" string="À qui" context="{'group_by': 'type_dest'}"/>
+                    <filter name="par_etat" string="État" context="{'group_by': 'etat'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_besoin" model="ir.actions.act_window">
+        <field name="name">Courrier à faire</field>
+        <field name="res_model">echange.besoin</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_a_faire': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien à envoyer</p>
+            <p>Jonathan passe chaque matin. Quand quelqu'un mérite un
+            message, le besoin apparaît ici avec son brouillon.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_besoin" name="Courrier à faire (Jonathan)"
+              parent="tour_messages.menu_messages_root" sequence="30"
+              action="action_besoin" groups="base.group_system"/>
+</odoo>

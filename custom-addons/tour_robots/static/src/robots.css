@@ -1,0 +1,133 @@
+/* Robots — se pose par-dessus la palette du cockpit (cockpit.css). */
+
+.rb-wrap { max-width: 1280px; }
+.rb-tete h1 { font-size: 19px; margin: 0; font-weight: 650; }
+.rb-form { margin: 0; }
+.rb-btn-fort { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+.rb-msg { margin: 0 0 16px; padding: 11px 15px; border-radius: 10px;
+          font-size: 13px; border: 1px solid; }
+.rb-msg.ok { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+.rb-msg.ko { background: var(--crit-soft); border-color: var(--crit); color: var(--crit); }
+
+.rb-vide { padding: 22px; background: var(--accent-soft); border: 1px dashed var(--accent);
+           border-radius: 12px; font-size: 14px; line-height: 1.6; }
+.rb-vide-doux { color: var(--muted); font-style: italic; padding: 18px 0; }
+.rb-strips { margin-bottom: 12px; }
+.rb-note { font-size: 12.5px; color: var(--muted); background: var(--panel);
+           border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px;
+           margin: 0 0 16px; line-height: 1.6; }
+.rb-note code { font-family: var(--mono); color: var(--accent); }
+
+/* -- les filtres -- */
+.rb-filtres { display: flex; flex-wrap: wrap; gap: 7px; align-items: center;
+              margin-bottom: 10px; }
+.rb-sites { margin-bottom: 16px; }
+.rb-etiq { font-family: var(--mono); font-size: 11px; color: var(--muted);
+           text-transform: uppercase; letter-spacing: 1px; }
+.rb-chip { display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+           font-size: 12.5px; padding: 5px 11px; border-radius: 20px;
+           background: var(--surface); border: 1px solid var(--line);
+           color: var(--muted); }
+.rb-chip:hover { color: var(--ink); border-color: var(--accent); }
+.rb-chip.actif { background: var(--accent-soft); border-color: var(--accent);
+                 color: var(--accent); font-weight: 600; }
+.rb-chip.petit { font-size: 11.5px; padding: 3px 9px; font-family: var(--mono); }
+.rb-chip.danger { color: var(--crit); border-color: var(--crit); }
+.rb-chip.danger.actif { background: var(--crit-soft); }
+.rb-n { font-family: var(--mono); font-size: 11px; color: var(--faint);
+        font-variant-numeric: tabular-nums; }
+
+/* -- le tableau (une ligne = un <details> depliable) -- */
+.rb-panel { padding: 16px 18px 10px; }
+.rb-entete, .rb-ligne > summary {
+  display: grid;
+  grid-template-columns: 92px minmax(150px, 1.4fr) minmax(140px, 1.5fr) 66px 118px minmax(120px, 1fr) 86px 90px;
+  gap: 10px; align-items: center;
+}
+.rb-entete { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase;
+             letter-spacing: 1px; color: var(--muted); padding: 6px 10px;
+             border-bottom: 1px solid var(--line); }
+.droite { text-align: right; }
+
+.rb-ligne { border-bottom: 1px solid var(--line); border-left: 3px solid transparent; }
+.rb-ligne > summary { padding: 9px 10px; cursor: pointer; font-size: 13px;
+                      list-style: none; }
+.rb-ligne > summary::-webkit-details-marker { display: none; }
+.rb-ligne > summary:hover { background: var(--panel); }
+.rb-ligne[open] { background: var(--panel); border-left-color: var(--accent); }
+.rb-ligne.fam-c1 { border-left-color: rgba(47,111,176,.45); }
+.rb-ligne.fam-c2 { border-left-color: rgba(31,138,70,.45); }
+.rb-ligne.fam-c3 { border-left-color: rgba(138,92,209,.45); }
+.rb-ligne.fam-c4 { border-left-color: rgba(181,101,29,.45); }
+.rb-ligne.fam-crit { border-left-color: var(--crit); }
+.rb-ligne.fam-neutre { border-left-color: var(--line); }
+
+.rb-jour { font-family: var(--mono); font-size: 12px; color: var(--muted);
+           font-variant-numeric: tabular-nums; }
+.rb-robot b { display: block; font-weight: 600; }
+.rb-robot small { color: var(--faint); font-size: 11px; }
+.rb-site { font-family: var(--mono); font-size: 11.5px; color: var(--c1);
+           overflow-wrap: anywhere; }
+.rb-req { font-family: var(--mono); font-size: 15px; font-weight: 600;
+          font-variant-numeric: tabular-nums; }
+.rb-heures { font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+             font-variant-numeric: tabular-nums; }
+.rb-marques { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+.rb-badge { font-family: var(--mono); font-size: 10.5px; padding: 2px 7px;
+            border-radius: 20px; white-space: nowrap; }
+.rb-badge.crit { background: var(--crit-soft); color: var(--crit); }
+.rb-badge.doux { background: var(--panel); color: var(--muted);
+                 border: 1px solid var(--line); }
+
+/* -- le detail deplie -- */
+.rb-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+             padding: 4px 14px 18px 14px; }
+.rb-detail h3 { font-size: 11.5px; text-transform: uppercase; letter-spacing: 1px;
+                color: var(--muted); font-family: var(--mono); font-weight: 600;
+                margin: 14px 0 6px; }
+.rb-detail h3:first-child { margin-top: 4px; }
+.rb-detail h3.crit { color: var(--crit); }
+.rb-detail h3 small { text-transform: none; letter-spacing: 0; color: var(--faint); }
+.rb-liste { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+.rb-liste li { padding: 3px 0; border-bottom: 1px dotted var(--line);
+               display: flex; gap: 8px; align-items: baseline; }
+.rb-liste.plate li { border-bottom: none; padding: 2px 0; }
+.rb-liste code { font-family: var(--mono); font-size: 11.5px; overflow-wrap: anywhere; }
+.rb-liste.crit code { color: var(--crit); }
+.rb-liste li small { color: var(--faint); font-size: 11px; }
+.rb-mono { font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+           margin: 0; overflow-wrap: anywhere; }
+.rb-agent { background: var(--surface); border: 1px solid var(--line);
+            border-radius: 8px; padding: 8px 10px; }
+.rb-liens { margin: 16px 0 0; font-size: 12.5px; }
+.rb-liens a { color: var(--accent); }
+
+/* -- la pagination -- */
+.rb-pages { display: flex; gap: 8px; align-items: center; justify-content: center;
+            flex-wrap: wrap; padding: 18px 0 10px; }
+.rb-pos { font-family: var(--mono); font-size: 12px; color: var(--muted);
+          padding: 0 8px; }
+.rb-pied { margin-top: 18px; font-size: 12px; color: var(--faint); line-height: 1.6; }
+
+@media (max-width: 980px) {
+  .rb-entete { display: none; }
+  .rb-ligne > summary { grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+  .rb-marques { justify-content: flex-start; }
+  .rb-req { text-align: left; }
+  .rb-detail { grid-template-columns: 1fr; }
+}
+
+/* -- la pastille de couleur (remplace les emojis, 22/08) --
+   Le poste de Patrick n'a aucune police d'emoji : chaque emoji s'affichait en
+   carre vide. Une pastille dessinee en CSS marche avec n'importe quelle police. */
+.rb-pt { display: inline-block; width: 11px; height: 11px; border-radius: 50%;
+         flex: none; vertical-align: baseline; margin-right: 3px;
+         font-family: var(--mono); font-size: 9px; line-height: 11px;
+         text-align: center; font-weight: 700; color: var(--surface); }
+.pt-c1 { background: var(--c1); }
+.pt-c2 { background: var(--c2); }
+.pt-c3 { background: var(--c3); }
+.pt-c4 { background: var(--c4); }
+.pt-neutre { background: var(--neutral); }
+.pt-crit { background: var(--crit); }

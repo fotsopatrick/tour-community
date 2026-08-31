@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_copilote_usage_user,copilote.usage.user,model_copilote_usage,base.group_user,1,0,0,0
+access_copilote_usage_admin,copilote.usage.admin,model_copilote_usage,base.group_system,1,1,1,1

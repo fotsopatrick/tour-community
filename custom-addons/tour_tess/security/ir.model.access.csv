@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+acces_releve_user,tess.releve lecture,model_tess_releve,base.group_user,1,0,0,0
+acces_releve_admin,tess.releve admin,model_tess_releve,base.group_system,1,1,1,1

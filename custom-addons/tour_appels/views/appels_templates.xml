@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_appels" name="Appels API — Tour de Contrôle">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Appels API — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .col{display:flex;flex-direction:column;gap:10px}
+          .c{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+          table.mini{width:100%;border-collapse:collapse;font-size:12.5px}
+          table.mini td,table.mini th{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+          table.mini th{color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+          .tag{font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:20px;white-space:nowrap}
+          .tag.refus{background:var(--crit-soft);color:var(--crit)}
+          .ligne{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px}
+          .ligne .nom{font-weight:650;min-width:150px}
+          .ligne .gris{color:var(--muted);font-family:var(--mono);font-size:11px}
+          .empty{color:var(--faint);font-style:italic;font-size:12.5px}
+          .note{color:var(--muted);font-size:12px;margin-top:10px}
+
+          /* ---- La carte « circuit imprimé » (même langage que la carte
+               des circuits de tour_circuits) ---- */
+          .board{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:20px}
+          .board h2{margin:0 0 2px;font-size:16px}
+          .board .hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+          .board-svg{width:100%;height:auto;display:block;border-radius:10px;background:var(--panel)}
+          .board-svg text{font-family:var(--mono)}
+          .carte-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+          .carte-periodes{display:flex;gap:4px}
+          .carte-periodes button,.carte-tools button{background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer}
+          .carte-periodes button.actif{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+          .carte-periodes button:hover,.carte-tools button:hover{border-color:var(--good);color:var(--texte)}
+          .carte-live{color:var(--muted);font-family:var(--mono);font-size:11px;margin-left:auto}
+          .legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;font-size:11.5px;color:var(--muted)}
+          .legend .sw{display:inline-block;width:26px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+          .board-note{font-size:11px;color:var(--faint);margin-top:8px}
+          .appels-puce{cursor:pointer}
+          .appels-piste{cursor:pointer}
+          .appels-piste:hover{stroke-width:3.4;opacity:1}
+
+          /* ---- Panneaux en dessous de la carte ---- */
+          .detail-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+          .detail-row:last-child{border-bottom:none}
+          .detail-row b{font-variant-numeric:tabular-nums}
+          .mini-bar{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+          .mini-bar .mb-label{min-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+          .mini-bar .mb-track{flex:1;height:10px;border-radius:5px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+          .mini-bar .mb-fill{height:100%;border-radius:5px;background:var(--c1);min-width:2px}
+          .mini-bar .mb-val{min-width:78px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--texte)}
+          .bars{display:flex;align-items:flex-end;gap:3px;height:64px;margin-top:6px}
+          .bars .bar{flex:1;background:var(--c1-soft);border-radius:3px 3px 0 0;position:relative;min-width:2px}
+          .bars .bar b{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;font-family:var(--mono);color:var(--faint);white-space:nowrap}
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Appels API — la consommation DeepSeek</h1>
+              <div class="sub">une carte circuit animée : chaque agent est un composant, la clé est l'alimentation</div>
+            </div>
+            <div class="spacer"></div>
+            <div class="live"><span class="dot"></span> Relevé toutes les 5 min</div>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <section class="strips">
+            <div class="strip ok">
+              <div class="lbl">Coût estimé (30 j)</div>
+              <div class="val"><t t-esc="'%.2f' % (totals[3] or 0)"/> €</div>
+            </div>
+            <div class="strip blue">
+              <div class="lbl">Appels API (30 j)</div>
+              <div class="val"><t t-esc="totals[0]"/></div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Jetons entrée (30 j)</div>
+              <div class="val"><t t-esc="totals[1]"/></div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Jetons sortie (30 j)</div>
+              <div class="val"><t t-esc="totals[2]"/></div>
+            </div>
+          </section>
+
+          <!-- ============ LA CARTE : plan « circuit imprimé » animé ============ -->
+          <section class="board">
+            <h2>Carte des appels — le plan de la dépense</h2>
+            <p class="hint">la clé DeepSeek alimente les agents ; chaque piste porte
+              le volume d'appels de son composant — plus elle est épaisse, plus
+              l'endroit consomme. Les points qui circulent sont les appels.</p>
+            <div class="carte-tools">
+              <div class="carte-periodes" id="appels-periodes">
+                <button type="button" data-periode="24h">24 h</button>
+                <button type="button" data-periode="7j" class="actif">7 j</button>
+                <button type="button" data-periode="30j">30 j</button>
+              </div>
+              <button type="button" id="appels-pause">⏸ Pause</button>
+              <span class="carte-live" id="appels-live"></span>
+            </div>
+            <svg class="board-svg" id="board" viewBox="0 0 1040 620" role="img"
+                 aria-label="Carte des appels API de la tour"></svg>
+            <div class="legend" id="appels-legend"></div>
+            <div class="board-note">Tout est mesuré dans le journal des appels
+              (appels-api.jsonl) et relevé par la tour. Clique un composant pour
+              voir ce qu'il consomme.</div>
+          </section>
+
+          <div class="grid">
+            <section class="panel">
+              <h2>Composant</h2>
+              <p class="hint">clique une puce de la carte</p>
+              <div class="col" id="appels-detail">
+                <div class="empty">Clique un composant de la carte.</div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2>Missions qui coûtent le plus (7 j)</h2>
+              <p class="hint">où vont les tokens</p>
+              <div class="col">
+                <t t-foreach="missions_top" t-as="m">
+                  <div class="mini-bar">
+                    <span class="mb-label" t-att-title="m['mission']"><t t-esc="m['titre']"/></span>
+                    <span class="mb-track"><span class="mb-fill"
+                      t-attf-style="width:{{ m['pct'] }}%"/></span>
+                    <span class="mb-val"><t t-esc="m['cout_txt']"/></span>
+                  </div>
+                </t>
+                <t t-if="not missions_top"><div class="empty">Aucune mission encore.</div></t>
+              </div>
+            </section>
+
+            <section class="panel">
+              <h2>Aujourd'hui, heure par heure</h2>
+              <p class="hint">les appels au fil des heures (heure serveur)</p>
+              <div class="col">
+                <t t-if="serie_24h">
+                  <div class="bars" id="appels-bars">
+                    <t t-foreach="serie_24h" t-as="h">
+                      <div class="bar" t-attf-title="{{ h['cle'] }} · {{ h['nb'] }} appels">
+                        <b><t t-esc="h['cle'][:2]"/></b>
+                      </div>
+                    </t>
+                  </div>
+                </t>
+                <t t-if="not serie_24h"><div class="empty">Aucun appel aujourd'hui.</div></t>
+              </div>
+            </section>
+          </div>
+
+          <section class="c" style="margin:14px 0">
+            <h2 style="font-size:14px;margin:0 0 6px">Par agent (30 j)</h2>
+            <table class="mini">
+              <tr><th>Agent</th><th>Appels</th><th>Entrée</th><th>Sortie</th><th>Coût</th><th>Refus</th></tr>
+              <t t-foreach="par_agent" t-as="a">
+                <tr>
+                  <td><t t-esc="a['agent']"/></td>
+                  <td><t t-esc="a['nb']"/></td>
+                  <td><t t-esc="a['entree']"/></td>
+                  <td><t t-esc="a['sortie']"/></td>
+                  <td><t t-esc="a['cout']"/></td>
+                  <td><t t-esc="a['refus']"/></td>
+                </tr>
+              </t>
+              <t t-if="not par_agent">
+                <tr><td colspan="6" class="empty">Aucun appel enregistré — le garde-fou attend.</td></tr>
+              </t>
+            </table>
+          </section>
+
+          <section class="c">
+            <h2 style="font-size:14px;margin:0 0 6px">Derniers appels</h2>
+            <div class="col">
+              <t t-foreach="appels" t-as="a">
+                <div class="ligne">
+                  <span class="nom"><t t-esc="a['agent']"/></span>
+                  <span class="gris"><t t-esc="a['modele']"/></span>
+                  <span class="gris">in <t t-esc="a['tokens_entree']"/></span>
+                  <span class="gris">out <t t-esc="a['tokens_sortie']"/></span>
+                  <t t-if="a['refuse']"><span class="tag refus">refusé</span></t>
+                  <span class="gris" style="margin-left:auto"><t t-esc="a['horodatage']"/></span>
+                  <div class="gris" t-if="a['prompt']" style="font-size:.75rem;color:var(--doux);margin-top:2px"
+                       t-att-title="a['prompt']">« <t t-esc="a['prompt'][:120]"/><t t-if="len(a['prompt']) &gt; 120">…</t> »</div>
+                </div>
+              </t>
+              <t t-if="not appels"><div class="empty">Rien encore.</div></t>
+            </div>
+          </section>
+
+          <div class="note">Budget du jour : <code>~/atelier/.budget-journalier</code> (jetons).
+            Au-delà, le garde-fou refuse l'appel et la mission s'arrête. Corrigé le
+            10/08 (Merline) : le bug qui marquait tout « refusé » et rendait le budget
+            aveugle a été réparé, les 12 755 fausses lignes corrigées. Le détail complet
+            vit dans le menu Odoo « Appels API ».</div>
+        </div>
+
+        <script type="application/json" id="board-data"><t t-out="carte_json"/></script>
+        <script src="/tour_appels/static/src/appels-board.js"></script>
+      </body>
+    </html>
+  </template>
+</odoo>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Une fois par semaine suffit : ce n'est pas une alarme, c'est un
+             garde-fou contre l'oubli lent. Trop fréquent, il deviendrait du
+             bruit, et le bruit s'ignore. -->
+        <record id="cron_verifier_cahier" model="ir.cron">
+            <field name="name">Guides : le Cahier de reproduction a-t-il décroché ?</field>
+            <field name="model_id" ref="model_tour_guide"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_verifier_cahier()</field>
+            <field name="interval_number">7</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- DÉTECTION D'ARTICLES (01/08) : à 23h, la tour parcourt les travaux
+             du jour, crée des brouillons d'articles et notifie Patrick. -->
+        <record id="cron_detecter_articles" model="ir.cron">
+            <field name="name">Guides : détecter les travaux du jour qui méritent un article</field>
+            <field name="model_id" ref="model_tour_guide"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_detecter_articles()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall">2026-08-02 23:00:00</field>
+            <field name="active" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

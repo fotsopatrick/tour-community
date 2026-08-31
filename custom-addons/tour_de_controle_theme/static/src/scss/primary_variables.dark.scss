@@ -1,0 +1,36 @@
+// Palette sombre "Tour de contrôle" — thème dark de D:\PROJETS\alder (globals.css .dark, échelle slate).
+// Chargé AVANT web_dark_mode/primary_variables.dark.scss : nos !default gagnent (premier défini = prioritaire).
+
+$o-webclient-color-scheme: dark !default;
+
+// En mode sombre, Odoo inverse la sémantique : $o-white = couleur "papier" (surfaces), $o-black = texte.
+$o-white: #020817 !default; // hsl(222.2 84% 4.9%) — --background du thème dark d'alder
+$o-black: #f8fafc !default; // hsl(210 40% 98%) — --foreground
+
+// Échelle de gris inversée sur la gamme slate (100 = le plus sombre en dark mode)
+$o-gray-100: #0f172a !default; // slate-900
+$o-gray-200: #1e293b !default; // slate-800 — --secondary/--muted/--border d'alder
+$o-gray-300: #334155 !default; // slate-700
+$o-gray-400: #475569 !default; // slate-600
+$o-gray-500: #64748b !default; // slate-500
+$o-gray-600: #94a3b8 !default; // slate-400 — --muted-foreground d'alder
+$o-gray-700: #cbd5e1 !default; // slate-300
+$o-gray-800: #e2e8f0 !default; // slate-200
+$o-gray-900: #f1f5f9 !default; // slate-100
+
+// Marque (mêmes valeurs que le fichier clair, redéclarées ici car web_dark_mode les référence)
+$o-brand-odoo: #0f172a !default;
+$o-brand-primary: #3b82f6 !default; // --primary d'alder (dark)
+$o-brand-secondary: #f1f5f9 !default;
+$o-community-color: #1e293b !default;
+$o-enterprise-color: #3b82f6 !default;
+$o-enterprise-action-color: #3b82f6 !default;
+$o-action: #3b82f6 !default;
+$o-main-link-color: #60a5fa !default; // blue-400, meilleur contraste sur fond sombre
+
+// Surfaces
+$o-webclient-background-color: #020817 !default; // fond général de l'app
+$o-view-background-color: #0f172a !default; // cartes / feuilles de formulaire
+$o-shadow-color: #020817 !default;
+$o-list-group-active-bg: #1e293b !default;
+$o-form-lightsecondary: #334155 !default;

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_promotion_form" model="ir.ui.view">
+        <field name="name">promotion.demande.form</field>
+        <field name="model">promotion.demande</field>
+        <field name="arch" type="xml">
+            <form string="Mise en production">
+                <header>
+                    <button name="action_demander" type="object" class="btn-primary"
+                            string="Demander la mise en prod"
+                            invisible="etat != 'brouillon'"
+                            confirm="Cette demande ira dans Décisions. Elle ne partira en production QUE quand tu l'auras approuvée là-bas. On continue ?"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="module"/>
+                        <h1><field name="module" placeholder="tour_debat"/></h1>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="etat != 'brouillon'">
+                        On ne promeut que ce qui a été <b>vu sur tour_test</b>.
+                        Coche la case, puis « Demander la mise en prod » : la
+                        décision t'attendra dans <b>Décisions</b>. Rien ne part
+                        avant ton approbation.
+                    </div>
+                    <group>
+                        <field name="valide_en_test"/>
+                        <field name="decision_id" readonly="1"
+                               invisible="not decision_id"/>
+                    </group>
+                    <separator string="Ce qui a été validé en test"/>
+                    <field name="note" placeholder="Ex : /tour/debats affiche bien la salle, les chiffres sont justes."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_promotion_liste" model="ir.ui.view">
+        <field name="name">promotion.demande.liste</field>
+        <field name="model">promotion.demande</field>
+        <field name="arch" type="xml">
+            <list string="Mises en production" decoration-success="etat == 'en_prod'"
+                  decoration-muted="etat == 'brouillon'">
+                <field name="create_date"/>
+                <field name="module"/>
+                <field name="valide_en_test" widget="boolean_toggle"/>
+                <field name="etat" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_promotion" model="ir.actions.act_window">
+        <field name="name">Mises en production</field>
+        <field name="res_model">promotion.demande</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune mise en prod demandée.</p>
+            <p>Valide un module sur tour_test, puis crée une demande ici : elle
+               ira dans Décisions, et tu la déploies en prod d'un clic.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_promotion" name="Mise en production"
+              parent="tour_dashboard.menu_pilotage_piloter" sequence="7"
+              action="action_promotion"/>
+
+</odoo>

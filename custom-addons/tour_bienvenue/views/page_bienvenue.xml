@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="page_bienvenue" name="Première connexion">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': 'fr-FR'}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Bienvenue</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .bv { max-width:640px; margin:0 auto; padding:40px 18px 70px; }
+                    h1 { font-size:1.9rem; margin:0 0 10px; letter-spacing:-.02em; }
+                    .intro { color:#94a3b8; font-size:1rem; line-height:1.6; margin:0 0 34px; }
+                    .intro b { color:var(--texte); }
+                    .etape { display:flex; gap:16px; background:#0f172a;
+                             border:1px solid #1e293b; border-radius:.7rem;
+                             padding:18px; margin-bottom:14px; text-decoration:none;
+                             color:inherit; }
+                    .etape:hover { border-color:#3b82f6; }
+                    .num { flex:0 0 auto; width:34px; height:34px; border-radius:50%;
+                           background:#3b82f6; color:#fff; display:flex;
+                           align-items:center; justify-content:center;
+                           font-weight:700; font-size:1rem; }
+                    .txt { flex:1 1 auto; min-width:0; }
+                    .txt h2 { margin:0 0 5px; font-size:1.05rem; }
+                    .txt p { margin:0; color:#94a3b8; font-size:.92rem; line-height:1.55; }
+                    .fleche { flex:0 0 auto; color:#3b82f6; font-size:1.3rem; align-self:center; }
+                    .apres { margin-top:34px; padding-top:22px; border-top:1px solid #1e293b; }
+                    .apres h3 { font-size:.75rem; text-transform:uppercase;
+                                letter-spacing:.09em; color:#64748b; margin:0 0 12px; }
+                    .apres a { display:block; color:#cbd5e1; text-decoration:none;
+                               padding:9px 0; border-bottom:1px solid #1e293b;
+                               font-size:.92rem; }
+                    .apres a:last-child { border-bottom:0; }
+                    .apres a:hover { color:#3b82f6; }
+                    .fin { margin-top:34px; text-align:center; }
+                    .fin a { background:#3b82f6; color:#fff; text-decoration:none;
+                             padding:14px 26px; border-radius:.55rem; font-weight:650;
+                             display:inline-block; font-size:1rem; }
+                    .relire { color:#64748b; font-size:.8rem; text-align:center;
+                              margin-top:18px; line-height:1.6; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="bv" t-attf-style="position:relative;">
+                <t t-if="switch_langue"><t t-call="tour_i18n.switch_langue"/></t>
+                <h1>
+                    <t t-if="premiere"><t t-esc="_t('Bienvenue')"/>, <t t-esc="prenom"/>.</t>
+                    <t t-else=""><t t-esc="_t('Re-bonjour')"/>, <t t-esc="prenom"/>.</t>
+                </h1>
+                <p class="intro">
+                    Cette tour est <b>à toi</b> : elle est vide, et rien de ce que
+                    tu y mets ne sort d'ici. Il y a beaucoup d'applications dans le
+                    menu — <b>tu n'as pas à les découvrir maintenant.</b>
+                    Trois gestes suffisent pour que ça devienne utile aujourd'hui.
+                </p>
+
+                <a class="etape" href="/web#action=&amp;model=res.users&amp;view_type=form">
+                    <div class="num">1</div>
+                    <div class="txt">
+                        <h2>Change ton mot de passe</h2>
+                        <p>Celui qu'on t'a donné a voyagé par courriel : il te
+                        dépanne aujourd'hui, il ne protège rien demain. Ton nom
+                        en haut à droite, puis Préférences.</p>
+                    </div>
+                    <div class="fleche">→</div>
+                </a>
+
+                <a class="etape" href="/tour/dashboard">
+                    <div class="num">2</div>
+                    <div class="txt">
+                        <h2>Regarde ton accueil</h2>
+                        <p>C'est la page qui répond à « qu'est-ce qui m'attend
+                        aujourd'hui ». Mets-la en favori : c'est la seule que tu
+                        ouvriras tous les jours.</p>
+                    </div>
+                    <div class="fleche">→</div>
+                </a>
+
+                <a class="etape" href="/odoo/project">
+                    <div class="num">3</div>
+                    <div class="txt">
+                        <h2>Note une seule chose</h2>
+                        <p>Une tâche, une idée, n'importe quoi. Un outil dans
+                        lequel on n'a rien écrit reste un outil qu'on oublie —
+                        celui dans lequel on a écrit une ligne, on y revient.</p>
+                    </div>
+                    <div class="fleche">→</div>
+                </a>
+
+                <a class="etape" href="/odoo/settings#users">
+                    <div class="num">4</div>
+                    <div class="txt">
+                        <h2><t t-esc="_t('Choisis ta langue')"/></h2>
+                        <p>La tour parle français, anglais et toutes les langues
+                        d'Odoo. Ça se change dans tes Préférences, en haut à
+                        droite — et ça ne concerne que toi, pas les autres.</p>
+                    </div>
+                    <div class="fleche">→</div>
+                </a>
+
+                <div class="apres" t-if="guides">
+                    <h3>Quand tu voudras aller plus loin</h3>
+                    <t t-foreach="guides" t-as="g">
+                        <a t-attf-href="/odoo/action-tour_guides.action_tour_guide/#{g.id}">
+                            <t t-esc="g.name"/>
+                        </a>
+                    </t>
+                </div>
+
+                <div class="fin">
+                    <a href="/tour/dashboard">C'est parti →</a>
+                </div>
+                <p class="relire">
+                    Cette page ne reviendra pas toute seule.<br/>
+                    Tu peux la relire à tout moment : <b>/tour/bienvenue</b>
+                </p>
+            </div>
+        </t>
+        <!-- La bulle Chloe (05/08, Patrick) : la demo rencontre enfin le
+         copilote. Cote serveur, le garde des competences ne lui donne que
+         les outils de LECTURE — rien qui ecrive ni construise. -->
+    <script type="text/javascript" src="/tour_dashboard/static/src/chloe-bulle.js"></script>
+</template>
+
+</odoo>

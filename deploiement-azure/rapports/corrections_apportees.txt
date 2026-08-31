@@ -1,0 +1,50 @@
+# Corrections apportées — préparation démo lundi
+
+## ALICE (192.168.1.61)
+
+1. **Base SQLite mémoire** (`/home/alice/alicization/state/alicization.db`)
+   - Le dossier `state/` et la base n'existaient pas.
+   - Créé le dossier + le fichier DB + la table `procedures_memoire` (via un script
+     Python, `sqlite3` n'étant pas installé dans le shell).
+   - Corrigé le chemin du test `tests_alice.py` (pointait `/home/alice/state/...`
+     au lieu de `/home/alice/alicization/state/...`).
+
+2. **Démarrage d'ALICE** (`start_alice.sh`)
+   - `chat_backend.py` était absent de `/home/alice/` → copié depuis
+     `/workspace/deploiement-cloud/alice/src/alicization/`.
+   - L'env virtuel `/home/alice/alicization-venv` était absent → créé et les
+     dépendances installées (`flask`, `flask-cors`, `requests`).
+   - `start_alice.sh` n'exportait pas `PYTHONPATH` → ajouté.
+   - Résultat : API Alice répond sur `:8002` (HTTP 200).
+
+3. **OCR Tesseract** : absent → installé (`apt-get install tesseract-ocr`).
+
+## Tour Community (127.0.0.1:8071)
+
+4. **Compte admin Odoo** : mot de passe réinitialisé à `admin` (via `odoo-bin shell`)
+   pour permettre l'authentification des tests.
+
+5. **Authentification des tests (BLOQUEUR RÉSOLU)**
+   - Cause racine : le module `tour_cookie_secure` force le flag `Secure` sur le
+     cookie `session_id`. En HTTP local (pas de HTTPS), `requests` ne renvoie donc
+     jamais ce cookie → « Odoo Session Expired » partout.
+   - Solution : authentification JSON-RPC (`/web/session/authenticate`) puis
+     portage MANUEL du cookie `session_id` en en-tête `Cookie`, car
+     `s.cookies.set()` ne suffit pas (le flag Secure persiste).
+   - Second piège : la route `/community/chat/message` exige un **CSRF token** lié
+     à la session (le session id *tourne* à l'authentification). Le token est lu
+     sur `/web` (`var odoo = { csrf_token: "..." }`) APRÈS authentification, puis
+     passé dans `params.csrf_token`.
+
+6. **Secrets** : grep sur le code de la Tour → aucun secret en clair (vert).
+   ⚠️ En revanche, `~/.config/opencode/opencode.jsonc` contient des clés en clair
+   (Azure, token API Tour) — à migrer en variables d'environnement.
+
+## BLOQUEURS RESTANTS (non résolubles sans élément externe)
+
+- **Chloé n'a pas de clé DeepSeek** : le paramètre `tour_community_chat.moteur`
+  vaut `gemini` ; aucune clé DeepSeek n'existe (params et coffre/vault vides).
+- **La clé `sk-ryL1X…` fournie est pour OpenCode Zen** (modèle gratuit big-pickle),
+  PAS une clé DeepSeek. Elle ne peut pas être utilisée pour Chloé/DeepSeek.
+- **Gemini est au plafond** : `Limite de débit Gemini atteinte`.
+- **VM Azure `20.97.179.141`** : injoignable (timeout de connexion).

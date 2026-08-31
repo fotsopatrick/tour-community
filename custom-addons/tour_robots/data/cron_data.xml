@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Toutes les 4 heures, comme demandé. Chaque passage relit 3 jours de
+       journal : si une analyse a été ratée (serveur éteint, lecteur en
+       panne), le trou se rebouche tout seul au tour suivant. -->
+  <record id="cron_robots_analyser" model="ir.cron">
+    <field name="name">Robots : relire le journal et mettre à jour</field>
+    <field name="model_id" ref="model_tour_robot_passage"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_analyser()</field>
+    <field name="interval_number">4</field>
+    <field name="interval_type">hours</field>
+    <field name="active" eval="True"/>
+  </record>
+</odoo>

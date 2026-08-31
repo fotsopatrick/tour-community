@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_robots" name="Qui vient sur nos sites — Tour de Contrôle">
+    <html lang="fr">
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Qui vient sur nos sites — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <link rel="stylesheet" href="/tour_robots/static/src/robots.css"/>
+      </head>
+      <body>
+        <div class="wrap rb-wrap">
+
+          <!-- ================= le bandeau du haut ================= -->
+          <div class="tower rb-tete">
+            <div class="radar"></div>
+            <div>
+              <h1>Qui vient sur nos sites</h1>
+              <div class="sub">
+                Chaque ligne : <b>un visiteur, un jour, un site</b> — et ce qu'il a demandé.
+                <t t-if="resume['derniere']">
+                  Dernière lecture du cahier : <b><t t-esc="resume['derniere']"/></b><t t-if="resume['prochaine']">, la suivante vers <b><t t-esc="resume['prochaine']"/></b> (toutes les 4 heures)</t>.
+                </t>
+                <t t-else="">Le cahier n'a encore jamais été lu.</t>
+              </div>
+            </div>
+            <div class="spacer"></div>
+            <a class="themebtn" href="/tour/cockpit/agents">Agents</a>
+            <a class="themebtn" href="/tour/cockpit/securite">Sécurité</a>
+            <a class="themebtn" href="/tour/cockpit/vps">VPS</a>
+            <a class="themebtn" href="/tour/cockpit">Le cockpit</a>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+            <form method="post" action="/tour/cockpit/robots/analyser" class="rb-form">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <input type="hidden" name="jours" value="3"/>
+              <input type="hidden" name="retour" t-att-value="base_url"/>
+              <button class="themebtn rb-btn-fort" type="submit"
+                      title="Relire le cahier des 3 derniers jours et mettre le tableau à jour. Quelques secondes.">
+                ⟳ Lancer l'analyse maintenant
+              </button>
+            </form>
+            <form method="post" action="/tour/cockpit/robots/analyser" class="rb-form">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <input type="hidden" name="jours" value="60"/>
+              <input type="hidden" name="retour" t-att-value="base_url"/>
+              <button class="themebtn" type="submit"
+                      title="Relire TOUT ce que le cahier garde encore. Plus long : une minute environ.">
+                ⟳⟳ Tout reprendre
+              </button>
+            </form>
+          </div>
+
+          <!-- ================= le message du bouton ================= -->
+          <div t-if="message" t-attf-class="rb-msg #{'ok' if message_ok else 'ko'}">
+            <t t-esc="message"/>
+          </div>
+
+          <!-- ================= tableau encore vide ================= -->
+          <div t-if="resume['vide']" class="rb-vide">
+            <b>Le tableau est vide.</b> Personne n'a encore lu le cahier du portier.<br/>
+            Clique sur <b>« ⟳ Lancer l'analyse maintenant »</b>, en haut à droite :
+            la tour va relire les traces et remplir ce tableau. Ensuite elle le refera
+            toute seule, toutes les 4 heures.
+          </div>
+
+          <!-- ================= les grands chiffres ================= -->
+          <div t-if="not resume['vide']" class="strips rb-strips">
+            <div class="strip ok">
+              <div class="lbl">Visiteurs humains aujourd'hui</div>
+              <div class="val"><t t-esc="resume['humains_jour']"/></div>
+              <div class="pill flat">hier : <t t-esc="resume['humains_hier']"/></div>
+            </div>
+            <div class="strip blue">
+              <div class="lbl">Pages demandées aujourd'hui</div>
+              <div class="val"><t t-esc="resume['pages_jour']"/></div>
+              <div class="pill flat">hier : <t t-esc="resume['pages_hier']"/></div>
+            </div>
+            <div t-attf-class="strip #{'crit' if resume['mauvais_jour'] else 'ok'}">
+              <div class="lbl">Pages demandées par des fouilleurs aujourd'hui</div>
+              <div class="val"><t t-esc="resume['mauvais_jour']"/></div>
+              <div class="pill flat"><t t-esc="resume['fouille_total']"/> depuis le début</div>
+            </div>
+            <div class="strip">
+              <div class="lbl">Robots différents connus</div>
+              <div class="val"><t t-esc="resume['robots']"/></div>
+              <div class="pill flat">historique depuis le <t t-esc="resume['premier_jour']"/></div>
+            </div>
+          </div>
+
+          <!-- ================= les filtres ================= -->
+          <div class="rb-filtres" t-if="not resume['vide']">
+            <a t-attf-class="rb-chip #{'' if un_filtre else 'actif'}"
+               href="/tour/cockpit/robots">Tout voir</a>
+            <t t-foreach="cases_vues" t-as="c">
+              <a t-attf-class="rb-chip #{'actif' if filtre_categorie == c['cle'] else ''}"
+                 t-attf-href="/tour/cockpit/robots?categorie=#{c['cle']}">
+                <span t-attf-class="rb-pt pt-#{c['couleur']}"><t t-esc="c['marque']"/></span>
+                <t t-esc="c['nom']"/>
+                <span class="rb-n"><t t-esc="c['nb']"/></span>
+              </a>
+            </t>
+            <a t-attf-class="rb-chip danger #{'actif' if filtre_fouille else ''}"
+               href="/tour/cockpit/robots?fouille=1"><span class="rb-pt pt-crit">!</span> Tous ceux qui ont fouillé</a>
+          </div>
+
+          <div class="rb-filtres rb-sites" t-if="sites_vus and not resume['vide']">
+            <span class="rb-etiq">Site :</span>
+            <t t-foreach="sites_vus" t-as="s">
+              <a t-attf-class="rb-chip petit #{'actif' if filtre_site == s['cle'] else ''}"
+                 t-attf-href="/tour/cockpit/robots?site=#{s['cle']}">
+                <t t-esc="s['cle']"/> <span class="rb-n"><t t-esc="s['nb']"/></span>
+              </a>
+            </t>
+          </div>
+
+          <p class="rb-note" t-if="not resume['vide']">
+            <b>Un mot à connaître : « fouilleur ».</b> C'est une machine qui demande des
+            adresses qui <b>n'existent sur aucun de nos sites</b> et que personne ne tape
+            par hasard — par exemple <code>/.env</code> (le fichier des mots de passe) ou
+            <code>/wp-login.php</code> (la porte de WordPress, qu'on n'utilise pas).
+            Il essaie les portes une par une en espérant en trouver une mal fermée.
+            Ce n'est pas une visite, et ce n'est pas légal.
+          </p>
+
+          <!-- ================= le tableau ================= -->
+          <div class="panel rb-panel" t-if="not resume['vide']">
+            <h2>
+              <t t-esc="total"/> ligne(s)<t t-if="un_filtre"> après filtrage</t> —
+              page <t t-esc="page"/> sur <t t-esc="pages_total"/>
+            </h2>
+            <p class="hint">Clique sur une ligne pour voir tout ce que ce visiteur a demandé.</p>
+
+            <div class="rb-entete">
+              <span>Jour</span><span>Qui</span><span>Site</span>
+              <span class="droite">Pages</span><span>De → À</span><span>Attention</span>
+              <span><a class="rb-tri" t-att-href="lien_a_obtenu"
+                       title="Clique pour trier : Oui puis Non puis tout">A obtenu<t t-if="filtre_a_obtenu"> (<t t-esc="filtre_a_obtenu"/>)</t></a></span>
+            </div>
+
+            <t t-foreach="lignes" t-as="l">
+              <details t-attf-class="rb-ligne fam-#{l['couleur']}">
+                <summary>
+                  <span class="rb-jour"><t t-esc="l['jour']"/></span>
+                  <span class="rb-robot">
+                    <b><span t-attf-class="rb-pt pt-#{l['couleur']}"><t t-esc="l['marque']"/></span> <t t-esc="l['robot']"/></b>
+                    <small><t t-esc="l['case_nom']"/></small>
+                  </span>
+                  <span class="rb-site"><t t-esc="l['site']"/></span>
+                  <span class="rb-req droite"><t t-esc="l['requetes']"/></span>
+                  <span class="rb-heures"><t t-esc="l['de']"/> → <t t-esc="l['a']"/></span>
+                  <span class="rb-attention">
+                    <span t-if="l['attention'] == 'haute'" class="rb-badge crit"
+                          title="Une fuite est possible : à regarder maintenant">À voir</span>
+                    <span t-elif="l['attention'] == 'moyenne'" class="rb-badge doux"
+                          title="Fouilleur ou scanner : à surveiller">Surveiller</span>
+                  </span>
+                  <span class="rb-obtenu">
+                    <span t-if="l['a_obtenu'] == 'oui'" class="rb-badge crit"
+                          title="Le site a répondu avec des poids différents : quelque chose de sensible est sorti">Oui</span>
+                    <span t-elif="l['a_obtenu'] == 'non'" class="rb-badge doux"
+                          title="Refus (404) ou page passe-partout : rien de sensible n'est sorti">Non</span>
+                  </span>
+                  <span class="rb-marques">
+                    <span t-if="l['fouille']" class="rb-badge crit"
+                          title="Nombre de demandes qui cherchaient une faille">
+                      <t t-esc="l['fouille']"/> fouille(s)
+                    </span>
+                    <span t-if="l['nb_ips'] &gt; 1" class="rb-badge doux"
+                          title="Nombre d'adresses différentes derrière ce visiteur">
+                      <t t-esc="l['nb_ips']"/> adresses
+                    </span>
+                    <span t-if="l['robots_txt']" class="rb-badge doux"
+                          title="Il a lu robots.txt, le panneau qui dit ce qu'on autorise">
+                      a lu robots.txt
+                    </span>
+                  </span>
+                </summary>
+
+                <div class="rb-detail">
+                  <div class="rb-bloc">
+                    <p class="rb-quoi"><span t-attf-class="rb-pt pt-#{l['couleur']}"><t t-esc="l['marque']"/></span> <b><t t-esc="l['case_nom']"/></b> — <t t-esc="l['case_phrase']"/></p>
+
+                    <t t-if="l['techniques']">
+                      <h3 class="crit">Techniques d'attaque reconnues</h3>
+                      <ul class="rb-liste crit">
+                        <t t-foreach="l['techniques']" t-as="t">
+                          <li><b><t t-esc="t[0]"/></b> <span class="rb-n">×<t t-esc="t[1]"/></span></li>
+                        </t>
+                      </ul>
+                    </t>
+
+                    <t t-if="l['pages_fouille']">
+                      <h3 class="crit">Ce qu'il a cherché de louche</h3>
+                      <ul class="rb-liste crit">
+                        <t t-foreach="l['pages_fouille']" t-as="p">
+                          <li><code><t t-esc="p[0]"/></code> <span class="rb-n">×<t t-esc="p[1]"/></span></li>
+                        </t>
+                      </ul>
+                    </t>
+
+                    <t t-if="l['fouille'] and not l['pages_200']">
+                      <h3>Réponses du site</h3>
+                      <p class="rb-avert"><b>Il n'a rien obtenu.</b>
+                        Toutes ses <t t-esc="l['fouille']"/> demandes de fouille ont reçu un refus
+                        (aucune réponse « oui ») : rien n'est sorti.</p>
+                    </t>
+
+                    <t t-if="l['pages_200']">
+                      <h3>A-t-il obtenu quelque chose ?</h3>
+                      <p class="rb-avert" t-if="l['meme_poids']">
+                        <b>Non.</b> Le site a bien répondu « oui » <t t-esc="l['fouille_200']"/> fois,
+                        mais <b>toutes les réponses font exactement le même poids</b> : c'est la même
+                        page passe-partout renvoyée à chaque fois, pas le fichier demandé.
+                        Il n'a rien récupéré.
+                      </p>
+                      <p class="rb-avert crit" t-else="">
+                        <b>À regarder.</b> Le site a répondu « oui » <t t-esc="l['fouille_200']"/> fois,
+                        avec des poids <b>différents</b>. Un poids qui sort du lot peut vouloir dire
+                        qu'un vrai fichier est parti. À vérifier une par une.
+                      </p>
+                      <ul class="rb-liste">
+                        <t t-foreach="l['pages_200']" t-as="p">
+                          <li><code><t t-esc="p['adresse']"/></code>
+                            <span class="rb-n">×<t t-esc="p['nb']"/> · <t t-esc="p['poids']"/></span></li>
+                        </t>
+                      </ul>
+                    </t>
+
+                    <h3>Les adresses demandées <small>(les plus fréquentes, sur <t t-esc="l['nb_pages']"/> différentes)</small></h3>
+                    <ul class="rb-liste">
+                      <t t-foreach="l['pages']" t-as="p">
+                        <li><code><t t-esc="p[0]"/></code> <span class="rb-n">×<t t-esc="p[1]"/></span></li>
+                      </t>
+                    </ul>
+                  </div>
+
+                  <div class="rb-bloc">
+                    <h3>Ce que le site a répondu</h3>
+                    <ul class="rb-liste plate">
+                      <t t-foreach="l['statuts']" t-as="s">
+                        <li><b><t t-esc="s['code']"/></b>
+                          <span class="rb-n">×<t t-esc="s['nb']"/></span>
+                          <small><t t-esc="s['sens']"/></small></li>
+                      </t>
+                    </ul>
+
+                    <h3>D'où il venait <small>(<t t-esc="l['nb_ips']"/> adresse(s) différente(s))</small></h3>
+                    <ul class="rb-liste plate">
+                      <t t-foreach="l['ips']" t-as="ip">
+                        <li><code><t t-esc="ip"/></code></li>
+                      </t>
+                    </ul>
+
+                    <h3>Rythme</h3>
+                    <p class="rb-mono">
+                      Le plus gros paquet : <b><t t-esc="l['pointe']"/></b> demande(s) dans la même minute.
+                      <t t-if="l['pointe'] &gt;= 60"> — c'est beaucoup : ça martèle.</t>
+                    </p>
+
+                    <h3>Poids envoyé</h3>
+                    <p class="rb-mono"><t t-esc="l['taille']"/></p>
+
+                    <h3>Sa carte de visite</h3>
+                    <p class="rb-mono rb-agent"><t t-esc="l['agent']"/></p>
+
+                    <p class="rb-liens">
+                      <a t-attf-href="/tour/cockpit/robots?robot=#{l['robot']}">Tous ses passages</a>
+                      ·
+                      <a t-attf-href="/tour/cockpit/robots?site=#{l['site']}">Tout ce site</a>
+                    </p>
+                  </div>
+                </div>
+              </details>
+            </t>
+
+            <p t-if="not lignes" class="rb-vide-doux">Aucune ligne pour ce filtre.</p>
+
+            <!-- ================= la pagination ================= -->
+            <div class="rb-pages" t-if="pages_total &gt; 1">
+              <a t-if="page &gt; 1" class="themebtn"
+                 t-attf-href="/tour/cockpit/robots?page=1&amp;#{base_url}">⟪ Le plus récent</a>
+              <a t-if="page &gt; 1" class="themebtn"
+                 t-attf-href="/tour/cockpit/robots?page=#{page - 1}&amp;#{base_url}">‹ Plus récent</a>
+              <span class="rb-pos">page <b><t t-esc="page"/></b> sur <t t-esc="pages_total"/></span>
+              <a t-if="page &lt; pages_total" class="themebtn"
+                 t-attf-href="/tour/cockpit/robots?page=#{page + 1}&amp;#{base_url}">Remonter le temps ›</a>
+              <a t-if="page &lt; pages_total" class="themebtn"
+                 t-attf-href="/tour/cockpit/robots?page=#{pages_total}&amp;#{base_url}">Le plus ancien ⟫</a>
+            </div>
+          </div>
+
+          <p class="rb-pied">
+            Le portier du serveur ne garde ses notes que quelques jours, puis il les jette.
+            Ce tableau, lui, garde tout : à chaque analyse, le résumé est déposé dans la base
+            de la tour. Plus le temps passe, plus l'historique remonte loin.
+          </p>
+        </div>
+      </body>
+    </html>
+  </template>
+</odoo>

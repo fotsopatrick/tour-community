@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="page_mvp" name="Tour MVP — installation">
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Tour MVP — Tour de Contrôle</title>
+        <link rel="stylesheet" href="/tour_cockpit/static/src/cockpit.css"/>
+        <style>
+          .note{background:var(--crit-soft);border:1px solid var(--crit);color:var(--crit);border-radius:10px;padding:10px 12px;font-size:12.5px}
+          .zone{border:1px solid var(--line);border-radius:10px;background:#0a0f16;padding:12px;font-family:var(--mono);font-size:12px;color:#a7f3d0;white-space:pre-wrap;height:320px;overflow:auto;line-height:1.5}
+          .etapes{margin-top:8px}
+          .etape{color:var(--muted);font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line)}
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <header class="tower">
+            <div class="radar" aria-hidden="true"></div>
+            <div>
+              <h1>Installer une tour MVP</h1>
+              <div class="sub">preuve d'installation — script propriétaire, pas le produit vendu</div>
+            </div>
+            <div class="spacer"></div>
+            <a class="themebtn" href="/tour/dashboard">← l'accueil</a>
+          </header>
+
+          <div class="etapes">
+            <div class="etape">1. Vérifie docker + compose</div>
+            <div class="etape">2. Clone le dépôt + les addons OCA</div>
+            <div class="etape">3. Prépare .env et les moteurs (opencode gratuit, clé DeepSeek optionnelle)</div>
+            <div class="etape">4. Docker compose up</div>
+            <div class="etape">5. Initialise la base tour + thème</div>
+            <div class="etape">6. Écrit tour-mvp-INFOS.txt (URL + admin)</div>
+          </div>
+
+          <p style="margin-top:14px">
+            <form method="post" action="/tour/mvp/install" style="display:inline">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <button type="submit" class="btn btn-primary" style="background:var(--accent);border:0;color:#fff;padding:9px 18px;border-radius:8px;font-weight:600">Installer la tour MVP</button>
+            </form>
+            <span style="color:var(--muted);font-size:12px;margin-left:10px">lance <code>installer-tour.sh</code> en arrière-plan, puis actualise.</span>
+          </p>
+
+          <t t-if="erreur">
+            <div class="note" style="margin-top:10px"><t t-esc="erreur"/></div>
+          </t>
+
+          <h2 style="font-size:14px;margin:18px 0 6px">Journal de l'installation</h2>
+          <div class="zone" id="journal"><t t-esc="journal"/></div>
+
+          <p style="color:var(--muted);font-size:12px;margin-top:10px">La page s'actualise
+            toutes les 5 secondes. Une fois installée, connectez-vous à la tour MVP avec
+            l'admin affiché dans <code>tour-mvp-INFOS.txt</code>.</p>
+        </div>
+        <script>
+          setInterval(function () {
+            fetch("/tour/mvp", { credentials: "same-origin" })
+              .then(function (r) { return r.text(); })
+              .then(function (t) {
+                var m = t.match(/\x3Cdiv class="zone" id="journal">([\s\S]*?)\x3C\/div>/);
+                if (m) document.getElementById("journal").textContent = m[1].trim();
+              }).catch(function () {});
+          }, 5000);
+        </script>
+      </body>
+    </html>
+  </template>
+</odoo>

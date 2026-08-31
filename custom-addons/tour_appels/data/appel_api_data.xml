@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Relève le journal de l'hôte. Toutes les 5 minutes, pas chaque minute :
+        un appel API prend plusieurs secondes, personne n'en fera une centaine
+        entre deux passages. Et un relevé trop fréquent ne fait qu'écrire des
+        vides.
+    -->
+    <record id="cron_relever_appels" model="ir.cron">
+        <field name="name">Appels API : relever le journal</field>
+        <field name="model_id" ref="model_api_appel"/>
+        <field name="state">code</field>
+        <field name="code">model._relever()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Solde DeepSeek réel : un relevé toutes les 6 heures suffit — le solde
+         ne bouge que quand on consomme, et la comparaison réel/estimé se fait
+         sur plusieurs jours, pas en continu. -->
+    <record id="cron_relever_solde" model="ir.cron">
+        <field name="name">DeepSeek : relever le solde (API)</field>
+        <field name="model_id" ref="model_deepseek_solde"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever_solde()</field>
+        <field name="interval_number">6</field>
+        <field name="interval_type">hours</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

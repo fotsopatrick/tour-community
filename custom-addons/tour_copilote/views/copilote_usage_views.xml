@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_copilote_usage_list" model="ir.ui.view">
+        <field name="name">copilote.usage.list</field>
+        <field name="model">copilote.usage</field>
+        <field name="arch" type="xml">
+            <list string="Consommation du copilote" create="false" edit="false">
+                <field name="create_date" string="Quand"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="modele"/>
+                <field name="tokens_entree" sum="Total entrée"/>
+                <field name="tokens_sortie" sum="Total sortie"/>
+                <field name="cout_estime" string="Coût (€)" sum="Total €"
+                       digits="[12,4]"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_copilote_usage_search" model="ir.ui.view">
+        <field name="name">copilote.usage.search</field>
+        <field name="model">copilote.usage</field>
+        <field name="arch" type="xml">
+            <search string="Consommation">
+                <field name="user_id"/>
+                <filter name="f_jour" string="Aujourd'hui"
+                        domain="[('jour', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="1" string="Regrouper par">
+                    <filter name="g_user" string="Utilisateur"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter name="g_jour" string="Jour"
+                            context="{'group_by': 'jour'}"/>
+                    <filter name="g_modele" string="Modèle"
+                            context="{'group_by': 'modele'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Le pivot répond à la question de la tâche 430 : « total par
+         utilisateur et par jour » d'un seul regard, sans dérouler la liste. -->
+    <record id="view_copilote_usage_pivot" model="ir.ui.view">
+        <field name="name">copilote.usage.pivot</field>
+        <field name="model">copilote.usage</field>
+        <field name="arch" type="xml">
+            <pivot string="Consommation par personne et par jour">
+                <field name="user_id" type="row"/>
+                <!-- interval="day" : sans lui les colonnes sont des MOIS
+                     (défaut Odoo) et un pic d'une soirée disparaît. -->
+                <field name="jour" type="col" interval="day"/>
+                <field name="cout_estime" type="measure"/>
+                <field name="tokens_sortie" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_copilote_usage" model="ir.actions.act_window">
+        <field name="name">Consommation du copilote</field>
+        <field name="res_model">copilote.usage</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="search_view_id" ref="view_copilote_usage_search"/>
+        <field name="context">{'search_default_g_user': 1}</field>
+    </record>
+
+    <!-- Les quotas du jour : qui a consommé quoi, ce qui lui reste. On ne
+         montre que les comptes internes actifs — un portail n'a pas Chloé. -->
+    <record id="view_users_quota_list" model="ir.ui.view">
+        <field name="name">res.users.quota.copilote</field>
+        <field name="model">res.users</field>
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <list string="Quotas copilote du jour" create="false" edit="false" delete="false">
+                <field name="name"/>
+                <field name="login" optional="hide"/>
+                <field name="copilote_echanges_jour" string="Appels aujourd'hui"/>
+                <field name="copilote_quota_texte" string="Quota du jour"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_users_quota" model="ir.actions.act_window">
+        <field name="name">Quotas du jour</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_users_quota_list"/>
+        <field name="domain">[('share', '=', False), ('active', '=', True)]</field>
+        <!-- PAS de groups_id ici : sur une act_window Odoo le recopie sans
+             jamais le contrôler (il ne vaut que pour ir.actions.server).
+             Une serrure peinte fait baisser la garde. La vraie protection
+             est le groups="base.group_system" des champs copilote_* de
+             res.users : sans lui, un invité qui force l'URL verrait les
+             chiffres — avec lui, il ne voit que des noms. (Lois, 29/07) -->
+    </record>
+
+    <menuitem id="menu_copilote_usage" name="Consommation copilote"
+              parent="base.menu_administration" action="action_copilote_usage"
+              sequence="95" groups="base.group_system"/>
+
+    <!-- La même chose là où le propriétaire regarde vraiment : Pilotage. -->
+    <menuitem id="menu_pilotage_consommation" name="Consommation"
+              parent="tour_dashboard.menu_pilotage_chiffres" sequence="60"
+              groups="base.group_system"/>
+    <menuitem id="menu_pilotage_conso_echanges" name="Échanges"
+              parent="menu_pilotage_consommation" action="action_copilote_usage"
+              sequence="10" groups="base.group_system"/>
+    <menuitem id="menu_pilotage_conso_quotas" name="Quotas du jour"
+              parent="menu_pilotage_consommation" action="action_users_quota"
+              sequence="20" groups="base.group_system"/>
+</odoo>

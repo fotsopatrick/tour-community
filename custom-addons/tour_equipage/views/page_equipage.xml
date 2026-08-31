@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="page_equipage" name="L'équipe">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': lingua}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title t-esc="L['titre']"/>
+                <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#f8fafc;--surface:#ffffff;--surface2:#e2e8f0;--primaire:#2563eb;--texte:#0f172a;--doux:#475569;--alerte:#b45309;--ok:#15803d;--r:.5rem;}
+body{background:var(--fond);color:var(--texte)}
+:root[data-theme="dark"]{--fond:#020817;--texte:#e2e8f0;--doux:#94a3b8;--primaire:#3b82f6;--surface:#0f172a;--surface2:#1e293b}
+
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .eq-wrap { max-width:980px; margin:0 auto; padding:28px 16px 64px; }
+                    .eq-tete h1 { font-size:1.9rem; margin:0 0 6px; letter-spacing:-.02em; }
+                    .eq-tete p { color:var(--doux); margin:0 0 4px; line-height:1.55; }
+                    .eq-tete .eq-jp { color:var(--primaire); font-size:1.05rem; }
+                    .eq-note { background:var(--surface); border-left:3px solid var(--primaire);
+                               border-radius:.5rem; padding:12px 16px; margin:20px 0 26px;
+                               color:var(--texte); font-size:.9rem; line-height:1.6; }
+                    .eq-carte { background:var(--surface); border:1px solid var(--surface2);
+                                border-radius:.5rem; padding:18px; margin-bottom:16px; }
+                    .eq-haut { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+                    .eq-emb { font-size:2rem; line-height:1; }
+                    .eq-id { flex:1 1 200px; min-width:0; }
+                    .eq-id h2 { margin:0; font-size:1.15rem; }
+                    .eq-id .eq-poste { color:var(--doux); font-size:.88rem; }
+                    .eq-niv { text-align:right; }
+                    .eq-niv .eq-n { font-size:1.5rem; font-weight:700; color:var(--primaire); }
+                    .eq-niv .eq-t { color:var(--texte); font-size:.85rem; }
+                    .eq-niv .eq-k { color:var(--doux); font-size:.78rem; }
+                    .eq-barre { background:var(--surface2); border-radius:99px; height:8px;
+                                overflow:hidden; margin:12px 0 6px; }
+                    .eq-barre i { display:block; height:100%; background:var(--primaire); }
+                    .eq-xp { color:var(--doux); font-size:.78rem; }
+                    .eq-comp { margin-top:14px; }
+                    .eq-ligne { display:flex; align-items:center; gap:10px;
+                                padding:6px 0; border-top:1px solid var(--surface2); font-size:.86rem; }
+                    .eq-ligne .eq-nom { flex:1 1 auto; min-width:0; }
+                    .eq-ligne .eq-val { color:var(--doux); white-space:nowrap; }
+                    .eq-et { color:var(--primaire); letter-spacing:2px; white-space:nowrap; }
+                    .eq-et span { color:#334155; }
+                    .eq-txt { color:var(--doux); font-size:.86rem; line-height:1.6; margin-top:12px; }
+                    .eq-txt b, .eq-txt strong { color:var(--texte); }
+                    .eq-refus { color:var(--alerte); }
+                    .eq-orig { color:var(--doux); font-size:.8rem; font-style:italic; margin-top:8px; }
+                    .eq-pied { color:var(--doux); font-size:.8rem; margin-top:28px; line-height:1.6; }
+                    a.eq-retour { color:var(--primaire); text-decoration:none; font-size:.88rem; }
+                    .eq-lang { margin:6px 0 18px; font-size:.82rem; }
+                    .eq-lang a { color:var(--doux); text-decoration:none; padding:2px 8px;
+                                 border-radius:20px; border:1px solid transparent; }
+                    .eq-lang a.actif { color:var(--primaire); border-color:var(--primaire); }
+                    .eq-lang .sep { color:#334155; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<button id="themebtn" type="button" aria-label="Changer de thème" style="position:fixed;top:14px;right:14px;z-index:9999;background:var(--primaire,#3b82f6);border:0;color:#fff;border-radius:999px;padding:8px 14px;font-size:1rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35)">sun</button>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;var s=null;try{s=localStorage.getItem(k);}catch(e){}if(s!=="light"&amp;&amp;s!=="dark"){s="dark";}r.setAttribute("data-theme",s);var b=document.getElementById("themebtn");if(b){var set=function(){b.textContent=r.getAttribute("data-theme")==="dark"?"sun":"moon";};set();b.addEventListener("click",function(){var n=r.getAttribute("data-theme")==="dark"?"light":"dark";r.setAttribute("data-theme",n);set();try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="eq-wrap">
+                <div class="eq-lang">
+                    <a t-attf-href="/tour/equipe?lang=fr" t-att-class="'actif' if lingua == 'fr' else ''">FR</a>
+                    <span class="sep">·</span>
+                    <a t-attf-href="/tour/equipe?lang=en" t-att-class="'actif' if lingua == 'en' else ''">EN</a>
+                    <span class="sep">·</span>
+                    <a t-attf-href="/tour/equipe?lang=ja" t-att-class="'actif' if lingua == 'ja' else ''">日本語</a>
+                </div>
+                <a class="eq-retour" href="/tour/dashboard">← <t t-esc="L['accueil']"/></a>
+                <div class="eq-tete" style="margin-top:14px;">
+                    <h1>
+                        <t t-if="lingua == 'ja'"><t t-esc="L['titre']"/></t>
+                        <t t-else=""><t t-esc="nom_equipage"/> <span class="eq-jp">同僚</span></t>
+                    </h1>
+                    <p><t t-esc="L['intro']"/></p>
+                </div>
+
+                <div class="eq-note">
+                    <b><t t-esc="L['note_titre']"/></b><br/>
+                    <t t-esc="L['note_corps']"/>
+                </div>
+
+                <t t-foreach="membres" t-as="m">
+                    <a class="eq-carte" t-attf-href="/tour/equipe/#{m['id']}" style="display:block;text-decoration:none;color:inherit">
+                        <div class="eq-haut">
+                            <div class="eq-emb"><t t-esc="m['embleme']"/></div>
+                            <div class="eq-id">
+                                <h2><t t-esc="m['name']"/></h2>
+                                <div class="eq-poste"><t t-esc="m['poste']"/></div>
+                            </div>
+                            <div class="eq-niv">
+                                <div class="eq-n"><t t-esc="L['niv']"/> <t t-esc="m['niveau']"/></div>
+                                <div class="eq-t"><t t-esc="m['titre']"/></div>
+                                <div class="eq-k"><t t-esc="m['titre_jp']"/></div>
+                            </div>
+                        </div>
+
+                        <div class="eq-barre">
+                            <i t-attf-style="width:#{m['avancement']}%"/>
+                        </div>
+                        <div class="eq-xp">
+                            <t t-esc="m['xp']"/> <t t-esc="L['points']"/>
+                            <t t-if="m['xp_palier']"> — <t t-esc="L['palier']"/> <t t-esc="m['xp_palier']"/></t>
+                            <t t-else=""> — <t t-esc="L['dernier']"/></t>
+                            <t t-if="not m['active']"> <span class="eq-refus">— ⏻ <t t-esc="L['eteint']"/></span></t>
+                        </div>
+
+                        <div class="eq-comp">
+                            <t t-foreach="m['competences']" t-as="c">
+                                <div class="eq-ligne">
+                                    <div class="eq-nom"><t t-esc="c['name']"/></div>
+                                    <div class="eq-val"><t t-esc="c['valeur']"/></div>
+                                    <div class="eq-et">
+                                        <t t-foreach="[1,2,3,4,5]" t-as="n">
+                                            <t t-if="n &lt;= c['etoiles']">★</t>
+                                            <span t-else="">★</span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div class="eq-txt" t-if="m['perimetre']">
+                            <t t-esc="m['perimetre']"/>
+                        </div>
+                        <div class="eq-txt eq-refus" t-if="m['refus']">
+                            <t t-esc="m['refus']"/>
+                        </div>
+                        <div class="eq-orig" t-if="m['origine']">
+                            <t t-esc="m['origine']"/>
+                        </div>
+                    </a>
+                </t>
+
+                <div class="eq-pied">
+                    <t t-esc="L['total']"/> <t t-esc="total_xp"/> <t t-esc="L['points']"/>.
+                    <t t-esc="L['compteurs']"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- VERSION PUBLIQUE (01/08). La même page, vue de la vitrine — filtrée
+         par les garde-fous AVANT publication : pas de refus internes, pas de
+         liens vers les fiches admin, aucun chiffre interne. Le poste, le
+         niveau et les compétences restent : c'est ce qu'on montre à un
+         prospect. Le filtre final se joue au scan (verifier-posts-publics +
+         termes interdits) sur le rendu. -->
+    <template id="page_equipage_public" name="L'équipe (public)">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': lingua}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title><t t-esc="L['titre']"/> — Tour de contrôle</title>
+                <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .eq-wrap { max-width:980px; margin:0 auto; padding:28px 16px 64px; }
+                    .eq-tete h1 { font-size:1.9rem; margin:0 0 6px; letter-spacing:-.02em; }
+                    .eq-tete p { color:var(--doux); margin:0 0 4px; line-height:1.55; }
+                    .eq-tete .eq-jp { color:var(--primaire); font-size:1.05rem; }
+                    .eq-note { background:var(--surface); border-left:3px solid var(--primaire);
+                               border-radius:.5rem; padding:12px 16px; margin:20px 0 26px;
+                               color:var(--texte); font-size:.9rem; line-height:1.6; }
+                    .eq-carte { background:var(--surface); border:1px solid var(--surface2);
+                                border-radius:.5rem; padding:18px; margin-bottom:16px; }
+                    .eq-haut { display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+                    .eq-emb { font-size:2rem; line-height:1; }
+                    .eq-id { flex:1 1 200px; min-width:0; }
+                    .eq-id h2 { margin:0; font-size:1.15rem; }
+                    .eq-id .eq-poste { color:var(--doux); font-size:.88rem; }
+                    .eq-niv { text-align:right; }
+                    .eq-niv .eq-n { font-size:1.5rem; font-weight:700; color:var(--primaire); }
+                    .eq-niv .eq-t { color:var(--texte); font-size:.85rem; }
+                    .eq-niv .eq-k { color:var(--doux); font-size:.78rem; }
+                    .eq-barre { background:var(--surface2); border-radius:99px; height:8px;
+                                overflow:hidden; margin:12px 0 6px; }
+                    .eq-barre i { display:block; height:100%; background:var(--primaire); }
+                    .eq-xp { color:var(--doux); font-size:.78rem; }
+                    .eq-comp { margin-top:14px; }
+                    .eq-ligne { display:flex; align-items:center; gap:10px;
+                                padding:6px 0; border-top:1px solid var(--surface2); font-size:.86rem; }
+                    .eq-ligne .eq-nom { flex:1 1 auto; min-width:0; }
+                    .eq-ligne .eq-val { color:var(--doux); white-space:nowrap; }
+                    .eq-et { color:var(--primaire); letter-spacing:2px; white-space:nowrap; }
+                    .eq-et span { color:var(--surface2); }
+                    .eq-txt { color:var(--doux); font-size:.86rem; line-height:1.6; margin-top:12px; }
+                    .eq-pied { color:var(--doux); font-size:.8rem; margin-top:28px; line-height:1.6; }
+                    a.eq-retour { color:var(--primaire); text-decoration:none; font-size:.88rem; }
+                    .eq-lang { margin:6px 0 18px; font-size:.82rem; }
+                    .eq-lang a { color:var(--doux); text-decoration:none; padding:2px 8px;
+                                 border-radius:20px; border:1px solid transparent; }
+                    .eq-lang a.actif { color:var(--primaire); border-color:var(--primaire); }
+                    .eq-lang .sep { color:var(--surface2); }
+                </style>
+            </t>
+            <div class="eq-wrap">
+                <div class="eq-lang">
+                    <a t-attf-href="/tour/equipe-public?lang=fr" t-att-class="'actif' if lingua == 'fr' else ''">FR</a>
+                    <span class="sep">·</span>
+                    <a t-attf-href="/tour/equipe-public?lang=en" t-att-class="'actif' if lingua == 'en' else ''">EN</a>
+                    <span class="sep">·</span>
+                    <a t-attf-href="/tour/equipe-public?lang=ja" t-att-class="'actif' if lingua == 'ja' else ''">日本語</a>
+                </div>
+                <a class="eq-retour" href="https://matourdecontrole.fr">← <t t-esc="L['vitrine']"/></a>
+                <div class="eq-tete" style="margin-top:14px;">
+                    <h1>
+                        <t t-if="lingua == 'ja'"><t t-esc="L['titre']"/></t>
+                        <t t-else=""><t t-esc="nom_equipage"/> <span class="eq-jp">同僚</span></t>
+                    </h1>
+                    <p><t t-esc="L['intro']"/></p>
+                </div>
+
+                <div class="eq-note">
+                    <b><t t-esc="L['note_titre']"/></b><br/>
+                    <t t-esc="L['note_corps']"/>
+                </div>
+
+                <t t-foreach="membres" t-as="m">
+                    <div class="eq-carte">
+                        <div class="eq-haut">
+                            <div class="eq-emb"><t t-esc="m['embleme']"/></div>
+                            <div class="eq-id">
+                                <h2><t t-esc="m['name']"/></h2>
+                                <div class="eq-poste"><t t-esc="m['poste']"/></div>
+                            </div>
+                            <div class="eq-niv">
+                                <div class="eq-n"><t t-esc="L['niv']"/> <t t-esc="m['niveau']"/></div>
+                                <div class="eq-t"><t t-esc="m['titre']"/></div>
+                                <div class="eq-k"><t t-esc="m['titre_jp']"/></div>
+                            </div>
+                        </div>
+
+                        <div class="eq-barre">
+                            <i t-attf-style="width:#{m['avancement']}%"/>
+                        </div>
+                        <div class="eq-xp">
+                            <t t-esc="m['xp']"/> <t t-esc="L['points']"/>
+                            <t t-if="m['xp_palier']"> — <t t-esc="L['palier']"/> <t t-esc="m['xp_palier']"/></t>
+                        </div>
+
+                        <div class="eq-comp">
+                            <t t-foreach="m['competences']" t-as="c">
+                                <!-- RÈGLE (02/08) : les compétences CONFIDENTIELLES
+                                     ne sortent JAMAIS en public — seulement connecté. -->
+                                <div class="eq-ligne" t-if="not c['confidentiel']">
+                                    <div class="eq-nom"><t t-esc="c['name']"/></div>
+                                    <div class="eq-val"><t t-esc="c['valeur']"/></div>
+                                    <div class="eq-et">
+                                        <t t-foreach="[1,2,3,4,5]" t-as="n">
+                                            <t t-if="n &lt;= c['etoiles']">★</t>
+                                            <span t-else="">★</span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <div class="eq-txt" t-if="m['perimetre']">
+                            <t t-esc="m['perimetre']"/>
+                        </div>
+                    </div>
+                </t>
+
+                <div class="eq-pied">
+                    <t t-esc="L['total']"/> <t t-esc="total_xp"/> <t t-esc="L['points']"/>.
+                    <t t-esc="L['compteurs']"/>
+                </div>
+            </div>
+        </t>
+    <button id="themebtn" type="button" aria-label="Changer de theme" style="position:fixed;top:14px;right:14px;z-index:9999;background:var(--primaire,#3b82f6);border:0;color:#fff;border-radius:999px;padding:8px 14px;font-size:1rem;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35)">sun</button>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;var s=null;try{s=localStorage.getItem(k);}catch(e){}if(s!=="light"&amp;&amp;s!=="dark"){s="dark";}r.setAttribute("data-theme",s);var b=document.getElementById("themebtn");if(b){var set=function(){b.textContent=r.getAttribute("data-theme")==="dark"?"sun":"moon";};set();b.addEventListener("click",function(){var n=r.getAttribute("data-theme")==="dark"?"light":"dark";r.setAttribute("data-theme",n);set();try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+    </template>
+
+</odoo>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_constat_liste" model="ir.ui.view">
+        <field name="name">securite.constat.liste</field>
+        <field name="model">securite.constat</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="gravite in ('critique','grave') and etat == 'propose'"
+                  decoration-muted="etat in ('refuse','resolu')"
+                  decoration-success="etat == 'accepte'">
+                <field name="gravite"/>
+                <field name="name"/>
+                <field name="etat"/>
+                <field name="vu_le"/>
+                <field name="gravite_poids" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_constat_form" model="ir.ui.view">
+        <field name="name">securite.constat.form</field>
+        <field name="model">securite.constat</field>
+        <field name="arch" type="xml">
+            <form create="false">
+                <header>
+                    <button name="action_accepter" type="object" string="Accepter"
+                            class="btn-primary" invisible="etat == 'accepte'"/>
+                    <button name="action_attente" type="object" string="Plus tard"
+                            invisible="etat == 'attente'"/>
+                    <button name="action_refuser" type="object" string="Refuser"
+                            invisible="etat == 'refuse'"/>
+                    <field name="etat" widget="statusbar"
+                           statusbar_visible="propose,accepte,resolu"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="gravite" readonly="1"/>
+                            <field name="code" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="vu_le" readonly="1"/>
+                            <field name="date_reponse" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Ce que j'ai observé"/>
+                    <field name="constat" readonly="1"/>
+                    <separator string="Ce que je propose"/>
+                    <field name="preconisation" readonly="1"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_constat" model="ir.actions.act_window">
+        <field name="name">Sécurité</field>
+        <field name="res_model">securite.constat</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Rien à signaler</p>
+            <p>
+                Victor passe les contrôles chaque nuit. Il ne modifie rien tout
+                seul : ce qu'il trouve arrive ici et par courriel, avec une
+                proposition et trois réponses possibles.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_racine" name="Sécurité"
+              web_icon="tour_securite,static/description/icon.png"
+              groups="base.group_system" sequence="47"/>
+    <menuitem id="menu_constat" name="Constats" parent="menu_racine"
+              action="action_constat" sequence="10"/>
+</odoo>

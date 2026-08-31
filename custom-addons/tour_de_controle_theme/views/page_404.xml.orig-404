@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LA PAGE 404 DE LA TOUR — design maison au lieu du template Odoo.
+         Patrick (06/08) : « la page de ODOO, change la page 404 par une
+         page stylé ». Fond cockpit, trois portes utiles, un mot de bas de
+         page pour la vitrine (le CV et les articles y vivent). -->
+    <template id="tour_404" inherit_id="http_routing.404">
+        <xpath expr="//div[@id='wrap']" position="replace">
+            <div id="wrap">
+                <div style="min-height:100vh;background:#020817;color:#e2e8f0;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;">
+                    <div style="max-width:560px;text-align:center;">
+                        <div style="font-size:5.5rem;font-weight:800;color:#3b82f6;line-height:1;letter-spacing:.04em;">404</div>
+                        <h1 style="font-size:1.6rem;margin:1.1rem 0 .5rem;font-weight:650;">Cette page n'existe pas.</h1>
+                        <p style="color:#94a3b8;line-height:1.6;margin:0 0 1.6rem;">
+                            Le lien est mort, ou l'adresse a changé. La tour ne la connaît pas.
+                            Voici où aller pour continuer :
+                        </p>
+                        <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+                            <a href="/tour/dashboard" style="background:#3b82f6;color:#fff;text-decoration:none;padding:.7rem 1.3rem;border-radius:.5rem;font-weight:600;display:inline-block;">Accueil</a>
+                            <a href="/tour/decisions" style="background:#0f172a;color:#e2e8f0;text-decoration:none;padding:.7rem 1.3rem;border-radius:.5rem;font-weight:600;border:1px solid #1e293b;display:inline-block;">Décisions</a>
+                            <a href="javascript:history.back()" style="background:#0f172a;color:#e2e8f0;text-decoration:none;padding:.7rem 1.3rem;border-radius:.5rem;font-weight:600;border:1px solid #1e293b;display:inline-block;">Revenir en arrière</a>
+                        </div>
+                        <p style="color:#64748b;font-size:.85rem;margin-top:2.2rem;line-height:1.5;">
+                            Tour de contrôle — le CV et les articles vivent sur la vitrine :
+                            <a href="https://matourdecontrole.fr/cv-patrick.pdf" style="color:#3b82f6;">le CV</a>,
+                            <a href="https://matourdecontrole.fr/articles.html" style="color:#3b82f6;">les articles</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

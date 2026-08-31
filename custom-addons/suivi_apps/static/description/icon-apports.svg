@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140">
+  <!-- « Mes apports » portait la même icône que « Suivi apps » : dans le
+       lanceur, on voyait deux fois la même app. Celle-ci dit ce qu'elle
+       ouvre — ce qu'un apporteur a rapporté, et si ça monte. -->
+  <defs>
+    <linearGradient id="a" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#047857"/>
+    </linearGradient>
+  </defs>
+  <rect width="140" height="140" rx="32" fill="url(#a)"/>
+  <g fill="#ffffff">
+    <!-- Les apports qui s'empilent -->
+    <rect x="30" y="86" width="16" height="26" rx="4"/>
+    <rect x="54" y="72" width="16" height="40" rx="4"/>
+    <rect x="78" y="54" width="16" height="58" rx="4"/>
+    <!-- La flèche : ça monte -->
+    <path d="M100 62 V38 H76 l8 8 -22 22 8 8 22 -22 z" opacity="0.92"/>
+  </g>
+</svg>

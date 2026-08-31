@@ -1,0 +1,55 @@
+apiVersion: 2021-10-01
+location: eastus
+name: tour-cloud-aci
+properties:
+  containers:
+  - name: tour-community
+    properties:
+      image: ghcr.io/fotsopatrick/tour-community:latest
+      ports:
+      - port: 8069
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 1.5
+          memoryInGB: 3.5
+      environmentVariables:
+      - name: ODOO_DB_HOST
+        value: "localhost"
+      - name: ODOO_DB_PORT
+        value: "5432"
+      - name: ODOO_DB_USER
+        value: "odoo"
+      - name: ODOO_DB_PASSWORD
+        value: "odoo"
+      - name: DB_NAME
+        value: "tour_community"
+      - name: ODOO_MODULES
+        value: "tour_dashboard,tour_actus,tour_vault,tour_community_chat,tour_community_braignak"
+      - name: AZURE_OPENAI_ENDPOINT
+        value: "kamdemorel-4813-resource.openai.azure.com"
+      - name: AZURE_OPENAI_KEY
+        value: "REMPLACEZ-MOI"
+  - name: db
+    properties:
+      image: ghcr.io/fotsopatrick/tour-postgres:16-alpine
+      resources:
+        requests:
+          cpu: 0.5
+          memoryInGB: 1.0
+      environmentVariables:
+      - name: POSTGRES_USER
+        value: "odoo"
+      - name: POSTGRES_PASSWORD
+        value: "odoo"
+      - name: POSTGRES_DB
+        value: "tour_community"
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - port: 8069
+      protocol: TCP
+    dnsNameLabel: tour-cloud-aci
+tags: null
+type: Microsoft.ContainerInstance/containerGroups

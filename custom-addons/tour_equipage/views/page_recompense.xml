@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="page_recompense" name="Récompenses — Tour de Contrôle">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Récompenses — Tour de Contrôle</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .wrap { max-width:980px; margin:0 auto; padding:28px 16px 64px; }
+                    a.retour { color:var(--primaire); text-decoration:none; font-size:.88rem; }
+                    h1 { font-size:1.7rem; margin:12px 0 4px; }
+                    .sub { color:var(--doux); margin:0 0 22px; }
+                    .verrou { max-width:420px; margin:40px auto; background:var(--surface);
+                              border:1px solid var(--surface2); border-radius:.7rem; padding:24px; }
+                    .verrou h2 { margin:0 0 8px; font-size:1.15rem; }
+                    .verrou p { color:var(--doux); font-size:.9rem; line-height:1.5; margin:0 0 16px; }
+                    .verrou input[type=password] { width:100%; box-sizing:border-box;
+                              background:var(--fond); color:var(--texte); border:1px solid var(--surface2);
+                              border-radius:.45rem; padding:10px 12px; font-size:.95rem; }
+                    .verrou button { margin-top:12px; width:100%; background:var(--primaire); color:#fff;
+                              border:0; border-radius:.45rem; padding:11px; font-size:.95rem;
+                              font-weight:650; cursor:pointer; }
+                    .err { color:#f87171; font-size:.85rem; margin:8px 0 0; }
+                    .grille { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+                    .agent { background:var(--surface); border:1px solid var(--surface2); border-radius:.7rem; padding:14px; }
+                    .agent .nom { font-weight:650; }
+                    .agent .poste { color:var(--doux); font-size:.82rem; }
+                    .agent .xpc { color:#7dd3fc; font-size:.8rem; margin:6px 0; }
+                    .agent .comp { font-size:.8rem; color:var(--texte); }
+                    .agent .comp span { display:inline-block; background:var(--surface2); border-radius:14px;
+                              padding:2px 9px; margin:2px 3px 0 0; }
+                    .form { background:var(--surface); border:1px solid var(--surface2); border-radius:.7rem;
+                            padding:18px; margin-top:18px; }
+                    .form h2 { margin:0 0 14px; font-size:1.1rem; }
+                    .form label { display:block; color:var(--doux); font-size:.8rem; margin:12px 0 4px; }
+                    .form input, .form select, .form textarea { width:100%; box-sizing:border-box;
+                            background:var(--fond); color:var(--texte); border:1px solid var(--surface2);
+                            border-radius:.45rem; padding:9px 11px; font-size:.92rem; }
+                    .form button { margin-top:16px; background:#16a34a; color:#fff; border:0;
+                            border-radius:.45rem; padding:11px 18px; font-size:.95rem;
+                            font-weight:650; cursor:pointer; }
+                    .ok { background:#052e16; border:1px solid #16a34a; color:#86efac;
+                          border-radius:.45rem; padding:10px 14px; margin-top:14px; font-size:.9rem; }
+                    .log h2 { margin:28px 0 12px; font-size:1.1rem; }
+                    .log table { width:100%; border-collapse:collapse; font-size:.85rem; }
+                    .log th { color:var(--doux); text-align:left; font-weight:600; padding:8px 10px;
+                              border-bottom:1px solid var(--surface2); }
+                    .log td { padding:8px 10px; border-bottom:1px solid var(--surface); color:var(--texte); }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </head>
+            <body>
+                <div class="wrap">
+                    <a class="retour" href="/tour/dashboard">← l'accueil</a>
+                    <h1>🎮 Récompenses</h1>
+                    <p class="sub">Récompense un agent pour son travail en lui attribuant une
+                        compétence — la tour pose la fiche de compétence, son circuit et le registre.</p>
+
+                    <t t-if="not deverrouille">
+                        <div class="verrou">
+                            <h2>Page protégée</h2>
+                            <p>Cette page est réservée au propriétaire. Le mot de passe vit dans
+                                le Coffre (« Récompense — mot de passe »).</p>
+                            <form method="post" action="/tour/recompense">
+                                <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                                <input type="password" name="mot_de_passe" placeholder="Mot de passe du Coffre" autofocus="autofocus"/>
+                                <button type="submit" name="deverrouiller" value="1">Ouvrir la page</button>
+                            </form>
+                            <p class="err" t-if="erreur"><t t-esc="erreur"/></p>
+                        </div>
+                    </t>
+
+                    <t t-else="">
+                        <div class="ok" t-if="ok">✓ Compétence attribuée : la fiche, le circuit (brouillon) et le registre sont prêts.</div>
+
+                        <div class="form">
+                            <h2>Attribuer une compétence</h2>
+                            <form method="post" action="/tour/recompense">
+                                <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                                <label>Quel agent a bien travaillé ?</label>
+                                <select name="membre_id">
+                                    <t t-foreach="agents" t-as="a">
+                                        <option t-att-value="a.id"><t t-esc="a.name"/> — <t t-esc="a.poste"/></option>
+                                    </t>
+                                </select>
+                                <label>La compétence à lui attribuer</label>
+                                <input type="text" name="nom_competence"
+                                       placeholder="Ex : Gestion de crise, Conception de circuits, Veille"/>
+                                <label>Compteur (pour que la compétence compte le travail qui vient)</label>
+                                <select name="code">
+                                    <t t-foreach="compteurs" t-as="c">
+                                        <option t-att-value="c[0]"><t t-esc="c[1]"/></option>
+                                    </t>
+                                </select>
+                                <label>Ce qu'il a fait (motif)</label>
+                                <textarea name="motif" rows="3"
+                                          placeholder="Ex : a éteint l'incident SMTP sans réveiller personne"></textarea>
+                                <button type="submit" name="attribuer" value="1">Attribuer la récompense</button>
+                            </form>
+                        </div>
+
+                        <div class="log">
+                            <h2>Dernières récompenses</h2>
+                            <table t-if="recompenses">
+                                <tr><th>Agent</th><th>Compétence</th><th>Ce qu'il a fait</th><th>Quand</th></tr>
+                                <t t-foreach="recompenses" t-as="r">
+                                    <tr>
+                                        <td><t t-esc="r.membre_id.name"/></td>
+                                        <td t-if="r.competence_id"><t t-esc="r.competence_id.name"/></td>
+                                        <td t-else="">—</td>
+                                        <td><t t-esc="r.name"/></td>
+                                        <td><t t-esc="r.accorde_le"/></td>
+                                    </tr>
+                                </t>
+                            </table>
+                        </div>
+
+                        <div class="grille" style="margin-top:18px">
+                            <t t-foreach="agents" t-as="a">
+                                <div class="agent">
+                                    <div class="nom"><t t-esc="a.name"/> <t t-esc="a.embleme"/></div>
+                                    <div class="poste"><t t-esc="a.poste"/></div>
+                                    <div class="xpc">XP <t t-esc="a.xp"/> · Niveau <t t-esc="a.niveau"/></div>
+                                    <div class="comp">
+                                        <t t-foreach="a.competence_ids" t-as="c">
+                                            <span t-att-title="c.code"><t t-esc="c.name"/></span>
+                                        </t>
+                                        <span t-if="not a.competence_ids">—</span>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </body>
+        </html>
+    </template>
+</odoo>

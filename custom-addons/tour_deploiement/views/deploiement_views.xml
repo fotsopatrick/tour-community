@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_site_liste" model="ir.ui.view">
+        <field name="name">deploiement.site.liste</field>
+        <field name="model">deploiement.site</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="dernier_etat == 'echec'"
+                  decoration-muted="dernier_etat == 'jamais'">
+                <field name="name"/>
+                <field name="slug"/>
+                <field name="depot" optional="show"/>
+                <field name="url" widget="url"/>
+                <field name="dernier_etat"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_site_form" model="ir.ui.view">
+        <field name="name">deploiement.site.form</field>
+        <field name="model">deploiement.site</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_verifier_cles" type="object"
+                            string="Vérifier mes clés" class="btn-secondary"/>
+                    <button name="action_deployer" type="object" string="Déployer"
+                            class="btn-primary"
+                            confirm="Le déploiement crée ou met à jour la base, le site et ses variables. Il peut durer plusieurs minutes. On y va ?"/>
+                    <field name="dernier_etat" widget="statusbar"
+                           statusbar_visible="jamais,ok,echec"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Le site d'Imane"/></h1>
+                        <h3><field name="slug" placeholder="tabacimane"/></h3>
+                    </div>
+                    <group>
+                        <group string="Où il vit">
+                            <field name="depot" placeholder="fotsopatrick/tabacimane"/>
+                            <field name="branche"/>
+                            <field name="url" widget="url"/>
+                            <field name="actif"/>
+                        </group>
+                        <group string="Ce qu'on est allé chercher">
+                            <field name="base_ref"/>
+                            <field name="hebergeur_id_site"/>
+                            <field name="admin_email"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Migrations">
+                            <div class="alert alert-info" role="status">
+                                Rejoué à chaque déploiement : écris-le pour qu'il
+                                supporte d'être appliqué deux fois
+                                (<code>CREATE TABLE IF NOT EXISTS</code>…).
+                            </div>
+                            <field name="migrations" widget="ace" options="{'mode': 'sql'}"
+                                   placeholder="create table if not exists ..."/>
+                        </page>
+                        <page string="Contenu de départ">
+                            <div class="alert alert-info" role="status">
+                                Un site livré avec un catalogue vide a l'air cassé,
+                                même quand il marche.
+                            </div>
+                            <field name="catalogue" widget="ace" options="{'mode': 'sql'}"
+                                   placeholder="insert into produits ... on conflict do nothing;"/>
+                        </page>
+                        <page string="Ce qu'on vérifie">
+                            <group>
+                                <field name="marqueurs" placeholder="Panier, Nos produits, Contact"/>
+                            </group>
+                            <div class="text-muted">
+                                Un site au CSS cassé et une boutique vide répondent
+                                tous les deux 200. La dernière étape regarde la page
+                                elle-même : feuille de style réellement chargée,
+                                accueil non vide, et ces textes présents.
+                            </div>
+                        </page>
+                        <page string="Déploiements">
+                            <field name="passage_ids" readonly="1">
+                                <list decoration-danger="etat == 'echec'"
+                                      decoration-success="etat == 'ok'">
+                                    <field name="create_date" string="Quand"/>
+                                    <field name="etat"/>
+                                    <field name="url" widget="url"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_passage_form" model="ir.ui.view">
+        <field name="name">deploiement.passage.form</field>
+        <field name="model">deploiement.passage</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <field name="etat"/>
+                        <field name="url" widget="url"/>
+                    </group>
+                    <separator string="Ce qui s'est passé, étape par étape"/>
+                    <field name="journal"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_site" model="ir.actions.act_window">
+        <field name="name">Sites</field>
+        <field name="res_model">deploiement.site</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Décrire un site une fois, le déployer d'un bouton</p>
+            <p>
+                Créer le projet de base, appliquer les migrations, créer le site
+                chez l'hébergeur, y poser les clés prises dans le Coffre, créer
+                le compte administrateur, semer le catalogue — puis vérifier que
+                la page livrée est vraiment présentable.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_passage" model="ir.actions.act_window">
+        <field name="name">Déploiements</field>
+        <field name="res_model">deploiement.passage</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_racine" name="Déploiement" web_icon="tour_deploiement,static/description/icon.svg"
+              groups="base.group_system" sequence="46"/>
+    <menuitem id="menu_site" name="Sites" parent="menu_racine" action="action_site" sequence="10"/>
+    <menuitem id="menu_passage" name="Déploiements" parent="menu_racine" action="action_passage" sequence="20"/>
+
+</odoo>

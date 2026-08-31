@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_sanction_liste" model="ir.ui.view">
+        <field name="name">equipe.sanction.liste</field>
+        <field name="model">equipe.sanction</field>
+        <field name="arch" type="xml">
+            <list string="Sanctions" decoration-danger="etat == 'executee'">
+                <field name="date"/>
+                <field name="nom_avant" string="Était"/>
+                <field name="nom_vilain" string="Devenu"/>
+                <field name="successeur_id"/>
+                <field name="etat" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_sanction_form" model="ir.ui.view">
+        <field name="name">equipe.sanction.form</field>
+        <field name="model">equipe.sanction</field>
+        <field name="arch" type="xml">
+            <form string="Sanction">
+                <header>
+                    <button name="action_executer" type="object" class="btn-danger"
+                            string="Prononcer la sanction"
+                            confirm="L'agent sera renommé, éteint, et un successeur naîtra sans expérience. Rien ne s'efface, et il n'y a pas de bouton pour annuler. Confirmer ?"
+                            invisible="etat == 'executee'"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        <b>Ce que ce geste fait.</b> L'agent prend un nom de
+                        vilain, s'éteint (plus de moteur, plus de mission), et
+                        un successeur reprend son poste avec une expérience à
+                        <b>zéro</b>. Rien n'est supprimé : la fiche du déchu et
+                        ce motif restent lisibles. Il n'existe pas de bouton
+                        pour revenir en arrière.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="membre_id"
+                                   readonly="etat == 'executee'"
+                                   domain="[('active', '=', True)]"/>
+                            <field name="nom_vilain"
+                                   placeholder="Vide = le prochain nom libre (Zod, Lex…)"
+                                   readonly="etat == 'executee'"/>
+                            <field name="nom_avant" invisible="etat != 'executee'"/>
+                        </group>
+                        <group>
+                            <field name="successeur" readonly="etat == 'executee'"/>
+                            <field name="nom_successeur"
+                                   placeholder="Vide = reprend le nom d'origine"
+                                   invisible="not successeur"
+                                   readonly="etat == 'executee'"/>
+                            <field name="successeur_id" invisible="etat != 'executee'"/>
+                            <field name="date" invisible="etat != 'executee'"/>
+                        </group>
+                    </group>
+                    <separator string="Ce qu'on lui reproche"/>
+                    <field name="motif" readonly="etat == 'executee'"
+                           placeholder="Les faits, datés. C'est ce que liront ceux qui viennent après."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sanction" model="ir.actions.act_window">
+        <field name="name">Sanctions (protocole Zod)</field>
+        <field name="res_model">equipe.sanction</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune sanction</p>
+            <p>Personne n'a eu à être déchu. C'est la bonne nouvelle.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_sanction" name="Sanctions (Zod)"
+              parent="tour_equipage.menu_equipage" sequence="30"
+              action="action_sanction" groups="base.group_system"/>
+</odoo>

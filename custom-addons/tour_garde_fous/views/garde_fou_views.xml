@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_garde_fou_liste" model="ir.ui.view">
+        <field name="name">garde_fou.garde_fou.liste</field>
+        <field name="model">garde_fou.garde_fou</field>
+        <field name="arch" type="xml">
+            <list decoration-success="niveau == 'deterministe'"
+                  decoration-info="niveau == 'processus'"
+                  decoration-warning="niveau == 'modele'"
+                  decoration-danger="etat == 'a_verifier'">
+                <field name="zone"/>
+                <field name="name"/>
+                <field name="niveau"/>
+                <field name="etat"/>
+                <field name="module"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_garde_fou_form" model="ir.ui.view">
+        <field name="name">garde_fou.garde_fou.form</field>
+        <field name="model">garde_fou.garde_fou</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="etat" widget="statusbar"
+                           statusbar_visible="en_place,en_cours,a_verifier"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="zone"/>
+                        </group>
+                        <group>
+                            <field name="niveau"/>
+                            <field name="actif"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="module"/>
+                    </group>
+                    <separator string="Ce que ça protège"/>
+                    <field name="crainte"/>
+                    <separator string="Comment ça protège"/>
+                    <field name="fonctionnement"/>
+                    <separator string="Comment le vérifier"/>
+                    <field name="verification"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_garde_fous" model="ir.actions.act_window">
+        <field name="name">Garde-fous</field>
+        <field name="res_model">garde_fou.garde_fou</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>Le registre des garde-fous de la tour : ce que chacun protège,
+               où il vit, et la manipulation qui le prouve.</p>
+            <p>Une fiche sans « comment le vérifier » est une intention, pas un
+               garde-fou.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_garde_fous_racine" web_icon="tour_garde_fous,static/description/icon.png" name="Garde-fous" sequence="28"
+              action="action_garde_fous"/>
+</odoo>

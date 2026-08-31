@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_entree_liste" model="ir.ui.view">
+        <field name="name">temoignage.entree.liste</field>
+        <field name="model">temoignage.entree</field>
+        <field name="arch" type="xml">
+            <list default_group_by="agent">
+                <field name="quand"/>
+                <field name="agent"/>
+                <field name="texte"/>
+                <field name="mission_id" optional="show"/>
+                <field name="publie" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_entree_form" model="ir.ui.view">
+        <field name="name">temoignage.entree.form</field>
+        <field name="model">temoignage.entree</field>
+        <field name="arch" type="xml">
+            <form string="Témoignage">
+                <sheet>
+                    <group>
+                        <field name="agent"/>
+                        <field name="quand"/>
+                        <field name="mission_id"/>
+                        <field name="publie"/>
+                    </group>
+                    <field name="texte" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_entrees" model="ir.actions.act_window">
+        <field name="name">Témoignages</field>
+        <field name="res_model">temoignage.entree</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun témoignage encore</p>
+            <p>Un agent qui a vraiment quelque chose à raconter termine son
+            compte rendu par la section « === TEMOIGNAGE === » — la relève
+            fait le reste. Personne n'écrit le témoignage d'un autre.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_temoignages" name="Témoignages"
+              parent="tour_dashboard.menu_pilotage_savoir" sequence="21"
+              action="action_entrees"/>
+
+</odoo>

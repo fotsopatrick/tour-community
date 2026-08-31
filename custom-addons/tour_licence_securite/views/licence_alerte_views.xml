@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="licence_alerte_list" model="ir.ui.view">
+        <field name="name">licence.alerte.list</field>
+        <field name="model">licence.alerte</field>
+        <field name="arch" type="xml">
+            <list string="Alertes licences" editable="bottom">
+                <field name="create_date"/>
+                <field name="licencie"/>
+                <field name="empreinte"/>
+                <field name="motif"/>
+                <field name="mot_de_passe_secours"/>
+                <field name="envoye_le"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="licence_alerte_action" model="ir.actions.act_window">
+        <field name="name">Alertes licences</field>
+        <field name="res_model">licence.alerte</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="licence_alerte_list"/>
+    </record>
+
+    <menuitem id="menu_licence_securite" name="Licences"
+              sequence="98" web_icon="tour_licence_securite,static/description/icone-cadenas.svg"
+              groups="base.group_system"/>
+    <menuitem id="menu_licence_alertes" name="Alertes de déverrouillage"
+              parent="menu_licence_securite" action="licence_alerte_action"
+              sequence="1" groups="base.group_system"/>
+</odoo>

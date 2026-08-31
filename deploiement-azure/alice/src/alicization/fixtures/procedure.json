@@ -1,0 +1,38 @@
+{
+  "seed": 18427,
+  "operations": {
+    "op_k7": {
+      "a": 3,
+      "b": 7
+    },
+    "op_m2": {
+      "a": 5,
+      "b": 2
+    },
+    "op_q9": {
+      "a": 2,
+      "b": 11
+    },
+    "op_r4": {
+      "a": 4,
+      "b": 13
+    },
+    "op_t1": {
+      "a": 7,
+      "b": -3
+    },
+    "op_v6": {
+      "a": 6,
+      "b": 9
+    }
+  },
+  "secret_procedure": [
+    "op_q9",
+    "op_k7",
+    "op_m2"
+  ],
+  "demo_input": 17,
+  "reuse_input": 43,
+  "generalization_input": 91,
+  "retention_input": 127
+}

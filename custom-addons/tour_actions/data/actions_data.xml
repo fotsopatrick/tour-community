@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ===== PILOTER ===== -->
+        <record id="item_ouvrir_la_tour" model="tour.actions.config">
+            <field name="sequence">1</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Ouvrir la tour →</field>
+            <field name="url">/odoo/apps</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_cerveau" model="tour.actions.config">
+            <field name="sequence">2</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Le cerveau</field>
+            <field name="url">/odoo/action-tour_dashboard.action_taches_claude</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_pilotage_ia" model="tour.actions.config">
+            <field name="sequence">3</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Pilotage IA</field>
+            <field name="url">/tour/dashboard</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_qui_travaille" model="tour.actions.config">
+            <field name="sequence">4</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Qui travaille ?</field>
+            <field name="url">/tour/cockpit/agents</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_cockpit_circuits" model="tour.actions.config">
+            <field name="sequence">5</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Cockpit des circuits</field>
+            <field name="url">/tour/cockpit/circuits</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_cockpit_tests" model="tour.actions.config">
+            <field name="sequence">6</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Cockpit des tests</field>
+            <field name="url">/tour/cockpit/tests</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_flux_circuits" model="tour.actions.config">
+            <field name="sequence">7</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Flux des circuits</field>
+            <field name="url">/tour/cockpit/pacman</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_cartes" model="tour.actions.config">
+            <field name="sequence">7</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">La carte</field>
+            <field name="url">/tour/cockpit/cartes</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_cocher_actions" model="tour.actions.config">
+            <field name="sequence">8</field>
+            <field name="groupe">Piloter</field>
+            <field name="name">Cocher Actions</field>
+            <field name="url">/tour/actions-config</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+
+        <!-- ===== ÉQUIPE ===== -->
+        <record id="item_equipe" model="tour.actions.config">
+            <field name="sequence">10</field>
+            <field name="groupe">Équipe</field>
+            <field name="name">L'équipe 同僚</field>
+            <field name="url">/tour/equipe</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_messages" model="tour.actions.config">
+            <field name="sequence">11</field>
+            <field name="groupe">Équipe</field>
+            <field name="name">Messages</field>
+            <field name="url">/tour/messages</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_reponses" model="tour.actions.config">
+            <field name="sequence">12</field>
+            <field name="groupe">Équipe</field>
+            <field name="name">Réponses</field>
+            <field name="url">/tour/reponses</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_recompenses" model="tour.actions.config">
+            <field name="sequence">13</field>
+            <field name="groupe">Équipe</field>
+            <field name="name">🎮 Récompenses</field>
+            <field name="url">/tour/recompense</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_quetes" model="tour.actions.config">
+            <field name="sequence">14</field>
+            <field name="groupe">Équipe</field>
+            <field name="name">Quêtes ⚔️</field>
+            <field name="url">/tour/quetes</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+
+        <!-- ===== MOI & CONTENU ===== -->
+        <record id="item_mes_apps" model="tour.actions.config">
+            <field name="sequence">20</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">Mes applications</field>
+            <field name="url">/tour/apps</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_ressources" model="tour.actions.config">
+            <field name="sequence">21</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">📁 Ressources</field>
+            <field name="url">/odoo/action-dms.action_dms_file_wizard_selector</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_guides" model="tour.actions.config">
+            <field name="sequence">22</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">Guides</field>
+            <field name="url">/tour/guides</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_journal" model="tour.actions.config">
+            <field name="sequence">23</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">📖 Journal</field>
+            <field name="url">/tour/journal</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_business_plan" model="tour.actions.config">
+            <field name="sequence">24</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">💼 Business plan</field>
+            <field name="url">/tour/business-plan</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_resume" model="tour.actions.config">
+            <field name="sequence">25</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">🌅 Résumé de la journée</field>
+            <field name="url">/tour/resume</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_jeu_tour" model="tour.actions.config">
+            <field name="sequence">26</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">🎮 Jeu de la Tour</field>
+            <field name="url">/tour/jeu-de-la-tour</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_assembleur" model="tour.actions.config">
+            <field name="sequence">27</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">🧩 Tour en assembleur</field>
+            <field name="url">/tour/assembleur</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_utilisateurs" model="tour.actions.config">
+            <field name="sequence">28</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">👥 Utilisateurs</field>
+            <field name="url">/sites/users/</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_mon_clone" model="tour.actions.config">
+            <field name="sequence">29</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">🧬 Mon clone</field>
+            <field name="url">/sites/clone/</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+
+        <record id="item_mon_ia" model="tour.actions.config">
+            <field name="sequence">29</field>
+            <field name="groupe">Moi &amp; contenu</field>
+            <field name="name">⚡ Mon IA</field>
+            <field name="url">/tour/mon-ia</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+            <field name="ouvrable_invite">true</field>
+        </record>
+
+        <!-- ===== SÉCURITÉ & SYSTÈME ===== -->
+        <record id="item_pentest" model="tour.actions.config">
+            <field name="sequence">30</field>
+            <field name="groupe">Sécurité &amp; système</field>
+            <field name="name">Pentest</field>
+            <field name="url">/tour/pentest</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_attention" model="tour.actions.config">
+            <field name="sequence">31</field>
+            <field name="groupe">Sécurité &amp; système</field>
+            <field name="name">⚠️ Attention</field>
+            <field name="url">/tour/attention</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_appels_api" model="tour.actions.config">
+            <field name="sequence">32</field>
+            <field name="groupe">Sécurité &amp; système</field>
+            <field name="name">Appels API</field>
+            <field name="url">/tour/appels</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_prod_demo_test" model="tour.actions.config">
+            <field name="sequence">33</field>
+            <field name="groupe">Sécurité &amp; système</field>
+            <field name="name">Prod / démo / test</field>
+            <field name="url">/tour/environnements</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_mvp" model="tour.actions.config">
+            <field name="sequence">34</field>
+            <field name="groupe">Sécurité &amp; système</field>
+            <field name="name">Installer la tour MVP</field>
+            <field name="url">/tour/mvp</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_sauvegardes" model="tour.actions.config">
+            <field name="sequence">35</field>
+            <field name="groupe">Sécurité &amp; système</field>
+            <field name="name">💾 Sauvegardes</field>
+            <field name="url">/odoo/action-tour_sauvegardes.action_tour_sauvegarde</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+
+        <!-- ===== PUBLIC ===== -->
+        <record id="item_debats_publics" model="tour.actions.config">
+            <field name="sequence">40</field>
+            <field name="groupe">Public</field>
+            <field name="name">Débats publics</field>
+            <field name="url">/tour/debats-public</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_le_jeu" model="tour.actions.config">
+            <field name="sequence">41</field>
+            <field name="groupe">Public</field>
+            <field name="name">Le jeu</field>
+            <field name="url">https://matourdecontrole.fr/jeu-eveil.html</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_braignak" model="tour.actions.config">
+            <field name="sequence">42</field>
+            <field name="groupe">Public</field>
+            <field name="name">Braignak</field>
+            <field name="url">https://matourdecontrole.fr/essaie-braignak.html</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_braignak_web" model="tour.actions.config">
+            <field name="sequence">44</field>
+            <field name="groupe">Public</field>
+            <field name="name">Braignak — mes études</field>
+            <field name="url">/braignak-web/</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+            <field name="ouvrable_invite">true</field>
+        </record>
+        <record id="item_nos_limites" model="tour.actions.config">
+            <field name="sequence">43</field>
+            <field name="groupe">Public</field>
+            <field name="name">Nos limites</field>
+            <field name="url">https://matourdecontrole.fr/limites.html</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+
+        <!-- ===== DEHORS ===== -->
+        <record id="item_zone_detresse" model="tour.actions.config">
+            <field name="sequence">50</field>
+            <field name="groupe">Dehors</field>
+            <field name="name">Zone Détresse (SOS)</field>
+            <field name="url">/zone-detresse/zone-detresse.html</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_ssh_quest" model="tour.actions.config">
+            <field name="sequence">51</field>
+            <field name="groupe">Dehors</field>
+            <field name="name">SSH Quest</field>
+            <field name="url">/ssh</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_duelle" model="tour.actions.config">
+            <field name="sequence">52</field>
+            <field name="groupe">Dehors</field>
+            <field name="name">Duelle</field>
+            <field name="url">https://duelle.matourdecontrole.fr</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_duelle_promo" model="tour.actions.config">
+            <field name="sequence">53</field>
+            <field name="groupe">Dehors</field>
+            <field name="name">Duelle — vidéo promo</field>
+            <field name="url">https://duelle.matourdecontrole.fr/promo/duelle-promo.mp4</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_carriere" model="tour.actions.config">
+            <field name="sequence">54</field>
+            <field name="groupe">Dehors</field>
+            <field name="name">Carrière</field>
+            <field name="url">https://matourdecontrole.fr/carriere.html</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_decouvertes" model="tour.actions.config">
+            <field name="sequence">55</field>
+            <field name="groupe">Dehors</field>
+            <field name="name">Découvertes</field>
+            <field name="url">https://matourdecontrole.fr/article-decouvertes.html</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+        <record id="item_extension" model="tour.actions.config">
+            <field name="sequence">56</field>
+            <field name="groupe">Dehors</field>
+            <field name="name">Extension navigateur</field>
+            <field name="url">/tour/extension</field>
+            <field name="prod">true</field>
+            <field name="demo">true</field>
+        </record>
+
+    </data>
+</odoo>

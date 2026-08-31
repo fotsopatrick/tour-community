@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cron_echange_agent" model="ir.cron">
+        <field name="name">Échanges : relever les réponses des agents</field>
+        <field name="model_id" ref="model_echange_agent"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever()</field>
+        <field name="interval_number">2</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

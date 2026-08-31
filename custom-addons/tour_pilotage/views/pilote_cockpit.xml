@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="pilote_cockpit" name="Le Pilote - cockpit">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Le Pilote - Tour de Controle</title>
+                <style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+body{background:var(--fond);color:var(--texte);margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.5rem;margin:0 0 4px}
+h2{font-size:1.05rem;margin:22px 0 8px}
+.sub{color:var(--doux);margin:0 0 20px;line-height:1.6}
+.carte{background:var(--surface);border:1px solid var(--surface2);border-radius:10px;padding:16px;margin:12px 0}
+label{display:block;font-weight:600;margin:0 0 6px;color:#cbd5e1}
+input,select,textarea{width:100%;background:var(--fond);color:var(--texte);border:1px solid var(--surface2);border-radius:8px;padding:10px 12px;font-size:.95rem;margin-bottom:14px;box-sizing:border-box}
+button{background:var(--primaire);color:#fff;border:none;border-radius:8px;padding:10px 18px;cursor:pointer;font-size:.95rem;font-weight:650}
+button:hover{filter:brightness(1.12)}
+.badge{border-radius:999px;padding:3px 11px;font-size:.75rem;font-weight:650}
+.badge.neutre{background:#1e293b;color:#cbd5e1}
+.badge.ok{background:#052e16;color:#4ade80}
+.badge.rouge{background:#3b1d1d;color:#f87171}
+.badge.or{background:#3b2c12;color:#fbbf24}
+.demande{border:1px solid var(--surface2);border-radius:10px;padding:12px 14px;margin:10px 0;background:var(--surface)}
+.demande .tete{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.demande .nom{font-size:.95rem}
+.demande .gabarit{color:var(--doux);font-size:.82rem}
+.demande .info{color:var(--doux);font-size:.82rem;margin:6px 0}
+.demande .journal{background:var(--fond);border:1px solid var(--surface2);border-radius:8px;padding:10px;font-size:.78rem;color:#cbd5e1;white-space:pre-wrap;max-height:180px;overflow:auto;margin:0}
+.vide{color:var(--doux)}
+.token{font-family:ui-monospace,monospace;font-size:.72rem;color:var(--doux);margin-top:18px;padding-top:14px;border-top:1px solid var(--surface2);word-break:break-all}
+a.retour{color:var(--primaire);text-decoration:none;font-size:.9rem}
+</style>
+            </head>
+            <body>
+                <div class="wrap">
+                    <h1>Le Pilote</h1>
+                    <p class="sub">
+                        Un modele simple joue un gabarit de circuit, porte par
+                        porte, en consultant en ligne. Il n'ouvre jamais un
+                        gabarit tout seul : tu lui en designes un, et il
+                        l'execute. Les portes Patrick et production lui sont
+                        interdites.
+                    </p>
+
+                    <div class="carte">
+                        <h2 style="margin-top:0">Nouvelle demande</h2>
+                        <form method="post" action="/tour/pilote/demander">
+                            <label for="sujet">Sujet (ce que le pilote doit faire)</label>
+                            <input type="text" name="sujet" id="sujet" required="1"
+                                   placeholder="Ex : relire le plan du module"/>
+                            <label for="modele_id">Gabarit a jouer</label>
+                            <select name="modele_id" id="modele_id">
+                                <t t-raw="options"/>
+                            </select>
+                            <label for="description">Detail a donner au pilote</label>
+                            <textarea name="description" id="description" rows="4"
+                                      placeholder="Le contexte, ce qu il doit verifier, produire"></textarea>
+                            <button type="submit">Envoyer au pilote</button>
+                        </form>
+                    </div>
+
+                    <h2>Demandes</h2>
+                    <t t-raw="lignes"/>
+
+                    <div class="token">
+                        Jeton du moteur hote (pilote.py) : <t t-esc="token"/>
+                    </div>
+
+                    <p><a class="retour" href="/tour/dashboard">Retour a l'accueil</a></p>
+                </div>
+            </body>
+        </html>
+    </template>
+</odoo>

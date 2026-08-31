@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- La salle dans la grille des applications : un menu racine avec icône =
+         une tuile. La page reste la même page HTML. (Modèle : tour_equipage.) -->
+    <record id="action_page_salle" model="ir.actions.act_url">
+        <field name="name">Salle des débats</field>
+        <field name="url">/tour/debats</field>
+        <field name="target">self</field>
+    </record>
+    <menuitem id="menu_salle_racine" name="Débats" sequence="8"
+              action="action_page_salle"
+              web_icon="tour_debat,static/description/icon.svg"/>
+
+    <!-- Et une entrée sous Pilotage, à côté de la vue backend existante. -->
+    <menuitem id="menu_salle" name="La salle des débats"
+              parent="tour_dashboard.menu_pilotage_equipe" sequence="5"
+              action="action_page_salle"/>
+
+    <!-- Point d'accroche pour la v2 (rappel espacé des débats jamais tranchés).
+         Aujourd'hui il ne fait rien : la salle lit tout à l'affichage. -->
+    <record id="cron_salle" model="ir.cron">
+        <field name="name">Salle des débats : entretien quotidien</field>
+        <field name="model_id" ref="model_debat_sujet"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_salle()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- LA SALLE PRIVÉE (09/08, Merline) : même modèle que la page publique
+         des débats — cartes cliquables, conclusion, replay plein écran — mais
+         la version privée, avec les chiffres et les paliers que seuls les
+         internes voient, et le bornage d'accès (admin = tout, interne = les
+         siens + les débats ouverts à l'équipe). -->
+    <template id="page_salle" name="Tour — La salle des débats">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>La salle des débats — Tour de contrôle</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .wrap { max-width:860px; margin:0 auto; padding:28px 16px 64px; }
+                    .bureau { margin:0 0 26px; border:1px solid #1e293b; border-radius:12px; overflow:hidden; }
+                    h1 { font-size:1.7rem; margin:0 0 4px; }
+                    .sub { color:#94a3b8; margin:0 0 26px; line-height:1.6; }
+                    a.retour { color:#3b82f6; text-decoration:none; font-size:.88rem; }
+                    /* Les chiffres comptés (privé) */
+                    .compteurs { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+                                 gap:10px; margin:20px 0 8px; }
+                    .compteur { background:#0f172a; border:1px solid #1e293b; border-radius:.8rem;
+                                padding:14px 16px; }
+                    .compteur .n { font-size:1.7rem; font-weight:650; line-height:1;
+                                   font-variant-numeric:tabular-nums; color:var(--texte); }
+                    .compteur .l { color:#94a3b8; font-size:.8rem; margin-top:.3rem; }
+                    .compteur.serie .n { color:#f59e0b; }
+                    /* Les paliers (privé) */
+                    .paliers { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 22px; }
+                    .palier { background:#0f172a; border:1px solid #1e293b; border-radius:.7rem;
+                              padding:.45rem .8rem; font-size:.85rem; color:#94a3b8; }
+                    .palier.gagne { border-color:#22c55e; color:var(--texte); }
+                    .palier .marque { color:#22c55e; font-weight:700; margin-right:.3rem; }
+                    .palier.a_venir .marque { color:#64748b; }
+                    /* La liste : une table + un résumé, cliquable. */
+                    .carte { background:#0f172a; border:1px solid #1e293b; border-radius:.9rem;
+                             padding:16px; margin-bottom:16px; cursor:pointer;
+                             transition:border-color .15s, transform .15s; }
+                    .carte:hover { border-color:#3b82f6; transform:translateY(-2px); }
+                    .table { position:relative; background:#1e293b; border:1px solid #334155;
+                             border-radius:12px; padding:14px; text-align:center; min-height:70px; }
+                    .table .q { font-size:.95rem; line-height:1.45; color:var(--texte); }
+                    .table .prog { color:#64748b; font-size:.75rem; margin-top:.4rem; }
+                    .part { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+                    .part .p { display:flex; align-items:center; gap:6px; background:var(--fond);
+                               border:1px solid #1e293b; border-radius:99px; padding:2px 9px 2px 2px;
+                               font-size:.75rem; color:#94a3b8; }
+                    .part .p .e { font-size:1rem; line-height:1; }
+                    .resume { color:#cbd5e1; font-size:.9rem; line-height:1.6; margin-top:10px;
+                              border-top:1px solid #1e293b; padding-top:10px; }
+                    .resume b { color:#7dd3fc; }
+                    .carte .clique { color:#3b82f6; font-size:.8rem; margin-top:8px; font-weight:600; }
+                    .vide { color:#64748b; text-align:center; padding:40px 0; }
+                    /* Le débat en plein écran */
+                    .ecran { position:fixed; inset:0; background:var(--fond); z-index:40; display:none;
+                             flex-direction:column; }
+                    .ecran.vu { display:flex; }
+                    .ecran .haut { padding:16px 20px; border-bottom:1px solid #1e293b;
+                                   display:flex; align-items:center; gap:12px; }
+                    .ecran .haut h2 { margin:0; font-size:1.05rem; line-height:1.4; flex:1; }
+                    .ecran .haut .fermer { border:1px solid #334155; background:#1e293b; color:var(--texte);
+                                           border-radius:8px; padding:7px 14px; cursor:pointer; font-weight:700; }
+                    .ecran .corps { flex:1; display:flex; min-height:0; }
+                    .ecran .salle { flex:1.5; padding:14px; min-width:0; display:flex; }
+                    .ecran .salle canvas { border:1px solid #1e293b; border-radius:12px;
+                                           margin:auto; max-width:100%; }
+                    .ecran .tchat { flex:1; min-width:280px; overflow-y:auto; padding:16px;
+                                    display:flex; flex-direction:column; gap:10px;
+                                    border-left:1px solid #1e293b; }
+                    .ecran .m { max-width:78%; padding:9px 13px; border-radius:14px; font-size:.92rem;
+                                line-height:1.55; white-space:pre-wrap; animation:appar .35s ease; }
+                    .ecran .m .qui { font-weight:700; font-size:.78rem; margin-bottom:2px; }
+                    .ecran .m.ia { background:#0f172a; border:1px solid #1e293b; align-self:flex-start;
+                                   border-bottom-left-radius:4px; }
+                    .ecran .m.ia .qui { color:#7dd3fc; }
+                    .ecran .conclu { margin:8px 20px 24px; background:#0f172a; border:1px solid #3b82f6;
+                                     border-left:4px solid #3b82f6; border-radius:12px; padding:14px 16px; }
+                    .ecran .conclu .titre { font-weight:800; color:#3b82f6; font-size:.8rem;
+                                            letter-spacing:.08em; margin-bottom:6px; }
+                    .ecran .conclu p { margin:0; color:var(--texte); line-height:1.6; }
+                    @media (max-width:700px) {
+                        .ecran .corps { flex-direction:column; }
+                        .ecran .salle { flex:none; padding:10px; }
+                        .ecran .salle canvas { width:100% !important; height:auto !important;
+                                               max-height:38vh; }
+                        .ecran .tchat { flex:1; min-width:0; border-left:none;
+                                        border-top:1px solid #1e293b; }
+                        .ecran .conclu { margin:8px 12px 24px; }
+                    }
+                    @keyframes appar { from { opacity:0; transform:translateY(5px); } to { opacity:1; } }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </head>
+            <body>
+                <div class="wrap">
+                    <a class="retour" href="/tour/dashboard">← Retour à l'accueil</a>
+                    <h1>La salle des débats</h1>
+                    <p class="sub">
+                        Toutes les tentatives, et comment elles ont fonctionné. Les
+                        chiffres se gagnent en débattant — aucun ne se saisit.
+                        <b>Clique sur un débat</b> : il s'ouvre en grand, et la
+                        discussion défile comme si elle avait lieu en ce moment.
+                    </p>
+
+                    <div class="compteurs">
+                        <div class="compteur serie">
+                            <div class="n">🔥 <t t-esc="stats['serie']"/></div>
+                            <div class="l">jours de suite (série)</div>
+                        </div>
+                        <div class="compteur">
+                            <div class="n">✓ <t t-esc="stats['tranches']"/>/<t t-esc="stats['total']"/></div>
+                            <div class="l">débats tranchés</div>
+                        </div>
+                        <div class="compteur">
+                            <div class="n">💬 <t t-esc="stats['avis']"/></div>
+                            <div class="l">avis rendus</div>
+                        </div>
+                        <div class="compteur">
+                            <div class="n">⭐ <t t-esc="stats['retenus']"/></div>
+                            <div class="l">avis retenus</div>
+                        </div>
+                    </div>
+
+                    <div class="paliers">
+                        <t t-foreach="stats['paliers']" t-as="p">
+                            <span t-attf-class="palier #{'gagne' if p['gagne'] else 'a_venir'}"
+                                  t-att-title="p['aide']">
+                                <span class="marque"><t t-esc="'✓' if p['gagne'] else '○'"/></span>
+                                <t t-esc="p['nom']"/>
+                            </span>
+                        </t>
+                    </div>
+
+                    <div id="bureau" class="bureau"></div>
+                    <div id="debats" class="liste"></div>
+                    <div class="vide" id="vide" t-if="not cartes">
+                        Aucun débat pour l'instant. Pose une question à un agent,
+                        ou à toute l'équipe.
+                    </div>
+                </div>
+
+                <div class="ecran" id="ecran">
+                    <div class="haut">
+                        <h2 id="ec-question"></h2>
+                        <button class="fermer" onclick="document.getElementById('ecran').classList.remove('vu')">✕</button>
+                    </div>
+                    <div class="corps">
+                        <div class="salle"><div id="ec-salle"></div></div>
+                        <div class="tchat" id="ec-chat"></div>
+                    </div>
+                    <div class="conclu" id="ec-conclu" style="display:none">
+                        <div class="titre">COMMENT ON Y EST ARRIVÉ</div>
+                        <p id="ec-synthese"></p>
+                    </div>
+                </div>
+
+                <script type="application/json" id="debat-public-data"><t t-out="debat_json"/></script>
+                <script type="text/javascript"><![CDATA[
+                    (function () {
+                        var data = JSON.parse(document.getElementById("debat-public-data").textContent || "[]");
+                        var zone = document.getElementById("debats");
+                        var enCours = false;
+
+                        function ouvrir(d) {
+                            if (enCours) return;
+                            enCours = true;
+                            var ecran = document.getElementById("ecran");
+                            var chat = document.getElementById("ec-chat");
+                            document.getElementById("ec-question").textContent = d.question;
+                            document.getElementById("ec-synthese").textContent = d.synthese || "Aucune conclusion écrite — mais voici le fil de la discussion.";
+                            document.getElementById("ec-conclu").style.display = "none";
+                            chat.innerHTML = "";
+                            ecran.classList.add("vu");
+                            window.ouvrirDebatLive(d);
+                            enCours = false;
+                        }
+
+                        (data || []).forEach(function (d) {
+                            var carte = document.createElement("div");
+                            carte.className = "carte";
+                            var prog = d.nb_avis + " avis sur " + (d.nb_attendus || d.participants.length || "?");
+                            var parts = (d.participants || []).map(function (p) {
+                                return '<span class="p" title="' + p.nom + '"><span class="e">' + p.embleme + '</span>' + p.nom + '</span>';
+                            }).join("");
+                            var resume = d.synthese
+                                ? '<div class="resume"><b>Conclusion :</b> ' + d.synthese + '</div>'
+                                : '<div class="resume"><b>' + d.nb_avis + ' avis rendus.</b> Clique pour suivre la discussion.</div>';
+                            carte.innerHTML =
+                                '<div class="table"><div class="q">' + d.question + '</div>' +
+                                '<div class="prog">' + prog + '</div></div>' +
+                                '<div class="part">' + parts + '</div>' +
+                                resume +
+                                '<div class="clique">▶ Voir le débat se dérouler</div>';
+                            carte.onclick = function () { ouvrir(d); };
+                            zone.appendChild(carte);
+                        });
+                    })();
+                ]]></script>
+                <script src="/tour_debat/static/src/bureau.js?v=6"></script>
+                <script src="/tour_debat/static/src/bureau-debat.js?v=2"></script>
+            </body>
+        </html>
+    </template>
+
+</odoo>

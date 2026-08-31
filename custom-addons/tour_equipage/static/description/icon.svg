@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="140" height="140" rx="26" fill="url(#fond)"/>
+  <!-- Trois équipiers : celui du centre devant, deux en retrait -->
+  <g fill="#ffffff" opacity="0.55">
+    <circle cx="42" cy="58" r="13"/>
+    <path d="M22 98c0-12 9-21 20-21s20 9 20 21v6H22z"/>
+    <circle cx="98" cy="58" r="13"/>
+    <path d="M78 98c0-12 9-21 20-21s20 9 20 21v6H78z"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="70" cy="52" r="16"/>
+    <path d="M45 106c0-15 11-26 25-26s25 11 25 26v8H45z"/>
+  </g>
+</svg>

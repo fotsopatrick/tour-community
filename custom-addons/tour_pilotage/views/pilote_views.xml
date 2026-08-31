@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pilote_demande_action" model="ir.actions.act_window">
+        <field name="name">Le Pilote</field>
+        <field name="res_model">pilote.demande</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>Le Pilote joue un gabarit de circuit de bout en bout avec un
+            modèle simple. Il n'ouvre jamais un gabarit tout seul : tu lui
+            désignes celui-ci, et il exécute ses portes une par une en
+            consultant en ligne.</p>
+            <p>Les portes « Patrick » et « production » lui sont interdites :
+            il s'arrête et te laisse trancher.</p>
+        </field>
+    </record>
+
+    <record id="pilote_demande_tree" model="ir.ui.view">
+        <field name="name">pilote.demande.tree</field>
+        <field name="model">pilote.demande</field>
+        <field name="arch" type="xml">
+            <list string="Demandes de pilotage" editable="bottom">
+                <field name="name"/>
+                <field name="modele_id"/>
+                <field name="etat"/>
+                <field name="porte_nom"/>
+                <field name="nb_faites"/>
+                <field name="nb_portes"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="pilote_demande_form" model="ir.ui.view">
+        <field name="name">pilote.demande.form</field>
+        <field name="model">pilote.demande</field>
+        <field name="arch" type="xml">
+            <form string="Demande de pilotage">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="modele_id"/>
+                            <field name="moteur"/>
+                            <field name="description"/>
+                        </group>
+                        <group>
+                            <field name="etat"/>
+                            <field name="instance_id"/>
+                            <field name="porte_nom"/>
+                            <field name="nb_faites"/>
+                            <field name="nb_portes"/>
+                        </group>
+                    </group>
+                    <group string="Journal du pilote">
+                        <field name="journal" readonly="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_envoyer" type="object"
+                            string="Envoyer au pilote"
+                            class="oe_highlight"
+                            invisible="etat != &apos;brouillon&apos;"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menu_pilote"
+              name="Le Pilote"
+              parent="tour_dashboard.menu_pilotage_piloter"
+              action="pilote_demande_action"
+              sequence="5"
+              groups="base.group_system"/>
+</odoo>

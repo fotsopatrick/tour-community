@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="view_cout_poste_list" model="ir.ui.view">
+    <field name="name">cout.poste.list</field>
+    <field name="model">cout.poste</field>
+    <field name="arch" type="xml">
+      <list string="Postes de coût" default_order="montant_mensuel desc"
+            decoration-warning="a_confirmer == True"
+            decoration-muted="montant_mensuel == 0">
+        <field name="name"/>
+        <field name="categorie"/>
+        <field name="fournisseur" optional="show"/>
+        <field name="montant"/>
+        <field name="periodicite"/>
+        <field name="montant_mensuel" sum="Par mois"/>
+        <field name="mesure" widget="boolean_toggle"/>
+        <field name="a_confirmer" widget="boolean_toggle"/>
+        <field name="commun" optional="hide"/>
+        <field name="app_ids" widget="many2many_tags" optional="show"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="view_cout_poste_form" model="ir.ui.view">
+    <field name="name">cout.poste.form</field>
+    <field name="model">cout.poste</field>
+    <field name="arch" type="xml">
+      <form string="Poste de coût">
+        <header>
+          <button name="action_mesurer" type="object" string="Mesurer maintenant"
+                  class="btn-primary" invisible="mesure == False"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" placeholder="Le serveur, la clé d'API…"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="categorie"/>
+              <field name="fournisseur"/>
+              <field name="montant"/>
+              <field name="periodicite"/>
+              <field name="montant_mensuel"/>
+            </group>
+            <group>
+              <field name="mesure"/>
+              <field name="a_confirmer"/>
+              <field name="date_mesure" invisible="mesure == False"/>
+              <field name="active"/>
+            </group>
+          </group>
+          <group string="Pour quels projets">
+            <field name="app_ids" widget="many2many_tags" nolabel="1"
+                   placeholder="Vide = ça sert tout le monde, la dépense est partagée"/>
+          </group>
+          <group string="Détail">
+            <field name="note" nolabel="1" placeholder="D'où vient ce chiffre ?"/>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_cout_poste_search" model="ir.ui.view">
+    <field name="name">cout.poste.search</field>
+    <field name="model">cout.poste</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="fournisseur"/>
+        <field name="app_ids"/>
+        <filter name="f_confirmer" string="À confirmer"
+                domain="[('a_confirmer','=',True)]"/>
+        <filter name="f_mesure" string="Mesurés par la tour"
+                domain="[('mesure','=',True)]"/>
+        <filter name="f_commun" string="Frais communs"
+                domain="[('commun','=',True)]"/>
+        <group expand="0" string="Regrouper par">
+          <filter name="g_cat" string="Catégorie" context="{'group_by':'categorie'}"/>
+          <filter name="g_four" string="Fournisseur" context="{'group_by':'fournisseur'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="action_cout_poste" model="ir.actions.act_window">
+    <field name="name">Coût du logiciel</field>
+    <field name="res_model">cout.poste</field>
+    <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_g_cat': 1}</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiley_face">Rien n'est encore chiffré.</p>
+      <p>Une ligne par dépense. Le rythme est ramené au mois tout seul.
+         Laisser « Pour quels projets » vide quand la dépense sert tout.</p>
+    </field>
+  </record>
+
+  <!-- Le coût remonte sur la fiche du projet : un tableau qu'il faut aller
+       ouvrir n'est pas lu. -->
+  <record id="view_app_suivi_form_cout" model="ir.ui.view">
+    <field name="name">app.suivi.form.cout</field>
+    <field name="model">app.suivi</field>
+    <field name="inherit_id" ref="suivi_apps.app_suivi_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <group string="Ce que ça coûte">
+          <group>
+            <field name="cout_direct" widget="monetary"
+                   options="{'currency_field': False}"/>
+            <field name="cout_partage"/>
+          </group>
+          <group>
+            <field name="cout_mensuel"/>
+          </group>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+  <menuitem id="menu_couts_root" name="Coûts" sequence="86"
+            web_icon="tour_couts,static/description/icon.svg"/>
+  <menuitem id="menu_couts_postes" name="Coût du logiciel"
+            parent="menu_couts_root" action="action_cout_poste" sequence="10"/>
+
+  <record id="cron_couts_mesurer" model="ir.cron">
+    <field name="name">Coûts : mesurer ce qui est mesurable</field>
+    <field name="model_id" ref="model_cout_poste"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_mesurer()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="active" eval="True"/>
+  </record>
+
+</odoo>

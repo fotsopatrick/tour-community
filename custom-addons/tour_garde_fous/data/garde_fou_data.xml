@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Registre des garde-fous de la tour.
+        Chaque fiche : ce que ça protège, où ça vit, comment ça s'applique,
+        et la manipulation qui le prouve. Rien ici ne modifie le fonctionnement.
+    -->
+
+    <!-- ============================================================ HÔTE == -->
+
+    <record id="gf_confinement_bwrap" model="garde_fou.garde_fou">
+        <field name="name">Confinement des moteurs opencode (bac à sable bwrap)</field>
+        <field name="code">hote.confinement-bwrap</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/moteurs/_confiner.sh (sourcé par opencode.sh et raphael.sh)</field>
+        <field name="crainte">Un moteur lancé avec --auto a un shell et les droits d'ubuntu : un modèle qui divague peut écrire n'importe où (rm -rf, /etc, ~/tour, les secrets).</field>
+        <field name="fonctionnement">Le moteur se ré-exécute sous bwrap : la machine entière est montée en lecture seule ; seules les zones de travail (dossier de mission, dépôts, mémoire des fils, état d'opencode, /tmp) sont en écriture.</field>
+        <field name="verification">Depuis un dossier de travail : demander au moteur d'écrire un fichier dans /etc ou dans ~/tour — l'écriture est refusée ; dans le dossier de travail, elle réussit.</field>
+    </record>
+
+    <record id="gf_atelier_delai" model="garde_fou.garde_fou">
+        <field name="name">Délai maximum par mission</field>
+        <field name="code">hote.atelier-delai-max</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/atelier.sh (DELAI_MAX, défaut 1800 s)</field>
+        <field name="crainte">Une mission qui boucle (recherche infinie, modèle qui radote) bloque l'atelier et dépense sans fin.</field>
+        <field name="fonctionnement">Chaque moteur est lancé sous `timeout` : au-delà, la mission est coupée et marquée en échec avec le message « délai dépassé ».</field>
+        <field name="verification">Poser une consigne impossible (ex. `sleep 3600`) et vérifier que la mission s'arrête au délai.</field>
+    </record>
+
+    <record id="gf_atelier_quota_stockage" model="garde_fou.garde_fou">
+        <field name="name">Quota de stockage de l'atelier</field>
+        <field name="code">hote.atelier-quota-stockage</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/atelier.sh (LIMITE_TRAVAIL_MO, défaut 2000 Mo)</field>
+        <field name="crainte">Un agent qui décharge des données remplit le disque du serveur.</field>
+        <field name="fonctionnement">Avant chaque mission, la taille des dossiers de travail est mesurée ; au-dessus de la limite, la mission est refusée avec un message clair.</field>
+        <field name="verification">Mesurer la taille de ~/atelier/travail ; provoquer un dépassement (consigne qui écrit beaucoup) et vérifier le refus dans le log.</field>
+    </record>
+
+    <record id="gf_atelier_compte_rendu_vide" model="garde_fou.garde_fou">
+        <field name="name">Un compte rendu vide n'est pas une réussite</field>
+        <field name="code">hote.atelier-compte-rendu-vide</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/atelier.sh (contrôle « sorti sans écrire de compte rendu »)</field>
+        <field name="crainte">Un agent muet (code 0, zéro octet) ressemble exactement à un agent qui n'a rien trouvé : on conclurait que c'est sain.</field>
+        <field name="fonctionnement">Un compte rendu vide (une fois espaces et retours retirés) force l'échec et affiche la marche à suivre pour diagnostiquer le moteur.</field>
+        <field name="verification">Lancer une mission dont le moteur ne répond rien : elle doit être marquée en échec, pas terminée.</field>
+    </record>
+
+    <record id="gf_atelier_repli_borne" model="garde_fou.garde_fou">
+        <field name="name">Repli borné (forfait plein → clé → filet)</field>
+        <field name="code">hote.atelier-repli-borne</field>
+        <field name="zone">hote</field>
+        <field name="niveau">processus</field>
+        <field name="module">deploy/atelier.sh (repli forfait plein, dernier filet)</field>
+        <field name="crainte">Une panne réelle relancée en boucle sur une clé d'API, c'est de l'argent dépensé pour échouer deux fois.</field>
+        <field name="fonctionnement">On ne relance QUE sur un message de limite, et une seule fois ; le filet respecte le métier (observateur → lecture seule).</field>
+        <field name="verification">Vérifier dans atelier.log qu'une panne donne au plus une relance, et que la trace des deux tentatives est conservée.</field>
+    </record>
+
+    <record id="gf_atelier_spec_injectee" model="garde_fou.garde_fou">
+        <field name="name">Fiche de poste injectée dans chaque mission</field>
+        <field name="code">hote.atelier-spec-injectee</field>
+        <field name="zone">hote</field>
+        <field name="niveau">modele</field>
+        <field name="module">deploy/atelier.sh (injection de la fiche agents/&lt;nom&gt;.md)</field>
+        <field name="crainte">Sans sa fiche, un agent ignore qui il est et applique une méthode générique : Braignak rendait « dossier vide ».</field>
+        <field name="fonctionnement">La fiche de poste part en tête de la consigne, même après bascule forcée de moteur.</field>
+        <field name="verification">Déposer une mission à un agent et vérifier que sa fiche apparaît en tête du compte rendu reçu.</field>
+    </record>
+
+    <record id="gf_atelier_pas_de_restart" model="garde_fou.garde_fou">
+        <field name="name">Pas de redémarrage pendant qu'un agent travaille</field>
+        <field name="code">hote.atelier-pas-de-restart</field>
+        <field name="zone">hote</field>
+        <field name="niveau">processus</field>
+        <field name="module">deploy/atelier-libre.sh + tour-operation.sh + socle des missions</field>
+        <field name="crainte">Redémarrer Odoo pendant une mission tue du travail payé et fausse les résultats.</field>
+        <field name="fonctionnement">Les scripts de déploiement refusent de redémarrer tant que l'atelier travaille, et la consigne le rappelle à l'agent.</field>
+        <field name="verification">Lancer une mission, tenter `deploy/maj-module.sh` : il doit attendre ou refuser.</field>
+    </record>
+
+    <record id="gf_fail2ban" model="garde_fou.garde_fou">
+        <field name="name">fail2ban : bannissement des logins qui échouent</field>
+        <field name="code">hote.fail2ban</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">/etc/fail2ban (jails sshd + odoo-login)</field>
+        <field name="crainte">Forçage de mots de passe sur SSH et sur le login Odoo.</field>
+        <field name="fonctionnement">Au-delà d'un nombre d'échecs, l'adresse est bannie ; le log docker d'Odoo est suivi via un symlink stable (bug « File option must be head or tail » contourné).</field>
+        <field name="verification">`fail2ban-client status sshd` et `fail2ban-client status odoo-login` montrent les jails actives et les bannissements.</field>
+    </record>
+
+    <record id="gf_connexions_ssh" model="garde_fou.garde_fou">
+        <field name="name">Chaque connexion SSH est signalée</field>
+        <field name="code">hote.connexions-ssh</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/connexions-ssh.sh + cron root chaque minute</field>
+        <field name="crainte">Une intrusion SSH inaperçue.</field>
+        <field name="fonctionnement">Chaque nouvelle connexion est signalée à Patrick (SMTP direct en repli), basée sur l'offset des signatures, sans historique.</field>
+        <field name="verification">Se connecter en SSH et vérifier la notification ; `tail ~/logs/` du script.</field>
+    </record>
+
+    <record id="gf_backup_verifie" model="garde_fou.garde_fou">
+        <field name="name">Sauvegarde quotidienne vérifiée</field>
+        <field name="code">hote.backup-verifie</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/backup.sh --verify + cron ubuntu 3h</field>
+        <field name="crainte">Une sauvegarde qui ne tourne plus ne le dit pas : on l'apprend après la perte.</field>
+        <field name="fonctionnement">Backup + contrôle de vérification chaque nuit ; Victor contrôle aussi qu'une sauvegarde est récente.</field>
+        <field name="verification">`ls -la /home/ubuntu/backups/` et vérifier que le dump du jour est complet (en-tête PostgreSQL).</field>
+    </record>
+
+    <record id="gf_etat_agents" model="garde_fou.garde_fou">
+        <field name="name">Service « Qui travaille ? » en lecture seule</field>
+        <field name="code">hote.etat-agents</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/etat-agents/serveur.py (systemd, port 3211)</field>
+        <field name="crainte">Un tableau de bord qui EXPOSE les secrets ou permet de piloter.</field>
+        <field name="fonctionnement">Le service ne fait que lire l'atelier ; les secrets (sk-ant, clés privées) sont masqués, ufw restreint le port au réseau Docker.</field>
+        <field name="verification">`curl http://127.0.0.1:3211/json` — aucune valeur de clé n'apparaît ; test 401 sans mot de passe.</field>
+    </record>
+
+    <record id="gf_verifier_promesses" model="garde_fou.garde_fou">
+        <field name="name">Les promesses de la vitrine sont prouvées</field>
+        <field name="code">hote.verifier-promesses</field>
+        <field name="zone">hote</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">deploy/verifier-promesses.sh</field>
+        <field name="crainte">Vendre ce qui n'existe pas (prix sans offre, engagement sans cron, contradiction).</field>
+        <field name="fonctionnement">Chaque promesse publiée est contrôlée contre la base, le code et les crons ; le résultat est consigné.</field>
+        <field name="verification">Relancer le script et vérifier qu'aucune promesse n'est « à corriger » sans fiche.</field>
+    </record>
+
+    <record id="gf_push_token" model="garde_fou.garde_fou">
+        <field name="name">Push GitHub borné (clé SSH en lecture seule)</field>
+        <field name="code">hote.push-token</field>
+        <field name="zone">hote</field>
+        <field name="niveau">processus</field>
+        <field name="module">deploy/trouvailles.sh + push via le token du Coffre</field>
+        <field name="crainte">Une clé SSH en écriture poussée accidentellement, ou poussée par un agent.</field>
+        <field name="fonctionnement">La clé de déploiement est en lecture seule ; les poussées passent par un token stocké dans le Coffre.</field>
+        <field name="verification">Tenter un push avec la clé `github_deploy` : refusé en écriture.</field>
+    </record>
+
+    <!-- ========================================================== TOUR == -->
+
+    <record id="gf_repropositions" model="garde_fou.garde_fou">
+        <field name="name">Boucle rejet → reproposition bornée</field>
+        <field name="code">tour.max-repropositions</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_atelier/models/atelier_mission.py (MAX_REPROPOSITIONS = 3)</field>
+        <field name="crainte">Une mission rejetée relancée à l'infini vers l'agent.</field>
+        <field name="fonctionnement">Au-delà de 3 repropositions, le rejet ne relance plus : le décideur doit changer la consigne d'origine.</field>
+        <field name="verification">Rejeter une mission 3 fois : la 4e ne relance pas et le compteur est visible.</field>
+    </record>
+
+    <record id="gf_socle_mission" model="garde_fou.garde_fou">
+        <field name="name">Socle des missions : « CE QUE J'AI COMPRIS » + « MON AVANCEMENT »</field>
+        <field name="code">tour.socle-mission</field>
+        <field name="zone">tour</field>
+        <field name="niveau">modele</field>
+        <field name="module">custom-addons/tour_atelier/models/atelier_mission.py (socle de la consigne)</field>
+        <field name="crainte">Un agent qui agit sans avoir compris, ou qui ne dit pas où il en est : le propriétaire ne sait plus rien.</field>
+        <field name="fonctionnement">Toute consigne exige les sections exactes ; le parseur signale une section absente par « Non consigné » sur la fiche.</field>
+        <field name="verification">Vérifier qu'une mission sans la section MON AVANCEMENT affiche « Non consigné ».</field>
+    </record>
+
+    <record id="gf_retest_regles" model="garde_fou.garde_fou">
+        <field name="name">Règles de retest (3 angles, régression, valeur, humilité)</field>
+        <field name="code">tour.regles-retest</field>
+        <field name="zone">tour</field>
+        <field name="niveau">modele</field>
+        <field name="module">custom-addons/tour_atelier/models/atelier_mission.py (« CE QUE TU DOIS PROUVER »)</field>
+        <field name="crainte">Un agent qui teste une fois le cas normal et conclut « c'est bon ».</field>
+        <field name="fonctionnement">Le socle exige : retest du contrôle qui a trouvé le défaut, plusieurs entrées (normal/vide/tordu), vérification de régression, regarder ce qui est reçu, nettoyer, et l'humilité (« je ne l'ai pas trouvé » ≠ « ça n'existe pas »).</field>
+        <field name="verification">Lire un compte rendu : il doit montrer plusieurs essais et le contrôle relancé.</field>
+    </record>
+
+    <record id="gf_interrupteur_agent" model="garde_fou.garde_fou">
+        <field name="name">Interrupteur par agent</field>
+        <field name="code">tour.interrupteur-agent</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_equipage/models/membre.py (active, action_parler, action_confier_mission)</field>
+        <field name="crainte">Un agent qui tourne mal doit pouvoir être arrêté net, sans éditer de code.</field>
+        <field name="fonctionnement">Bouton Éteindre/Rallumer sur la fiche agent ; les actions (parler, confier, discuter) sont gardées quand l'agent est éteint, badge « ⏻ éteint ».</field>
+        <field name="verification">Éteindre un agent : action_parler et discussion.action_envoyer doivent être refusées.</field>
+    </record>
+
+    <record id="gf_xp_mesure" model="garde_fou.garde_fou">
+        <field name="name">XP mesurée, jamais posée à la main</field>
+        <field name="code">tour.xp-mesure</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_equipage/models/membre.py (mesure_xp, garde-fou sur write/create)</field>
+        <field name="crainte">De l'XP inventée ou rétroactive : l'équipe cesse de refléter le travail réel.</field>
+        <field name="fonctionnement">Valeur/XP/étoiles bloqués hors du contexte mesure_xp ; champ « depuis » borné par la date d'embauche.</field>
+        <field name="verification">Tenter un write direct sur equipe.competence hors contexte : bloqué par UserError.</field>
+    </record>
+
+    <record id="gf_quota_copilote" model="garde_fou.garde_fou">
+        <field name="name">Quota du copilote par personne et par jour</field>
+        <field name="code">tour.quota-copilote</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_copilote/models/copilote_quota.py (PARAM_QUOTA 30 / 500 admin)</field>
+        <field name="crainte">Une seule personne vide la cagnotte d'API en une soirée.</field>
+        <field name="fonctionnement">Chaque appel est compté par utilisateur et par jour (dans le fuseau du consommateur) ; au quota, l'appel est refusé avec un message clair.</field>
+        <field name="verification">Vérifier que la conso journalière s'affiche et que le refus apparaît au plafond.</field>
+    </record>
+
+    <record id="gf_cout_prefixed" model="garde_fou.garde_fou">
+        <field name="name">Coût estimé par préfixe de modèle</field>
+        <field name="code">tour.cout-prefixe</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_copilote/models/copilote_quota.py (tarifs par préfixe)</field>
+        <field name="crainte">Un modèle bon marché facturé au tarif du plus cher (affichage faux à Patrick).</field>
+        <field name="fonctionnement">Le tarif est choisi par préfixe du modèle (deepseek, claude-haiku/sonnet/opus), jamais par nom exact.</field>
+        <field name="verification">Comparer le coût affiché d'un échange deepseek vs claude-opus : ils utilisent leurs tarifs respectifs.</field>
+    </record>
+
+    <record id="gf_admin_email" model="garde_fou.garde_fou">
+        <field name="name">Contrôle admin par email, pas par nom</field>
+        <field name="code">tour.admin-par-email</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_copilote/controllers/main.py (identification par email)</field>
+        <field name="crainte">Le nom d'affichage (« Le cerveau », « KAMDEM Patrick ») fait confondre le propriétaire et fausse les autorisations.</field>
+        <field name="fonctionnement">L'identité de l'utilisateur se résout par son email, jamais par son nom.</field>
+        <field name="verification">Renommer un compte : Chloe continue de reconnaître l'utilisateur par son email.</field>
+    </record>
+
+    <record id="gf_braignak_observateur" model="garde_fou.garde_fou">
+        <field name="name">L'observateur ne sauvegarde aucun fichier</field>
+        <field name="code">tour.braignak-ne-sauvegarde-pas</field>
+        <field name="zone">tour</field>
+        <field name="niveau">modele</field>
+        <field name="module">custom-addons/tour_braignak/models/braignak.py (garde-fous de l'observation)</field>
+        <field name="crainte">Un observateur qui télécharge le site observé, ou qui écrit, alors qu'il doit seulement regarder.</field>
+        <field name="fonctionnement">La consigne interdit explicitement de sauvegarder le site ; le moteur lecture-seule n'a pas d'outil d'écriture.</field>
+        <field name="verification">Lancer une observation : aucun fichier nouveau dans le dossier de travail de la mission.</field>
+    </record>
+
+    <record id="gf_journal_inalterable" model="garde_fou.garde_fou">
+        <field name="name">Journal inaltérable (études, bus)</field>
+        <field name="code">tour.journal-inalterable</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_braignak (trigger PostgreSQL) + tour_bus (write/unlink bloqués)</field>
+        <field name="crainte">Une étude ou un message du bus modifié ou effacé : la trace ment.</field>
+        <field name="fonctionnement">FK en ON DELETE RESTRICT + trigger qui refuse UPDATE/DELETE, même en SQL direct ; le bus bloque write/unlink.</field>
+        <field name="verification">Tenter en SQL direct une mise à jour d'une étude : refusée par le trigger.</field>
+    </record>
+
+    <record id="gf_vault" model="garde_fou.garde_fou">
+        <field name="name">Le Coffre ne rend jamais de mot de passe</field>
+        <field name="code">tour.vault-secrets</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_vault/models/vault_secret.py</field>
+        <field name="crainte">Un agent qui livre un secret en clair dans un compte rendu.</field>
+        <field name="fonctionnement">Accès restreint au Coffre ; les outils ne rendent pas les valeurs secrètes.</field>
+        <field name="verification">Demander à un agent le contenu d'un secret du Coffre : il refuse ou renvoie une référence, jamais la valeur.</field>
+    </record>
+
+    <record id="gf_clone_cage" model="garde_fou.garde_fou">
+        <field name="name">Le clone de Patrick est en cage (sans autorité)</field>
+        <field name="code">tour.clone-cage</field>
+        <field name="zone">tour</field>
+        <field name="niveau">processus</field>
+        <field name="module">custom-addons/tour_clone/models/clone.py</field>
+        <field name="crainte">Un « clone de Patrick » qui déciderait à sa place, ou qui écrive dans la production.</field>
+        <field name="fonctionnement">Le clone apprend le style de Patrick (accepte/refuse/pourquoi) mais ne tranche rien : ses pré-décisions vont à Patrick.</field>
+        <field name="verification">Vérifier que les fiches « Décisions du clone » sont assignées à Patrick et non à __system__.</field>
+    </record>
+
+    <record id="gf_victor" model="garde_fou.garde_fou">
+        <field name="name">Victor ne répare jamais sans accord</field>
+        <field name="code">tour.victor-accord</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_securite/models/securite.py (constats, contrôleurs déterministes)</field>
+        <field name="crainte">Un agent de sécurité qui corrige seul, ou qui repropose sans fin un refus.</field>
+        <field name="fonctionnement">Chaque constat propose un correctif et attend une réponse (accepté/plus tard/refusé) ; un refus n'est pas reproposé.</field>
+        <field name="verification">Refuser un constat : il ne revient pas à la relance suivante.</field>
+    </record>
+
+    <record id="gf_circuits" model="garde_fou.garde_fou">
+        <field name="name">Circuits : jamais un brouillon activé seul</field>
+        <field name="code">tour.circuits-brouillon</field>
+        <field name="zone">tour</field>
+        <field name="niveau">processus</field>
+        <field name="module">custom-addons/tour_circuits (detecte=True, portes obligatoires)</field>
+        <field name="crainte">Un circuit détecté automatiquement qui s'active tout seul, ou une opération sans portes.</field>
+        <field name="fonctionnement">La détection crée un brouillon jamais activé seul ; les opérations passent par des portes (agent/patron).</field>
+        <field name="verification">Créer une compétence : un brouillon apparaît, jamais actif.</field>
+    </record>
+
+    <record id="gf_echange_destinataire" model="garde_fou.garde_fou">
+        <field name="name">L'échange agent n'utilise que le moteur du destinataire</field>
+        <field name="code">tour.echange-destinataire</field>
+        <field name="zone">tour</field>
+        <field name="niveau">processus</field>
+        <field name="module">custom-addons/tour_echange_agent/models/echange_agent.py</field>
+        <field name="crainte">Un agent qui force un autre à tourner sur un moteur qu'il n'est pas censé utiliser.</field>
+        <field name="fonctionnement">Le moteur du destinataire est gardé ; la réponse revient au demandeur et est publiée dans le flux.</field>
+        <field name="verification">Vérifier dans echange.agent que moteur_utilise respecte le moteur du destinataire.</field>
+    </record>
+
+    <record id="gf_outils_durcis" model="garde_fou.garde_fou">
+        <field name="name">Outils du copilote durcis (.get au lieu de [])</field>
+        <field name="code">tour.outils-durcis</field>
+        <field name="zone">tour</field>
+        <field name="niveau">deterministe</field>
+        <field name="module">custom-addons/tour_copilote/controllers/main.py (accès tool_input via .get)</field>
+        <field name="crainte">Une clé manquante dans un appel d'outil plante toute la conversation (KeyError).</field>
+        <field name="fonctionnement">Chaque accès passe par .get avec validation ; un paramètre manquant renvoie un message clair au lieu d'une erreur.</field>
+        <field name="verification">Envoyer un appel d'outil sans un paramètre requis : réponse d'erreur lisible, pas de plantage.</field>
+    </record>
+
+</odoo>

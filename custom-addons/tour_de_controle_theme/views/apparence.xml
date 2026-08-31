@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+      APPARENCE — le réglage du thème, trouvable.
+
+      Patrick, le 28/07 : « je ne vois pas thème dans préférences, peux-tu me
+      mettre sur la page, et faut que ce soit simple à trouver, ça n'a pas
+      l'air simple. Mets un lien dans la liste des apps avec une belle icône. »
+
+      Il avait raison sur le fond, et le diagnostic était plus grave que
+      « c'est mal rangé » : le réglage vivait dans un onglet des Préférences,
+      c'est-à-dire derrière un clic sur son propre nom, dans une fenêtre qui
+      s'ouvre par-dessus. Trois gestes, aucun visible depuis l'accueil.
+
+      Un réglage qu'on ne trouve pas est un réglage qui n'existe pas. Ici il
+      devient une application comme une autre, avec sa tuile et son icône.
+    -->
+
+    <record id="vue_apparence" model="ir.ui.view">
+        <field name="name">Apparence</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <form string="Apparence" create="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Apparence</h1>
+                        <p class="text-muted">
+                            Ces réglages ne concernent que vous. Personne
+                            d'autre ne verra la tour changer.
+                        </p>
+                    </div>
+                    <group>
+                        <group string="Le fond">
+                            <!-- Le champ suivre l'appareil vient AVANT le mode
+                                 sombre : quand il est coché, l'autre n'a plus
+                                 d'effet. Les présenter dans l'ordre inverse
+                                 laisse croire qu'un réglage ne marche pas. -->
+                            <field name="dark_mode_device_dependent"
+                                   string="Suivre mon téléphone ou mon ordinateur"/>
+                            <field name="dark_mode" string="Fond sombre"
+                                   readonly="dark_mode_device_dependent"/>
+                        </group>
+                        <group string="Le menu des applications">
+                            <field name="apps_menu_theme" string="Présentation"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        Le changement est immédiat. Si l'écran ne suit pas,
+                        rechargez la page : le navigateur garde parfois
+                        l'ancienne feuille de style en mémoire.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!--
+      L'action ouvre TOUJOURS la fiche de la personne connectée.
+
+      `res_id` est calculé au chargement du menu, pas figé dans la base : un
+      identifiant écrit en dur enverrait chaque utilisateur sur le compte de
+      celui qui a installé le module. Un client réglerait le thème de
+      quelqu'un d'autre — ou verrait un refus de droits sans comprendre.
+    -->
+    <record id="action_apparence" model="ir.actions.act_window">
+        <field name="name">Apparence</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="vue_apparence"/>
+        <field name="target">current</field>
+        <field name="context">{'form_view_initial_mode': 'edit'}</field>
+    </record>
+
+    <record id="action_apparence_serveur" model="ir.actions.server">
+        <field name="name">Apparence</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="state">code</field>
+        <field name="code">
+action = env.ref('tour_de_controle_theme.action_apparence').read()[0]
+action['res_id'] = env.user.id
+        </field>
+    </record>
+
+    <menuitem id="menu_apparence"
+              name="Apparence"
+              action="action_apparence_serveur"
+              web_icon="tour_de_controle_theme,static/description/apparence.svg"
+              sequence="95"/>
+
+</odoo>

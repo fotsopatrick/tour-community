@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d8732a"/>
+      <stop offset="1" stop-color="#d8732a"/>
+    </linearGradient>
+  </defs>
+  <rect width="140" height="140" rx="26" fill="url(#g)"/>
+  <text x="70" y="96" font-size="68" text-anchor="middle">🛡️</text>
+</svg>

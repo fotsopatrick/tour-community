@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="app_duelle" model="app.suivi">
+            <field name="sequence">10</field>
+            <field name="emoji">🎮</field>
+            <field name="name">Duelle (ex-pandora)</field>
+            <field name="repo">fotsopatrick/pandora</field>
+            <field name="statut">dev</field>
+            <field name="progression">45</field>
+            <field name="en_cours">Rebranding Duelle livré — prochaine étape : greffe du backend bluu</field>
+            <field name="fait"><![CDATA[<ul>
+                <li>UI complète : grille de proximité, chat, profils</li>
+                <li>3 vrais jeux : Reflex Duel, Échecs (règles officielles + IA), Crush Rush</li>
+                <li>Défi depuis le chat + résultat posté en message</li>
+                <li>Scores/historique persistants, stats de duels</li>
+                <li>Ad Lounge intégré, web app en ligne, APK release, renommage Duelle</li>
+            </ul>]]></field>
+            <field name="reste_v01"><![CDATA[<ul>
+                <li>Greffer le backend bluu : auth Supabase, profils réels, géoloc PostGIS, matchs</li>
+                <li>Boîte-relais éphémère pour les messages</li>
+                <li>Duels réels à 2 joueurs (synchro temps réel)</li>
+                <li>Photos : upload + scan modération (tous), persistance serveur (payants)</li>
+                <li>Push notifications, icône/logo, TestFlight</li>
+            </ul>]]></field>
+            <field name="reste_v1"><![CDATA[<ul>
+                <li>Modération complète (signalement, blocage), RGPD</li>
+                <li>Paywall abonnement, vrai inventaire pub Ad Lounge</li>
+                <li>Dépôt de marque « Duelle », soumission stores</li>
+            </ul>]]></field>
+        </record>
+
+        <record id="app_bluu" model="app.suivi">
+            <field name="sequence">20</field>
+            <field name="emoji">💙</field>
+            <field name="name">bluu</field>
+            <field name="repo">fotsopatrick/-bluu</field>
+            <field name="statut">organe</field>
+            <field name="progression">70</field>
+            <field name="en_cours">Décision du 25/07 : donneur d'organes pour Duelle, puis archive</field>
+            <field name="fait"><![CDATA[<ul>
+                <li>Boucle complète : signup → discover (PostGIS) → likes → match</li>
+                <li>Chat local-first (drift) + Supabase auto-hébergé</li>
+                <li>APK version LAN</li>
+            </ul>]]></field>
+            <field name="reste_v01"><![CDATA[<p>Plus de v0.1 propre : son backend part dans Duelle.</p>]]></field>
+            <field name="reste_v1"><![CDATA[<p>—</p>]]></field>
+        </record>
+
+        <record id="app_pointvirgule" model="app.suivi">
+            <field name="sequence">30</field>
+            <field name="emoji">🧭</field>
+            <field name="name">PointVirgule</field>
+            <field name="repo">fotsopatrick/pointvirgule</field>
+            <field name="statut">beta</field>
+            <field name="progression">85</field>
+            <field name="en_cours">La plus proche de la sortie — rien de bloquant pour la v0.1</field>
+            <field name="fait"><![CDATA[<ul>
+                <li>100 % local (drift + Riverpod) : suivi sobriété, Money/Time Saved</li>
+                <li>Journal éditable, milestones, réglages complets</li>
+                <li>Ad Lounge intégré, APK release</li>
+            </ul>]]></field>
+            <field name="reste_v01"><![CDATA[<p>Rien de bloquant.</p>]]></field>
+            <field name="reste_v1"><![CDATA[<ul>
+                <li>Notifications d'encouragement, widget écran d'accueil</li>
+                <li>Export des données, icône/branding, fiche stores</li>
+            </ul>]]></field>
+        </record>
+
+        <record id="app_tdc_mobile" model="app.suivi">
+            <field name="sequence">40</field>
+            <field name="emoji">🗼</field>
+            <field name="name">Tour de contrôle mobile</field>
+            <field name="repo">fotsopatrick/tour-de-controle</field>
+            <field name="statut">dev</field>
+            <field name="progression">60</field>
+            <field name="en_cours">Geste différenciant livré (devis signé sur place) — reste le hors-ligne</field>
+            <field name="fait"><![CDATA[<ul>
+                <li>Login https/http auto, Projets + tâches, Notes (descriptions)</li>
+                <li>Onglet Ventes : devis, clients à la volée, produits, factures</li>
+                <li><b>Signature du client sur l'écran</b> → champs natifs Odoo + PDF, envoi e-mail</li>
+                <li>Compta lecture, APK + IPA iOS via GitHub Actions</li>
+            </ul>]]></field>
+            <field name="reste_v01"><![CDATA[<ul>
+                <li>Mode hors-ligne du devis (brouillon local → sync)</li>
+                <li>Test réel sur iPhone (Sideloadly)</li>
+            </ul>]]></field>
+            <field name="reste_v1"><![CDATA[<ul>
+                <li>White-label configurable, phases 1-4 des maquettes validées</li>
+                <li>2-3 pilotes au gain chronométré, licence/essai, canal intégrateurs Odoo</li>
+            </ul>]]></field>
+        </record>
+
+        <record id="app_adlounge" model="app.suivi">
+            <field name="sequence">50</field>
+            <field name="emoji">🎬</field>
+            <field name="name">Ad Lounge (module)</field>
+            <field name="repo">fotsopatrick/ad-lounge</field>
+            <field name="statut">beta</field>
+            <field name="progression">75</field>
+            <field name="en_cours">v0.1 livrée et intégrée dans Duelle + PointVirgule</field>
+            <field name="fait"><![CDATA[<ul>
+                <li>Salon de pub choisie : catalogue, lecture complète = crédits</li>
+                <li>Plafond quotidien anti-farming, crédits dépensables par l'app hôte</li>
+                <li>5 tests unitaires verts, intégré dans 2 apps</li>
+            </ul>]]></field>
+            <field name="reste_v01"><![CDATA[<p>Rien — v0.1 en place.</p>]]></field>
+            <field name="reste_v1"><![CDATA[<ul>
+                <li>Vrai inventaire : rewarded AdMob ou deals directs annonceurs</li>
+                <li>Catalogue distant (URL JSON), stats de visionnage</li>
+            </ul>]]></field>
+        </record>
+
+        <!-- Première apporteuse d'affaires : Imane (tabac). -->
+        <record id="apporteur_imane" model="app.apporteur">
+            <field name="name">Imane (Tabac Imane)</field>
+            <field name="canal">Affiche dans le tabac + bouche-à-oreille commerçants</field>
+            <field name="commission_pct">10</field>
+            <field name="accord"><![CDATA[<p><b>À formaliser</b> (proposition) :
+                10 % de commission la première année sur chaque client amené,
+                versée quand le client a payé. En échange : son site géré
+                gratuitement (elle paie hébergement + domaine) — accord WhatsApp
+                existant. À confirmer avec elle par écrit.</p>]]></field>
+        </record>
+
+    </data>
+</odoo>

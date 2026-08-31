@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="vue_echange_list" model="ir.ui.view">
+        <field name="name">echange.agent.list</field>
+        <field name="model">echange.agent</field>
+        <field name="arch" type="xml">
+            <list string="Échanges entre agents"
+                  decoration-info="etat == 'envoye'"
+                  decoration-success="etat == 'termine'"
+                  decoration-danger="etat == 'echec'">
+                <field name="create_date" string="Demandé le"/>
+                <field name="name"/>
+                <field name="demandeur_nom"/>
+                <field name="demandeur_id"/>
+                <field name="destinataire_id"/>
+                <field name="etat" widget="badge"
+                       decoration-info="etat == 'envoye'"
+                       decoration-success="etat == 'termine'"
+                       decoration-danger="etat == 'echec'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vue_echange_form" model="ir.ui.view">
+        <field name="name">echange.agent.form</field>
+        <field name="model">echange.agent</field>
+        <field name="arch" type="xml">
+            <form string="Échange entre agents">
+                <header>
+                    <button name="action_envoyer" type="object"
+                            string="Envoyer la demande"
+                            class="btn-primary"
+                            invisible="etat != 'envoye' or fil_id"/>
+                    <button name="action_relever" type="object"
+                            string="Voir si la réponse est là"
+                            invisible="etat != 'envoye' or not fil_id"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"
+                                   placeholder="De quoi s'agit-il ?"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="demandeur_id"/>
+                            <field name="demandeur_nom"
+                                   placeholder="Si ce n'est pas un agent"/>
+                        </group>
+                        <group>
+                            <field name="destinataire_id"/>
+                            <field name="autonomie"/>
+                        </group>
+                    </group>
+                    <group string="La demande">
+                        <field name="question" nolabel="1"
+                               placeholder="Ce que tu demandes à l'agent, clairement. Il répondra seul."/>
+                    </group>
+                    <field name="source" placeholder="Lien avec le travail : mission, tâche, étude…"/>
+                    <group string="La réponse" invisible="not reponse">
+                        <field name="reponse" nolabel="1" readonly="1"/>
+                        <field name="reponse_le" readonly="1"/>
+                        <field name="publie_flux" readonly="1"/>
+                    </group>
+                    <group invisible="not fil_id">
+                        <field name="fil_id" readonly="1"/>
+                    </group>
+                    <field name="echange_id" invisible="1"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_echanges" model="ir.actions.act_window">
+        <field name="name">Échanges</field>
+        <field name="res_model">echange.agent</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Un agent n'a pas encore demandé</p>
+            <p>Quand un agent (ou un module) a besoin de quelque chose d'un
+               autre, la demande passe ici : elle part au destinataire, et la
+               réponse revient au demandeur, annoncée dans le flux.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_echanges_agents" name="Échanges"
+              sequence="65" action="action_echanges"
+              web_icon="tour_echange_agent,static/description/icon.svg"/>
+
+</odoo>

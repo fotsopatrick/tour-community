@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="page_progression" name="Ma progression">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': 'fr-FR'}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Ma progression</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .pr { max-width:720px; margin:0 auto; padding:22px 16px 64px; }
+                    a.ret { color:#3b82f6; text-decoration:none; font-size:.88rem; }
+                    h1 { font-size:1.7rem; margin:16px 0 6px; }
+                    .sous { color:#94a3b8; margin:0 0 8px; font-size:.93rem; line-height:1.55; }
+                    .total { background:#1e293b; border-radius:99px; height:9px;
+                             overflow:hidden; margin:16px 0 6px; }
+                    .total i { display:block; height:100%;
+                               background:linear-gradient(90deg,#3b82f6,#60a5fa); }
+                    .compte { color:#64748b; font-size:.82rem; margin-bottom:26px; }
+                    .suivant { background:linear-gradient(135deg,#132444,#0f172a);
+                               border:1px solid #1e293b; border-left:3px solid #3b82f6;
+                               border-radius:.7rem; padding:18px; margin-bottom:28px; }
+                    .suivant .l { font-size:.7rem; text-transform:uppercase;
+                                  letter-spacing:.1em; color:#60a5fa; font-weight:600;
+                                  margin-bottom:7px; }
+                    .suivant h2 { margin:0 0 6px; font-size:1.15rem; }
+                    .suivant p { margin:0; color:#94a3b8; font-size:.92rem; line-height:1.5; }
+                    .suivant .ou { color:#3b82f6; font-size:.85rem; margin-top:10px;
+                                   font-weight:600; }
+                    .fam { margin-top:26px; }
+                    .fam h3 { font-size:.74rem; text-transform:uppercase;
+                              letter-spacing:.09em; color:#64748b; margin:0 0 10px;
+                              font-weight:600; display:flex; align-items:center; gap:10px; }
+                    .fam h3 span { color:#475569; font-weight:500; }
+                    .fam h3::after { content:""; flex:1; height:1px; background:#1e293b; }
+                    .j { display:flex; align-items:flex-start; gap:12px;
+                         background:#0f172a; border:1px solid #1e293b;
+                         border-radius:.55rem; padding:13px 15px; margin-bottom:8px; }
+                    .j.ok { border-color:rgba(34,197,94,.35); }
+                    .coche { flex:0 0 auto; width:21px; height:21px; border-radius:50%;
+                             border:2px solid #334155; display:flex; align-items:center;
+                             justify-content:center; font-size:.7rem; margin-top:1px; }
+                    .j.ok .coche { background:#22c55e; border-color:#22c55e; color:#020817;
+                                   font-weight:700; }
+                    .j .c { flex:1 1 auto; min-width:0; }
+                    .j .n { font-weight:600; font-size:.95rem; }
+                    .j.ok .n { color:#7ee29b; }
+                    .j .d { color:#64748b; font-size:.84rem; margin-top:2px; line-height:1.45; }
+                    .j .o { color:#475569; font-size:.76rem; margin-top:4px; }
+                    .pied { color:#64748b; font-size:.8rem; margin-top:30px;
+                            line-height:1.6; border-top:1px solid #1e293b; padding-top:16px; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+            <div class="pr">
+                <a class="ret" href="/tour/dashboard">← Accueil</a>
+                <h1>Ma progression</h1>
+                <p class="sous">
+                    La tour sait faire beaucoup de choses. Voici celles que tu as
+                    déjà franchies — et celle qui vient après.
+                </p>
+                <div class="total">
+                    <i t-attf-style="width:#{total and int(100.0 * faits / total) or 0}%"/>
+                </div>
+                <div class="compte"><t t-esc="faits"/> sur <t t-esc="total"/></div>
+
+                <div class="suivant" t-if="prochain">
+                    <div class="l">La prochaine chose à essayer</div>
+                    <h2><t t-esc="prochain.name"/></h2>
+                    <p t-if="prochain.description"><t t-esc="prochain.description"/></p>
+                    <div class="ou" t-if="prochain.ou">→ <t t-esc="prochain.ou"/></div>
+                </div>
+
+                <t t-foreach="groupes" t-as="g">
+                    <div class="fam">
+                        <h3><t t-esc="g['nom']"/>
+                            <span><t t-esc="g['faits']"/>/<t t-esc="g['total']"/></span></h3>
+                        <t t-foreach="g['jalons']" t-as="j">
+                            <div t-attf-class="j #{j.franchi and 'ok' or ''}">
+                                <div class="coche"><t t-if="j.franchi">✓</t></div>
+                                <div class="c">
+                                    <div class="n"><t t-esc="j.name"/></div>
+                                    <div class="d" t-if="j.description"><t t-esc="j.description"/></div>
+                                    <div class="o" t-if="j.ou and not j.franchi">→ <t t-esc="j.ou"/></div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <p class="pied">
+                    Un jalon se gagne, il ne se coche pas : chacun se lit dans les
+                    données de la tour. S'il est franchi, c'est que la chose existe
+                    vraiment. Il n'y a ni points, ni classement — récompenser
+                    l'activité pousse à en produire pour rien.
+                </p>
+            </div>
+        </t>
+    </template>
+
+</odoo>

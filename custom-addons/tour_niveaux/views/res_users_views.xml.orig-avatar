@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_users_form_inherit_niveau" model="ir.ui.view">
+        <field name="name">res.users.form.niveau</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form" />
+        <field name="arch" type="xml">
+            <!-- Ajouter le bloc niveau dans la page Préférences, sous l'avatar -->
+            <xpath expr="//page[@name='preferences']//group[@name='avatar']" position="after">
+                <group string="Progression" name="niveau_group">
+                    <field name="niveau" widget="badge" readonly="not id"/>
+                    <field name="xp_total" string="XP total" readonly="not id"/>
+                    <field name="missions_terminees" string="Missions accomplies" readonly="not id"/>
+                    <field name="progression_pct" string="Progression" widget="progressbar" 
+                           readonly="not id"/>
+                    <field name="xp_dans_le_niveau" string="XP dans le niveau" invisible="not id"/>
+                    <field name="xp_prochain_niveau" string="XP nécessaire" invisible="not id"/>
+                </group>
+            </xpath>
+
+            <!-- Ajouter un bouton "Recalculer niveau" dans l'en-tête (admin) -->
+            <xpath expr="//header" position="inside">
+                <button name="action_recalculer_niveau" type="object"
+                        string="Recalculer niveaux"
+                        groups="base.group_system"
+                        confirm="Recalculer tous les niveaux ? Cette action va parcourir tous les utilisateurs."/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vue liste des utilisateurs avec colonne niveau -->
+    <record id="view_res_users_tree_inherit_niveau" model="ir.ui.view">
+        <field name="name">res.users.tree.niveau</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree" />
+        <field name="arch" type="xml">
+            <field name="login" position="after">
+                <field name="niveau" string="Niv." optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

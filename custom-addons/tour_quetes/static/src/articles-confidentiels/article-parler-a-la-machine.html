@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Parler à la machine — créer en disant ce qu'on veut — Tour de contrôle</title>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--texte:#e2e8f0;--doux:#94a3b8;--primaire:#3b82f6;--ok:#22c55e;--r:.6rem}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--texte);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.6}
+.tete{border-bottom:1px solid var(--surface2);background:rgba(2,8,23,.9)}
+.tete .wrap{max-width:1100px;margin:0 auto;padding:.7rem 1rem;display:flex;align-items:center;gap:1.5rem}
+.marque{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--texte);font-weight:700}
+.nav-tete{margin-left:auto;display:flex;gap:1rem}
+.nav-tete a{color:var(--doux);text-decoration:none;font-size:.88rem}
+.nav-tete a:hover{color:var(--texte)}
+article{max-width:720px;margin:2rem auto;padding:0 1rem 3rem}
+article h1{font-size:1.8rem;margin:.5rem 0 .1rem;line-height:1.25}
+article .meta{color:var(--doux);font-size:.85rem;margin-bottom:1.5rem}
+article p, article li{color:#cbd5e1;line-height:1.7;margin-bottom:.8rem}
+article h2{color:#7dd3fc;font-size:1.2rem;margin-top:1.8rem}
+article code{background:var(--surface);border:1px solid var(--surface2);border-radius:.3rem;padding:.1rem .4rem;font-size:.9em;color:#7dd3fc}
+article .note{background:var(--surface);border:1px solid var(--surface2);border-radius:.6rem;padding:1rem;font-size:.9rem;color:var(--doux)}
+</style>
+</head>
+<body>
+<header class="tete"><div class="wrap">
+  <a class="marque" href="/">Tour de contrôle</a>
+  <nav class="nav-tete">
+    <a href="/">Accueil</a>
+    <a href="/equipe.html">L'équipe</a>
+    <a href="/tout.html">La tour</a>
+    <a href="/articles.html">Articles</a>
+  </nav>
+</div></header>
+
+<article>
+  <p class="meta">Méthode · 02/08/2026</p>
+  <h1>Parler à la machine — créer en disant ce qu'on veut</h1>
+
+  <p>On a l'habitude de voir l'informatique comme un monde d'écran, de code, de
+  souris. La tour fait l'inverse : on dit ce qu'on veut, en français, et le
+  travail se fait — développement, sécurité, déploiement, surveillance. Pas de
+  magie : une équipe d'agents qui exécutent, et une discipline qui les tient.</p>
+
+  <h2>Un exemple, comme ça se passe</h2>
+  <p>Tu dis : <code>« crée une page d'accueil avec trois sections »</code>.</p>
+  <ol>
+    <li>L'ordre part dans un circuit — un workflow dont chaque étape a un
+    responsable.</li>
+    <li>L'agent concerné écrit le code, dans un dossier isolé.</li>
+    <li>Le tunnel de tests passe : la page répond, elle est saine, elle est
+    vérifiée.</li>
+    <li>Les garde-fous passent : aucune donnée confidentielle, aucun lien
+    privé, aucun secret.</li>
+    <li>La publication attend l'approbation, puis part en ligne — vérifiée
+    encore une fois.</li>
+  </ol>
+  <p>Rien ne sort sans passer. C'est ça, la différence avec « un robot qui
+  code » : ici, tout ce qui est produit traverse un contrôle.</p>
+
+  <h2>Et la sécurité, elle aussi à la parole</h2>
+  <p>« Vérifie les ports ouverts » → un agent scanne, liste, propose. « Prépare
+  un changement de port » → un plan, prêt à exécuter, sans rien casser. « Teste
+  les accès » → un cahier de tests se rejoue tout seul, chaque heure. La
+  sécurité n'est pas une option ajoutée après : elle est dans le flux.</p>
+
+  <h2>Ce que ça veut dire, concrètement</h2>
+  <ul>
+    <li><b>On crée à la voix</b> : l'outil traduit la phrase en travail réel.</li>
+    <li><b>On gouverne à la voix</b> : chaque agent a un périmètre écrit, chaque
+    action laisse une trace.</li>
+    <li><b>On teste à la voix</b> : « test » déclenche le contrôle puis le
+    re-contrôle — rien n'est supposé réparé.</li>
+  </ul>
+
+  <div class="note">Ce texte même, qui va paraître sur ce site, passe par les
+  mêmes garde-fous que tout le reste. Ce n'est pas une promesse : c'est la
+  procédure.</div>
+</article>
+</body>
+</html>

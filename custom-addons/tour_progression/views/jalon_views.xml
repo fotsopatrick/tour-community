@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_jalon_liste" model="ir.ui.view">
+        <field name="name">tour.jalon.liste</field>
+        <field name="model">tour.jalon</field>
+        <field name="arch" type="xml">
+            <list string="Jalons" decoration-success="franchi">
+                <field name="famille"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="ou"/>
+                <field name="valeur"/>
+                <field name="objectif"/>
+                <field name="franchi"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_jalon_page" model="ir.actions.act_url">
+        <field name="name">Ma progression</field>
+        <field name="url">/tour/progression</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_jalon" model="ir.actions.act_window">
+        <field name="name">Jalons</field>
+        <field name="res_model">tour.jalon</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_progression" name="Ma progression"
+              parent="tour_dashboard.menu_pilotage_piloter" sequence="5"
+              action="action_jalon_page"/>
+
+    <record id="cron_jalons" model="ir.cron">
+        <field name="name">Progression : relire les jalons</field>
+        <field name="model_id" ref="model_tour_jalon"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_mesurer()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

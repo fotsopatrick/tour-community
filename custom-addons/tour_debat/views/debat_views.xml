@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vue_debat_form" model="ir.ui.view">
+        <field name="name">debat.sujet.form</field>
+        <field name="model">debat.sujet</field>
+        <field name="arch" type="xml">
+            <form string="Débat">
+                <header>
+                    <button name="action_lancer" type="object" class="btn-primary"
+                            string="Demander leur avis" invisible="etat != 'brouillon'"
+                            confirm="Chaque agent consulté consomme une mission de l'atelier — un débat à quatre agents coûte quatre fois un échange. Ils répondent sans se lire entre eux. On lance ?"/>
+                    <button name="action_relever" type="object"
+                            string="Chercher les avis" invisible="etat != 'en_cours'"/>
+                    <field name="etat" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Faut-il facturer le stockage au-delà d'un seuil ?"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="membre_ids" widget="many2many_tags"
+                                   placeholder="Vide = tous ceux qui savent parler"
+                                   readonly="etat != 'brouillon'"/>
+                        </group>
+                        <group>
+                            <field name="nb_avis"/>
+                            <field name="nb_attendus"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="etat != 'brouillon'">
+                        Chacun répond depuis <b>son métier</b>, et <b>sans voir les
+                        autres</b> : un agent qui lit la réponse du précédent s'y
+                        aligne, et on obtient quatre variations d'un même avis en
+                        croyant avoir consulté quatre métiers.
+                        <br/>Victor, Jimmy et Tess ne participent pas : ils mesurent,
+                        ils n'ont pas d'avis.
+                    </div>
+                    <separator string="Ce qu'ils doivent savoir"/>
+                    <field name="contexte"
+                           placeholder="Ce que vous savez déjà et qui leur éviterait de le redécouvrir."
+                           readonly="etat != 'brouillon'"/>
+                    <separator string="Les avis"/>
+                    <field name="avis_ids" readonly="1">
+                        <list>
+                            <field name="membre_id"/>
+                            <field name="reponse"/>
+                            <field name="retenu" widget="boolean_toggle" readonly="0"/>
+                        </list>
+                        <form>
+                            <group>
+                                <field name="membre_id" readonly="1"/>
+                                <field name="mission_id" readonly="1"/>
+                                <field name="retenu"/>
+                            </group>
+                            <separator string="Son avis"/>
+                            <field name="reponse" readonly="1"/>
+                        </form>
+                    </field>
+                    <separator string="Ce qu'on en retient"/>
+                    <field name="synthese"
+                           placeholder="Votre conclusion, après lecture. Un débat sans conclusion écrite se rejoue à l'identique trois semaines plus tard."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vue_debat_liste" model="ir.ui.view">
+        <field name="name">debat.sujet.liste</field>
+        <field name="model">debat.sujet</field>
+        <field name="arch" type="xml">
+            <list string="Débats" decoration-success="etat == 'rendu'">
+                <field name="create_date"/>
+                <field name="name"/>
+                <field name="membre_ids" widget="many2many_tags"/>
+                <field name="nb_avis"/>
+                <field name="nb_attendus"/>
+                <field name="etat" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_debat" model="ir.actions.act_window">
+        <field name="name">Débats</field>
+        <field name="res_model">debat.sujet</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucun débat.</p>
+            <p>Posez une question à un agent, ou à toute l'équipe. Chacun répond
+               depuis son métier — c'est l'angle qu'il apporte qui compte.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_debat" name="Débats de l'équipe"
+              parent="tour_dashboard.menu_pilotage_equipe" sequence="6"
+              action="action_debat"/>
+
+    <record id="cron_debat" model="ir.cron">
+        <field name="name">Débats : ramener les avis</field>
+        <field name="model_id" ref="model_debat_sujet"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_relever()</field>
+        <field name="interval_number">2</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

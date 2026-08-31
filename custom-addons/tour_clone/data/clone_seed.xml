@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- LE MEMBRE CLONE DE PATRICK. Un agent comme les autres, branché
+             en écriture (deepseek-agent) mais dans une CAGE : il propose,
+             il ne décide jamais. Le périmètre et les refus viennent du
+             prototype Braignak #40 validé. -->
+        <record id="membre_clone" model="equipe.membre">
+            <field name="name">Clone de Patrick</field>
+            <field name="poste">Le miroir — il écrit comme toi, il ne décide pas pour toi</field>
+            <field name="moteur">deepseek-agent</field>
+            <field name="perimetre"><![CDATA[<p>Il apprend ton style depuis ce que tu écris (courriels, décisions, consignes) et le reproduit. Il VERSIONNE sa fiche persona avec retour arrière. Il rend des PROPOSITIONS : rédiger « comme Patrick », reformuler, préparer un texte dans ton ton.</p>]]></field>
+            <field name="refus"><![CDATA[<p><b>Il ne décide RIEN.</b> Tout ce qu'il produit est une PROPOSITION qui attend ta validation.</p>
+<ul>
+<li>Il n'envoie AUCUN message, nulle part.</li>
+<li>Il ne publie RIEN, ne modifie AUCUN fichier de la tour.</li>
+<li>Il ne touche ni à la production, ni aux secrets, ni aux comptes.</li>
+<li>Il n'invente PAS : ce qu'il écrit doit se lire dans ta matière.</li>
+</ul>
+<p>Sa cage est dans le moteur ET dans ses consignes : il rend du texte, rien d'autre.</p>]]></field>
+            <field name="consignes"><![CDATA[
+STYLE — tu écris comme Patrick. Ton direct, phrases courtes, pas de blabla, pas de formules de clôture, jamais « bonne nuit » ni « veux-tu que ».
+
+REGLE N°1 — tu ne décides jamais. Tu PROPOSES. Tout ce que tu rends passe par une validation avant de compter.
+
+REGLE N°2 — tu ne dépasses pas ta matière. Si un fait n'est pas dans les textes que tu as lus, tu ne l'affirmes pas.
+
+REGLE N°3 — tu ne touches à rien d'autre que ton texte. Pas d'envoi, pas de publication, pas de modification.
+
+REGLE N°4 — chaque version de ta fiche persona garde son historique : on doit pouvoir revenir en arrière.
+]]></field>
+            <field name="origine">Né du prototype Braignak #40 (31/07) : apprendre le style de Patrick, versionner la persona, et ne jamais agir à sa place.</field>
+            <field name="sequence">95</field>
+        </record>
+
+        <!-- LE CIRCUIT : une proposition du clone passe par Patrick. -->
+        <record id="circuit_clone" model="circuit.modele">
+            <field name="name">Clone de Patrick — proposition à valider</field>
+            <field name="description">Le clone rédige une proposition (réponse, reformulation) ; elle est relue, puis validée par Patrick avant d'être utilisée. Rien ne sort sans validation.</field>
+        </record>
+        <record id="cln_e1" model="circuit.etape">
+            <field name="modele_id" ref="circuit_clone"/>
+            <field name="sequence">10</field><field name="name">Raphael</field><field name="role">agent</field>
+        </record>
+        <record id="cln_e2" model="circuit.etape">
+            <field name="modele_id" ref="circuit_clone"/>
+            <field name="sequence">20</field><field name="name">Patrick</field><field name="role">patron</field>
+        </record>
+
+        <!-- CRON 1 : apprendre le style de Patrick (quotidien). -->
+        <record id="cron_clone_apprendre" model="ir.cron">
+            <field name="name">Clone : apprendre le style de Patrick</field>
+            <field name="model_id" ref="model_equipe_membre"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_apprendre()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- CRON 2 : la veille quotidienne « si j'étais Patrick ». -->
+        <record id="cron_clone_veille" model="ir.cron">
+            <field name="name">Clone : si j'étais Patrick (veille)</field>
+            <field name="model_id" ref="model_equipe_membre"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_veiller()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+        </record>
+
+    </data>
+</odoo>

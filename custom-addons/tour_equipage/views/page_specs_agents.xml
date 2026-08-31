@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- GALERIE DES SPECS DES AGENTS — webapp au style de la tour, moteur 2D
+         maison (le même que le Royaume / le Duel / le Donjon). Patrick choisit
+         un agent parmi des cartes-avatars, l'ouvre, et voit/modifie tous ses
+         points. ADMIN seulement. Créée le 05/08 à la demande de Patrick. -->
+    <template id="page_specs_agents" name="Les agents — galerie des specs">
+        <t t-call="web.layout">
+            <t t-set="html_data" t-value="{'lang': 'fr-FR'}"/>
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>Les agents — specs</title>
+                <style>
+                    body { background:var(--fond); color:var(--texte); margin:0;
+                           font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+                    .wrap { max-width:980px; margin:0 auto; padding:26px 16px 64px; }
+                    .tete h1 { font-size:1.9rem; margin:0 0 6px; letter-spacing:-.02em; }
+                    .tete p { color:var(--doux); margin:0; line-height:1.55; }
+                    .tete .jp { color:var(--primaire); font-size:1.05rem; }
+                    .note { background:var(--surface); border-left:3px solid var(--primaire);
+                            border-radius:.5rem; padding:12px 16px; margin:18px 0 24px;
+                            color:var(--texte); font-size:.9rem; line-height:1.6; }
+                    a.ret { color:var(--primaire); text-decoration:none; font-size:.88rem; }
+
+                    /* ---- la grille de cartes-avatars ---- */
+                    .grille { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+                              gap:14px; }
+                    .carte { background:var(--surface); border:1px solid var(--surface2); border-radius:.6rem;
+                             padding:12px 10px 10px; text-align:center; cursor:pointer;
+                             position:relative; transition:.15s; }
+                    .carte:hover { border-color:var(--primaire); transform:translateY(-2px); }
+                    .carte.eteint { opacity:.45; }
+                    .carte canvas { display:block; margin:0 auto; }
+                    .carte .nom { font-weight:700; font-size:.95rem; margin-top:6px; }
+                    .carte .poste { color:var(--doux); font-size:.72rem; line-height:1.35;
+                                    min-height:2.2em; }
+                    .carte .niv { color:var(--primaire); font-size:.8rem; font-weight:600; margin-top:4px; }
+                    .carte .xp { color:var(--doux); font-size:.7rem; }
+                    .badge-eteint { position:absolute; top:6px; right:8px; color:#ef4444;
+                                    font-size:.66rem; font-weight:700; text-transform:uppercase; }
+
+                    /* ---- la fiche éditable ---- */
+                    .fiche { display:none; background:var(--surface); border:1px solid var(--surface2);
+                             border-radius:.6rem; padding:20px; margin-top:8px; }
+                    .fiche.sur { display:block; }
+                    .f-tete { display:flex; gap:14px; align-items:center; flex-wrap:wrap;
+                              margin-bottom:14px; }
+                    .f-emb { font-size:2.6rem; line-height:1; }
+                    .f-id { flex:1 1 200px; }
+                    .f-id h2 { margin:0; font-size:1.3rem; }
+                    .f-id .f-poste { color:var(--doux); font-size:.9rem; }
+                    .f-niv { text-align:right; color:var(--primaire); font-weight:700; font-size:1.2rem; }
+                    label { display:block; font-size:.72rem; text-transform:uppercase;
+                            letter-spacing:.08em; color:var(--doux); margin:14px 0 6px;
+                            font-weight:600; }
+                    textarea, input[type=text] { width:100%; box-sizing:border-box;
+                            background:var(--fond); color:var(--texte); border:1px solid var(--surface2);
+                            border-radius:.45rem; padding:10px; font:inherit; font-size:.9rem;
+                            line-height:1.5; }
+                    textarea { min-height:70px; resize:vertical; font-family:ui-monospace,Menlo,monospace; }
+                    .grp-btn { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+                    .btn { border:0; border-radius:.5rem; padding:11px 18px; font:inherit;
+                           font-weight:700; cursor:pointer; }
+                    .btn.sauver { background:var(--primaire); color:#fff; }
+                    .btn.sauver:hover { background:#2563eb; }
+                    .btn.retour { background:var(--surface2); color:var(--texte); }
+                    .btn.retour:hover { background:#334155; }
+                    .flux { color:var(--doux); font-size:.78rem; margin-top:8px; display:none; }
+                    .flux.ok { color:var(--ok); display:block; }
+                </style>
+<style>
+:root{--fond:#020817;--surface:#0f172a;--surface2:#1e293b;--primaire:#3b82f6;--texte:#e2e8f0;--doux:#94a3b8;--alerte:#f59e0b;--ok:#22c55e;--r:.5rem;}
+:root[data-theme="light"]{--fond:#EAEEF2;--surface:#FFFFFF;--surface2:#DDE4EB;--primaire:#2F6FB0;--texte:#14202B;--doux:#5C6B7A;--alerte:#B5651D;--ok:#1F8A46;--r:.5rem;}
+</style>
+<script>
+(function(){var k="tour-theme",r=document.documentElement;try{var s=localStorage.getItem(k);if(s==="light"||s==="dark"){r.setAttribute("data-theme",s);}else{r.setAttribute("data-theme","light");}}catch(e){}var b=document.getElementById("themebtn");if(b){b.addEventListener("click",function(){var c=r.getAttribute("data-theme");if(!c){c="light";}var n=c==="dark"?"light":"dark";r.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}});}})();
+</script>
+
+            </t>
+                <div class="wrap">
+                    <div class="tete">
+                        <a class="ret" href="/tour/equipe">← Retour à l'équipe</a>
+                        <h1>Les agents</h1>
+                        <p>Choisis qui tu veux voir ou modifier. Chaque agent est une carte :
+                        clique dessus pour lire sa spec et la redessiner à ta main.</p>
+                        <div class="jp">Nakama — 仲間 · le royaume</div>
+                    </div>
+
+                    <div class="note">
+                        Ce que tu changes ici est le « cerveau » de l'agent (sa spec : poste,
+                        périmètre, refus, consignes, exemples). Le niveau et l'XP ne se
+                        saisissent pas — ils se gagnent (calculés). Modifie avec soin.
+                    </div>
+
+                    <!-- galerie -->
+                    <div class="grille" t-attf-id="grille">
+                        <t t-foreach="agents" t-as="a">
+                            <div t-attf-class="carte #{'eteint' if a['eteint'] else ''}"
+                                 t-attf-data-id="#{a['id']}"
+                                 t-att-data-nom="a['name']">
+                                <t t-if="not a['active']"><span class="badge-eteint">éteint</span></t>
+                                <canvas t-attf-width="120" t-attf-height="120"
+                                        t-attf-id="cav-#{a['id']}" class="cav"></canvas>
+                                <div class="nom" t-esc="a['name']"/>
+                                <div class="poste" t-esc="a['poste']"/>
+                                <div class="niv"><t t-esc="'Niv. %s · %s' % (a['niveau'], a['titre'])"/></div>
+                                <div class="xp"><t t-esc="'%s XP' % a['xp']"/></div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- fiche (un seul, rempli au clic) -->
+                    <div class="fiche" id="fiche">
+                        <form t-attf-method="post" t-attf-action="">
+                            <div class="f-tete">
+                                <span class="f-emb" id="f-emb"></span>
+                                <div class="f-id">
+                                    <h2 id="f-nom"></h2>
+                                    <div class="f-poste" id="f-poste-txt"></div>
+                                </div>
+                                <div class="f-niv" id="f-niv"></div>
+                            </div>
+
+                            <label>Poste</label>
+                            <input type="text" name="poste" id="f-poste"/>
+
+                            <label>Périmètre — ce qu'il fait (spec)</label>
+                            <textarea name="perimetre" id="f-perimetre"></textarea>
+
+                            <label>Refus — ce qu'il ne fait pas</label>
+                            <textarea name="refus" id="f-refus"></textarea>
+
+                            <label>Consignes permanentes (le préambule du chat)</label>
+                            <textarea name="consignes" id="f-consignes"></textarea>
+
+                            <label>Exemples de demandes qui relèvent de lui</label>
+                            <textarea name="exemples" id="f-exemples"></textarea>
+
+                            <div class="grp-btn">
+                                <button type="submit" class="btn sauver">Enregistrer les specs</button>
+                                <button type="button" class="btn retour" onclick="closeFiche()">
+                                    Fermer sans enregistrer</button>
+                            </div>
+                            <div class="flux" id="flux"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <script>
+var AGENTS = <t t-raw="agents_json"/>;
+var cav = null, cavCtx = null;
+
+/* Le petit personnage 2D du moteur tour (royaume/duel) : corps + emblème. */
+/* Un canvas ne comprend pas « var(--x) » : il faut lui donner une vraie
+   couleur. On lit donc la variable dans la feuille de style, avec un repli
+   si elle n existe pas. (11/08 : sans ca, addColorStop levait une exception
+   et AUCUN avatar n etait dessine.) */
+function cssCouleur(nom, repli) {
+    try {
+        var v = getComputedStyle(document.documentElement)
+                    .getPropertyValue(nom);
+        v = (v || "").trim();
+        return v || repli;
+    } catch (e) { return repli; }
+}
+
+function dessineAvatar(ctx, embleme, couleur) {
+    var b = 0, h = 0;
+    ctx.clearRect(0, 0, 120, 120);
+    var g = ctx.createLinearGradient(0, 0, 0, 120);
+    g.addColorStop(0, cssCouleur("--surface", "#0f172a")); g.addColorStop(1, "#020817");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 120, 120);
+    // ombre/sol
+    ctx.fillStyle = "rgba(59,130,246,.15)";
+    ctx.beginPath(); ctx.ellipse(60, 96, 26, 6, 0, 0, 6.283); ctx.fill();
+    // jambes
+    ctx.fillStyle = "#1c2438"; ctx.fillRect(50, 84, 7, 9); ctx.fillRect(63, 84, 7, 9);
+    // corps
+    ctx.fillStyle = couleur; ctx.beginPath(); ctx.roundRect(43, 66, 34, 20, 5); ctx.fill();
+    // bras
+    ctx.fillStyle = couleur; ctx.fillRect(41, 70, 6, 12); ctx.fillRect(73, 70, 6, 12);
+    // tête
+    ctx.fillStyle = "#f2c79b"; ctx.beginPath(); ctx.roundRect(49, 48, 22, 20, 6); ctx.fill();
+    // cheveux / couvre-chef
+    ctx.fillStyle = couleur; ctx.beginPath(); ctx.roundRect(49, 44, 22, 8, 4); ctx.fill();
+    // emblème au-dessus
+    ctx.fillStyle = cssCouleur("--texte", "#e2e8f0"); ctx.font = "34px system-ui"; ctx.textAlign = "center";
+    ctx.fillText(embleme || "🛠️", 60, 34);
+    // halo
+    ctx.strokeStyle = "rgba(59,130,246,.5)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(60, 60, 42, 0, 6.283); ctx.stroke();
+}
+
+/* Construit la couleur d'un agent depuis son nom (stable) ou l'emblème. */
+function couleurAgent(nom) {
+    var palette = [cssCouleur("--primaire", "#3b82f6"), cssCouleur("--ok", "#22c55e"),
+                   cssCouleur("--alerte", "#f59e0b"), "#ef4444", "#a855f7",
+                   "#06b6d4", "#ec4899", "#84cc16"];
+    var s = 0; var n = (nom || "agent");
+    for (var i = 0; i &lt; n.length; i++) s = (s + n.charCodeAt(i)) % 997;
+    return palette[s % palette.length];
+}
+
+function initGalerie() {
+    AGENTS.forEach(function (a) {
+        var c = document.getElementById("cav-" + a.id);
+        if (!c) return;
+        var ctx = c.getContext("2d");
+        dessineAvatar(ctx, a.embleme, couleurAgent(a.name));
+    });
+}
+
+/* Ouvre la fiche d'un agent depuis la galerie. */
+function openFiche(id) {
+    var a = AGENTS.filter(function (x) { return String(x.id) === String(id); })[0];
+    if (!a) return;
+    document.getElementById("f-emb").textContent = a.embleme;
+    document.getElementById("f-nom").textContent = a.name;
+    document.getElementById("f-poste").value = a.poste || "";
+    document.getElementById("f-poste-txt").textContent = a.poste || "";
+    document.getElementById("f-perimetre").value = a.perimetre || "";
+    document.getElementById("f-refus").value = a.refus || "";
+    document.getElementById("f-consignes").value = a.consignes || "";
+    document.getElementById("f-exemples").value = a.exemples || "";
+    document.getElementById("f-niv").textContent = "Niv. " + a.niveau + " · " + a.xp + " XP";
+    document.getElementById("fiche").classList.add("sur");
+    document.getElementById("fiche").querySelector("form").action = "/tour/specs/" + a.id + "/sauver";
+    window.scrollTo({ top: 600, behavior: "smooth" });
+}
+function closeFiche() {
+    document.getElementById("fiche").classList.remove("sur");
+}
+document.addEventListener("DOMContentLoaded", function () {
+    initGalerie();
+    document.querySelectorAll(".carte").forEach(function (el) {
+        el.addEventListener("click", function () { openFiche(el.getAttribute("data-id")); });
+    });
+    document.getElementById("fiche").querySelector("form")
+        .addEventListener("submit", function () { return true; });
+});
+                </script>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Chacun ne voit et ne modifie QUE ses propres consignes : celles
+             d'un autre utilisateur pour le meme agent ne le regardent pas.
+             Deux regles de groupe, jamais une globale (elles se combinent en
+             OU, l'admin passe par la seconde). -->
+        <record id="rule_consigne_perso_proprietaire" model="ir.rule">
+            <field name="name">Mes consignes personnelles seulement</field>
+            <field name="model_id" ref="model_equipe_consigne_perso"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        <record id="rule_consigne_perso_admin" model="ir.rule">
+            <field name="name">L'administrateur voit toutes les consignes</field>
+            <field name="model_id" ref="model_equipe_consigne_perso"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+
+        <!-- Les faits d'armes de l'équipe sont internes.
+
+             Pas de champ de propriété ici : `membre_id` désigne un AGENT, pas
+             un utilisateur — aucun exploit n'« appartient » à un invité. On
+             ferme donc, au lieu de partager.
+
+             Le domaine [(0, '=', 1)] ne rend jamais rien. Il est posé sur le
+             GROUPE des utilisateurs internes, jamais en global : une règle
+             sans `groups` fermerait aussi la porte à l'administrateur, et
+             plus personne ne pourrait lire ses propres exploits. -->
+        <record id="rule_exploit_interne" model="ir.rule">
+            <field name="name">Faits d'armes : internes à la tour</field>
+            <field name="model_id" ref="model_equipe_exploit"/>
+            <field name="domain_force">[(0, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        <record id="rule_exploit_admin" model="ir.rule">
+            <field name="name">L'administrateur voit tous les faits d'armes</field>
+            <field name="model_id" ref="model_equipe_exploit"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        </record>
+    </data>
+</odoo>
